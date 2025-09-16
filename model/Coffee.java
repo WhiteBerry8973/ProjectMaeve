@@ -2,6 +2,6 @@ package model;
 
 public  interface Coffee {
     String getName();
-    double getPrice();
+    int getPrice();
     String getDescription();
 }
