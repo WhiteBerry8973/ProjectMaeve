@@ -1,0 +1,18 @@
+id,name,price_thb
+1,Espresso (Single),45
+2,Espresso (Double),55
+3,Espresso (Triple),55
+4,Americano (Hot),50
+5,Americano (Iced),60
+6,Latte (Hot),60
+7,Latte (Iced),70
+8,Cappuccino (Hot),60
+9,Cappuccino (Iced),70
+10,Mocha (Hot),65
+11,Mocha (Iced),75
+12,Caramel Macchiato (Hot),70
+13,Caramel Macchiato (Iced),80
+14,Vanilla Latte (Hot),65
+15,Vanilla Latte (Iced),75
+16,Hazelnut Latte (Hot),65
+17,Hazelnut Latte (Iced),75
