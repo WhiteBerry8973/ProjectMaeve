@@ -15,5 +15,10 @@ public class Americano implements Coffee {
     public String getDescription() {
         return "A smooth and rich espresso diluted with hot water.";
     }
+
+    @Override
+    public String getImagePath() {
+        return "Imgs/americano.png";
+    }
     
 }

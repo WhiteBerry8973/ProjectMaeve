@@ -16,4 +16,8 @@ public class Espresso implements Coffee {
         return "Strong and bold espresso shot.";
     }
     
+    @Override
+    public String getImagePath() {
+        return "Imgs/espresso.png";
+    }
 }

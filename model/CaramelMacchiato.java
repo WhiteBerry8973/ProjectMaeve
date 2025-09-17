@@ -16,5 +16,8 @@ public class CaramelMacchiato implements Coffee {
         return "A delightful blend of espresso, steamed milk, vanilla syrup, and caramel drizzle.";
     }
 
-    
+    @Override
+    public String getImagePath() {
+        return "Imgs/caramel_macchiato.png";
+    }
 }

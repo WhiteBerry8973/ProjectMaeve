@@ -16,4 +16,8 @@ public class Cappuccino implements Coffee {
         return "A classic cappuccino with a perfect balance of espresso, steamed milk, and froth.";
     }
     
+    @Override
+    public String getImagePath() {
+        return "Imgs/cappuccino.png";
+    }
 }

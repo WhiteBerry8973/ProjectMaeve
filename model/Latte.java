@@ -16,4 +16,8 @@ public class Latte implements Coffee {
         return "A creamy blend of espresso and steamed milk.";
     }
     
+    @Override
+    public String getImagePath() {
+        return "Imgs/latte.png";
+    }
 }

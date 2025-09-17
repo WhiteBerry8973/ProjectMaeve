@@ -16,4 +16,8 @@ public class ColdBrew implements Coffee {
         return "Smooth and refreshing cold brew coffee.";
     }
     
+    @Override
+    public String getImagePath() {
+        return "Imgs/cold_brew.png";
+    }
 }

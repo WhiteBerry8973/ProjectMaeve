@@ -16,4 +16,8 @@ public class Mocha implements Coffee {
         return "A delightful blend of espresso, steamed milk, and chocolate syrup.";
     }
     
+    @Override
+    public String getImagePath() {
+        return "Imgs/mocha.png";
+    }
 }
