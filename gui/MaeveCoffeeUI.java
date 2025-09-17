@@ -1,7 +1,4 @@
 package gui;
-// File: MaeveCoffeeUI.java
-// Compile: javac MaeveCoffeeUI.java
-// Run:     java MaeveCoffeeUI
 
 import java.awt.*;
 import java.awt.event.*;
@@ -13,39 +10,40 @@ import java.util.Set;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import model.*;
 
 /**
  * Maeve Coffee UI (single file, BorderLayout + EmptyBorder)
  *
- * สิ่งที่ทำตามสเปคล่าสุด:
- * - ใช้ BorderLayout + EmptyBorder คุมระยะทั้งหมด
- * - หน้า MENU:
- *    • กรอบมน (content) ห่างจากขอบ JFrame ซ้าย/ขวา/ล่าง = 20px และห่างจากหัว "MAEVE COFFEE" = 30px
- *    • ปุ่มกาแฟ สี่เหลี่ยมจัตุรัส, ข้อความอยู่ใต้รูป, ไม่ยืดรูป
- *    • ปุ่ม NEXT ไม่มีเส้นขอบ, hover = #1e1e1e, ห่างจากกริด 5px
- * - หน้า MENU2: เหมือนหน้าแรก + มี PREVIOUS (hover = #d9d9d9)
- * - หน้า ADDON:
- *    • กรอบมนเหมือนหน้า MENU
- *    • ปุ่ม Confirm/Cancel อยู่ในแถบล่าง ห่างจาก content 10px และห่างจากขอบล่าง JFrame 20px
- *    • ยังไม่เลือก topping + sweetness → ปุ่ม Confirm เป็นสีดำ (เหมือน Cancel) และ disabled
- *      เลือกครบแล้ว → Confirm เปลี่ยนเป็น #d9d9d9 และ enabled
- * - หน้า PAYMENT:
- *    • เพิ่มหัวข้อ "PAYMENT" ด้านบน
- *    • กรอบมน/ระยะห่างเหมือน ADDON
- *    • ปุ่มวิธีชำระเงินเป็นสี่เหลี่ยมจัตุรัส
- *    • ยังไม่เลือก payment method + currency → Confirm ดำ/disabled; เลือกครบแล้ว → #d9d9d9/enabled
- * - ขอบ gradient ทั้งหมดให้สีล่างขึ้นมาถึง 70% ของความสูง (h*0.7)
- * - ยังคงสไตล์, สี และ interaction อื่น ๆ ตามเวอร์ชันก่อนหน้า
+ * Color Code:
+ * - Background: #1e1e1e
+ * - Title:      #d9d9d9
+ * - Panel:      #2a2a2a (border gradient #333333 -> #2a2a2a)
+ * - Item:       #333333 (border gradient #504e4e -> #333333)
+ * - Selected:   #1e1e1e
+ * - Primary:    #d9d9d9 (text #1e1e1e)
+ * - Hover Primary:   #1e1e1e
+ * - Secondary:  #333333 (border gradient #504e4e -> #333333, text #d9d9d9)
+ * - Hover Secondary: #d9d9d9 (text #1e1e1e)
+ * - Disabled:   #333333 (text #d9d9d9)
+ * - Hover Primary:   #1e1e1e
+ * 
  */
 public class MaeveCoffeeUI {
 
-    // ======= ใช้ placeholder ทั้งหมดเป็น "americano.png" ตามที่ขอ =======
-    private static final String imagePath_menu1_item1 = "gui/americano.png";
-    private static final String imagePath_menu1_item2 = "gui/americano.png";
-    private static final String imagePath_menu1_item3 = "gui/americano.png";
-    private static final String imagePath_menu1_item4 = "gui/americano.png";
+    // COFFEE LIST
+    Coffee americano = new Americano();
+    Coffee espresso = new Espresso();
+    Coffee cappuccino = new Cappuccino();
+    Coffee latte = new Latte();
+    Coffee iceMocha = new Mocha();
 
-    private static final String imagePath_menu2_item1 = "gui/americano.png";
+    private final String imagePath_menu1_item1 = americano.getImagePath();
+    private final String imagePath_menu1_item2 = espresso.getImagePath();
+    private final String imagePath_menu1_item3 = cappuccino.getImagePath();
+    private final String imagePath_menu1_item4 = latte.getImagePath();
+
+    private final String imagePath_menu2_item1 = iceMocha.getImagePath();
     private static final String imagePath_menu2_item2 = "gui/americano.png";
 
     private static final String imagePath_topping1 = "gui/americano.png";
@@ -58,58 +56,72 @@ public class MaeveCoffeeUI {
     private static final String imagePath_payment_card   = "gui/americano.png";
     private static final String imagePath_payment_paypal = "gui/americano.png";
 
-    // ======= Theme Colors =======
+    // ======= Colors =======
     private static final Color BG                = hex("#1e1e1e");
     private static final Color TITLE             = hex("#d9d9d9");
 
-    // PANEL: พื้นทึบ + เส้นขอบ gradient (บน->ล่าง)
+    // PANEL:
     private static final Color PANEL_FILL        = hex("#2a2a2a");
     private static final Color PANEL_BORDER_TOP  = hex("#333333");
     private static final Color PANEL_BORDER_BOT  = hex("#2a2a2a");
 
-    // ปุ่มไอเทม (กาแฟ/ท็อปปิ้ง/วิธีจ่าย/สกุลเงิน) : พื้นทึบ + เส้นขอบ gradient (บน->ล่าง)
+    // ITEM:
     private static final Color ITEM_FILL         = hex("#333333");
     private static final Color ITEM_BORDER_TOP   = hex("#504e4e");
     private static final Color ITEM_BORDER_BOT   = hex("#333333");
 
-    // hover/selected
+    // HOVER/SELECTED:
     private static final Color SEL_FILL          = hex("#1e1e1e");
 
-    // ปุ่มหลัก (Next/Confirm) : ไม่มีเส้นขอบ
+    // PRIMARY (NEXT/CONFIRM)
     private static final Color PRIMARY_FILL      = hex("#d9d9d9");
     private static final Color PRIMARY_TEXT      = hex("#1e1e1e");
 
-    // ปุ่มรอง (Previous/Cancel) : พื้นทึบ + เส้นขอบ gradient ซ้าย->ขวา
+    // SECONDARY (PREVIOUS/CANCEL)
     private static final Color SECONDARY_FILL    = hex("#333333");
     private static final Color SECONDARY_TEXT    = TITLE;
     private static final Color SECONDARY_LEFT    = hex("#504e4e");
     private static final Color SECONDARY_RIGHT   = hex("#333333");
 
     private static final int  ARC            = 18;
-    private static final float BORDER_STROKE = 3f;
+    private static final float BORDER_STROKE = 2f;
 
-    // ขนาด "สี่เหลี่ยมจัตุรัส"
+    // SQUARE
     private static final int SQUARE_ITEM    = 140; // menu
-    private static final int SQUARE_TOPPING = 96;  // toppings
+    private static final int SQUARE_TOPPING = 96;  // addon
     private static final int SQUARE_PM      = 120; // payment methods
 
     private JFrame frame;
     private CardLayout cardLayout;
     private JPanel cards;
 
-    // states (ไว้ reset + enable/disable confirm)
+    // Enable/Disable Confirm
     private final Set<JToggleButton> toppingButtons        = new HashSet<>();
     private final Set<JToggleButton> sweetnessButtons      = new HashSet<>();
     private final Set<JToggleButton> paymentMethodButtons  = new HashSet<>();
     private final Set<JToggleButton> currencyButtons       = new HashSet<>();
 
-    private final ButtonGroup sweetnessGroup = new ButtonGroup(); // single-choice
-    private final ButtonGroup paymentGroup   = new ButtonGroup(); // single-choice
-    private final ButtonGroup currencyGroup  = new ButtonGroup(); // single-choice
+    private final ButtonGroup sweetnessGroup = new ButtonGroup();
+    private final ButtonGroup paymentGroup   = new ButtonGroup();
+    private final ButtonGroup currencyGroup  = new ButtonGroup();
 
-    // ปุ่ม confirm (ต้องเอามาอัปเดต enable/disable + สี)
     private JButton addonConfirmBtn;
     private JButton paymentConfirmBtn;
+
+    private static RoundedButton.Orientation toRB(Orientation o) {
+    switch (o) {
+        case LEFT_RIGHT: return RoundedButton.Orientation.LEFT_RIGHT;
+        case RIGHT_LEFT: return RoundedButton.Orientation.RIGHT_LEFT;
+        default: return RoundedButton.Orientation.TOP_BOTTOM;
+        }
+    }
+    private static RoundedToggleButton.Orientation toRT(Orientation o) {
+        switch (o) {
+            case LEFT_RIGHT: return RoundedToggleButton.Orientation.LEFT_RIGHT;
+            case RIGHT_LEFT: return RoundedToggleButton.Orientation.RIGHT_LEFT;
+            default: return RoundedToggleButton.Orientation.TOP_BOTTOM;
+        }
+    }
 
 
     private void createAndShowGUI() {
@@ -135,38 +147,36 @@ public class MaeveCoffeeUI {
 
     // ============================ Pages ============================
 
-    private JPanel buildMenuPage1() {
+        private JPanel buildMenuPage1() {
         JPanel page = createHeaderOnlyPage("MAEVE COFFEE");
 
-        // wrapper คุม "ช่องว่างจากหัว 30px" และ "ซ้าย/ขวา/ล่าง 20px"
         JPanel contentMargin = new JPanel(new BorderLayout());
         contentMargin.setOpaque(false);
-        contentMargin.setBorder(new EmptyBorder(30, 20, 20, 20)); // top, left, bottom, right
+        contentMargin.setBorder(new EmptyBorder(30, 20, 20, 20));
 
-        RoundedBorderPanel content = new RoundedBorderPanel(
-                PANEL_FILL, ARC, BORDER_STROKE, PANEL_BORDER_TOP, PANEL_BORDER_BOT, Orientation.TOP_BOTTOM);
+        RoundedBorderPanel content = new RoundedBorderPanel(PANEL_FILL, ARC, BORDER_STROKE, PANEL_BORDER_TOP, PANEL_BORDER_BOT, Orientation.TOP_BOTTOM);
         content.setOpaque(false);
         content.setLayout(new BorderLayout());
-        // ระยะในกล่อง (หายใจ): เบาๆ
         content.setBorder(new EmptyBorder(18, 18, 18, 18));
-
         content.add(makeTitle("MENU", 36), BorderLayout.NORTH);
 
+        // ====== เมนู 4 ปุ่ม ใช้ RoundedButton ผ่าน makeMenuSquare ======
         JPanel grid = new JPanel(new GridLayout(2, 2, 18, 18));
         grid.setOpaque(false);
-        grid.add(makeMenuSquare(imagePath_menu1_item1, "Americano",     SQUARE_ITEM, () -> show("ADDON")));
-        grid.add(makeMenuSquare(imagePath_menu1_item2, "Espresso Shot", SQUARE_ITEM, () -> show("ADDON")));
-        grid.add(makeMenuSquare(imagePath_menu1_item3, "Caramel Coffee",SQUARE_ITEM, () -> show("ADDON")));
-        grid.add(makeMenuSquare(imagePath_menu1_item4, "Ginseng Coffee",SQUARE_ITEM, () -> show("ADDON")));
+        grid.add(makeMenuSquare(imagePath_menu1_item1, americano.getName(), SQUARE_ITEM, () -> show("ADDON")));
+        grid.add(makeMenuSquare(imagePath_menu1_item2, espresso.getName(),  SQUARE_ITEM, () -> show("ADDON")));
+        grid.add(makeMenuSquare(imagePath_menu1_item3, cappuccino.getName(),SQUARE_ITEM, () -> show("ADDON")));
+        grid.add(makeMenuSquare(imagePath_menu1_item4, latte.getName(),     SQUARE_ITEM, () -> show("ADDON")));
         content.add(grid, BorderLayout.CENTER);
 
-        // ปุ่ม NEXT: ห่างจากกริด 5px (ระยะด้านบนของแท่งปุ่ม)
+        // ====== ปุ่ม NEXT ใช้ RoundedButton ผ่าน makePrimaryButton ======
         JPanel bottomBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         bottomBar.setOpaque(false);
-        bottomBar.setBorder(new EmptyBorder(5, 0, 0, 0)); // 5px เหนือปุ่ม
+        bottomBar.setBorder(new EmptyBorder(5, 0, 0, 0));
         JButton next = makePrimaryButton("NEXT", 120, 40);
         next.addActionListener(e -> show("MENU2"));
         bottomBar.add(next);
+
         content.add(bottomBar, BorderLayout.SOUTH);
 
         contentMargin.add(content, BorderLayout.CENTER);
@@ -174,15 +184,15 @@ public class MaeveCoffeeUI {
         return page;
     }
 
+
     private JPanel buildMenuPage2() {
         JPanel page = createHeaderOnlyPage("MAEVE COFFEE");
 
         JPanel contentMargin = new JPanel(new BorderLayout());
         contentMargin.setOpaque(false);
-        contentMargin.setBorder(new EmptyBorder(30, 20, 20, 20)); // top, left, bottom, right
+        contentMargin.setBorder(new EmptyBorder(30, 20, 20, 20));
 
-        RoundedBorderPanel content = new RoundedBorderPanel(
-                PANEL_FILL, ARC, BORDER_STROKE, PANEL_BORDER_TOP, PANEL_BORDER_BOT, Orientation.TOP_BOTTOM);
+        RoundedBorderPanel content = new RoundedBorderPanel(PANEL_FILL, ARC, BORDER_STROKE, PANEL_BORDER_TOP, PANEL_BORDER_BOT, Orientation.TOP_BOTTOM);
         content.setOpaque(false);
         content.setLayout(new BorderLayout());
         content.setBorder(new EmptyBorder(18, 18, 18, 18));
@@ -199,22 +209,15 @@ public class MaeveCoffeeUI {
 
         JPanel bottom = new JPanel(new BorderLayout());
         bottom.setOpaque(false);
-        bottom.setBorder(new EmptyBorder(5, 0, 0, 0)); // ห่างกริด 5px
+        bottom.setBorder(new EmptyBorder(5, 0, 0, 0));
 
         JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         left.setOpaque(false);
-        JButton prev = makeSecondaryButton("PREVIOUS", 130, 40, Orientation.LEFT_RIGHT);
+        JButton prev = makePrimaryButton("PREVIOUS", 120, 40);
         prev.addActionListener(e -> show("MENU1"));
         left.add(prev);
 
-        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        right.setOpaque(false);
-        JButton next = makePrimaryButton("NEXT", 120, 40);
-        next.addActionListener(e -> show("MENU1")); // loop back
-        right.add(next);
-
         bottom.add(left, BorderLayout.WEST);
-        bottom.add(right, BorderLayout.EAST);
         content.add(bottom, BorderLayout.SOUTH);
 
         contentMargin.add(content, BorderLayout.CENTER);
@@ -223,179 +226,200 @@ public class MaeveCoffeeUI {
     }
 
     private JPanel buildAddonPage() {
-        JPanel page = createHeaderOnlyPage("ADDON");
+    JPanel page = createHeaderOnlyPage("ADDON");
 
-        // content ห่างหัว 30px และซ้าย/ขวา/ล่าง 20px
-        JPanel contentMargin = new JPanel(new BorderLayout());
-        contentMargin.setOpaque(false);
-        contentMargin.setBorder(new EmptyBorder(30, 20, 20, 20));
+    JPanel contentMargin = new JPanel(new BorderLayout());
+    contentMargin.setOpaque(false);
+    contentMargin.setBorder(new EmptyBorder(30, 20, 20, 20));
 
-        RoundedBorderPanel content = new RoundedBorderPanel(
-                PANEL_FILL, ARC, BORDER_STROKE, PANEL_BORDER_TOP, PANEL_BORDER_BOT, Orientation.TOP_BOTTOM);
-        content.setOpaque(false);
-        content.setLayout(new BorderLayout());
-        content.setBorder(new EmptyBorder(18, 18, 18, 18));
-        contentMargin.add(content, BorderLayout.CENTER);
+    RoundedBorderPanel content = new RoundedBorderPanel(PANEL_FILL, ARC, BORDER_STROKE, PANEL_BORDER_TOP, PANEL_BORDER_BOT, Orientation.TOP_BOTTOM);
+    content.setOpaque(false);
+    content.setLayout(new BorderLayout());
+    content.setBorder(new EmptyBorder(18, 18, 18, 18));
+    contentMargin.add(content, BorderLayout.CENTER);
 
-        content.add(makeTitle("TOPPINGS", 28), BorderLayout.NORTH);
+    // ===== TOPPINGS =====
+    content.add(makeTitle("TOPPINGS", 28), BorderLayout.NORTH);
 
-        JPanel grid = new JPanel(new GridLayout(2, 3, 18, 18));
-        grid.setOpaque(false);
-        JToggleButton t1 = makeImageSquareToggle(imagePath_topping1, SQUARE_TOPPING, Orientation.TOP_BOTTOM);
-        JToggleButton t2 = makeImageSquareToggle(imagePath_topping2, SQUARE_TOPPING, Orientation.TOP_BOTTOM);
-        JToggleButton t3 = makeImageSquareToggle(imagePath_topping3, SQUARE_TOPPING, Orientation.TOP_BOTTOM);
-        JToggleButton t4 = makeImageSquareToggle(imagePath_topping4, SQUARE_TOPPING, Orientation.TOP_BOTTOM);
-        JToggleButton t5 = makeImageSquareToggle(imagePath_topping5, SQUARE_TOPPING, Orientation.TOP_BOTTOM);
-        JToggleButton t6 = makeImageSquareToggle(imagePath_topping6, SQUARE_TOPPING, Orientation.TOP_BOTTOM);
-        toppingButtons.add(t1); toppingButtons.add(t2); toppingButtons.add(t3);
-        toppingButtons.add(t4); toppingButtons.add(t5); toppingButtons.add(t6);
-        grid.add(t1); grid.add(t2); grid.add(t3); grid.add(t4); grid.add(t5); grid.add(t6);
-        content.add(grid, BorderLayout.CENTER);
+    JPanel grid = new JPanel(new GridLayout(2, 3, 18, 18));
+    grid.setOpaque(false);
 
-        JPanel sweetWrap = new JPanel(new BorderLayout());
-        sweetWrap.setOpaque(false);
-        JLabel sTitle = makeTitle("SWEETNESS", 28);
-        sTitle.setBorder(new EmptyBorder(18, 0, 8, 0));
-        sweetWrap.add(sTitle, BorderLayout.NORTH);
+    JToggleButton t1 = makeImageSquareToggle(imagePath_topping1, SQUARE_TOPPING, Orientation.TOP_BOTTOM);
+    JToggleButton t2 = makeImageSquareToggle(imagePath_topping2, SQUARE_TOPPING, Orientation.TOP_BOTTOM);
+    JToggleButton t3 = makeImageSquareToggle(imagePath_topping3, SQUARE_TOPPING, Orientation.TOP_BOTTOM);
+    JToggleButton t4 = makeImageSquareToggle(imagePath_topping4, SQUARE_TOPPING, Orientation.TOP_BOTTOM);
+    JToggleButton t5 = makeImageSquareToggle(imagePath_topping5, SQUARE_TOPPING, Orientation.TOP_BOTTOM);
+    JToggleButton t6 = makeImageSquareToggle(imagePath_topping6, SQUARE_TOPPING, Orientation.TOP_BOTTOM);
 
-        JPanel sweetBtns = new JPanel(new FlowLayout(FlowLayout.CENTER, 16, 6));
-        sweetBtns.setOpaque(false);
-        JToggleButton s0   = makeTextToggle("0%",   76, 40, Orientation.TOP_BOTTOM);
-        JToggleButton s50  = makeTextToggle("50%",  76, 40, Orientation.TOP_BOTTOM);
-        JToggleButton s100 = makeTextToggle("100%", 76, 40, Orientation.TOP_BOTTOM);
-        JToggleButton s120 = makeTextToggle("120%", 76, 40, Orientation.TOP_BOTTOM);
+    toppingButtons.add(t1); toppingButtons.add(t2); toppingButtons.add(t3);
+    toppingButtons.add(t4); toppingButtons.add(t5); toppingButtons.add(t6);
 
-        sweetnessGroup.add(s0); sweetnessGroup.add(s50); sweetnessGroup.add(s100); sweetnessGroup.add(s120);
-        sweetnessButtons.add(s0); sweetnessButtons.add(s50); sweetnessButtons.add(s100); sweetnessButtons.add(s120);
+    grid.add(t1); grid.add(t2); grid.add(t3);
+    grid.add(t4); grid.add(t5); grid.add(t6);
 
-        sweetBtns.add(s0); sweetBtns.add(s50); sweetBtns.add(s100); sweetBtns.add(s120);
-        sweetWrap.add(sweetBtns, BorderLayout.CENTER);
-        content.add(sweetWrap, BorderLayout.SOUTH);
+    content.add(grid, BorderLayout.CENTER);
 
-        // แถบปุ่มล่าง: ห่าง content 10px และห่างขอบล่าง 20px
-        JPanel bottomBar = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
-        bottomBar.setOpaque(false);
-        bottomBar.setBorder(new EmptyBorder(10, 0, 20, 0));
+    // ===== SWEETNESS =====
+    JPanel sweetWrap = new JPanel(new BorderLayout());
+    sweetWrap.setOpaque(false);
+    JLabel sTitle = makeTitle("SWEETNESS", 28);
+    sTitle.setBorder(new EmptyBorder(18, 0, 8, 0));
+    sweetWrap.add(sTitle, BorderLayout.NORTH);
 
-        addonConfirmBtn = makePrimaryButton("CONFIRM", 150, 44);
-        addonConfirmBtn.setEnabled(false);
-        addonConfirmBtn.addActionListener(e ->{ 
+    JPanel sweetBtns = new JPanel(new FlowLayout(FlowLayout.CENTER, 16, 6));
+    sweetBtns.setOpaque(false);
+
+    JToggleButton s0   = makeTextToggle("0%",   76, 40, Orientation.LEFT_RIGHT);
+    JToggleButton s50  = makeTextToggle("50%",  76, 40, Orientation.TOP_BOTTOM);
+    JToggleButton s100 = makeTextToggle("100%", 76, 40, Orientation.TOP_BOTTOM);
+    JToggleButton s120 = makeTextToggle("120%", 76, 40, Orientation.RIGHT_LEFT);
+
+    sweetnessGroup.add(s0); sweetnessGroup.add(s50);
+    sweetnessGroup.add(s100); sweetnessGroup.add(s120);
+
+    sweetnessButtons.add(s0); sweetnessButtons.add(s50);
+    sweetnessButtons.add(s100); sweetnessButtons.add(s120);
+
+    sweetBtns.add(s0); sweetBtns.add(s50);
+    sweetBtns.add(s100); sweetBtns.add(s120);
+
+    sweetWrap.add(sweetBtns, BorderLayout.CENTER);
+    content.add(sweetWrap, BorderLayout.SOUTH);
+
+    // ===== BottomBar: CONFIRM + CANCEL =====
+    JPanel bottomBar = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+    bottomBar.setOpaque(false);
+    bottomBar.setBorder(new EmptyBorder(10, 0, 20, 0));
+
+    addonConfirmBtn = makeSecondaryButton("CONFIRM", 150, 44, Orientation.LEFT_RIGHT);
+    addonConfirmBtn.addActionListener(e -> {
+        boolean toppingSelected = toppingButtons.stream().anyMatch(AbstractButton::isSelected);
+        boolean sweetSelected   = sweetnessButtons.stream().anyMatch(AbstractButton::isSelected);
+        if (!(toppingSelected && sweetSelected)) {
+            JOptionPane.showMessageDialog(frame,
+                "Please select Topping and Sweetness completely",
+                "Incomplete Selection", JOptionPane.WARNING_MESSAGE);
+        } else {
             show("PAYMENT");
             resetAddonSelections();
-        });
+        }
+    });
+
+    JButton cancel = makeSecondaryButton("CANCEL", 150, 44, Orientation.RIGHT_LEFT);
+    cancel.addActionListener(e -> {
+        resetPaymentSelections();
+        resetAddonSelections();
+        updateAddonConfirmEnabled();
+        show("MENU1");
+    });
 
 
+    bottomBar.add(addonConfirmBtn);
+    bottomBar.add(cancel);
 
-        JButton cancel = makeSecondaryButton("CANCEL", 150, 44, Orientation.LEFT_RIGHT);
-        cancel.addActionListener(e -> {
-            resetPaymentSelections();
-            resetAddonSelections();
-            updateAddonConfirmEnabled();
-            show("MENU1");
-        });
+    // listener → เปิด/ปิดปุ่ม Confirm
+    ItemListener addonListener = e -> updateAddonConfirmEnabled();
+    toppingButtons.forEach(b -> b.addItemListener(addonListener));
+    sweetnessButtons.forEach(b -> b.addItemListener(addonListener));
 
-        bottomBar.add(addonConfirmBtn);
-        bottomBar.add(cancel);
+    page.add(contentMargin, BorderLayout.CENTER);
+    page.add(bottomBar, BorderLayout.SOUTH);
+    return page;
 
-        // listener เพื่ออัปเดตสถานะปุ่ม Confirm (+ repaint ให้สีเปลี่ยน)
-        ItemListener addonListener = e -> updateAddonConfirmEnabled();
-        toppingButtons.forEach(b -> b.addItemListener(addonListener));
-        sweetnessButtons.forEach(b -> b.addItemListener(addonListener));
-        
-
-        page.add(contentMargin, BorderLayout.CENTER);
-        page.add(bottomBar,      BorderLayout.SOUTH);
-        return page;
-    }
+}
 
     private JPanel buildPaymentPage() {
-        JPanel page = createHeaderOnlyPage("PAYMENT");
+    JPanel page = createHeaderOnlyPage("PAYMENT");
 
-        // content ห่างหัว 30px และซ้าย/ขวา/ล่าง 20px
-        JPanel contentMargin = new JPanel(new BorderLayout());
-        contentMargin.setOpaque(false);
-        contentMargin.setBorder(new EmptyBorder(30, 20, 20, 20));
+    JPanel contentMargin = new JPanel(new BorderLayout());
+    contentMargin.setOpaque(false);
+    contentMargin.setBorder(new EmptyBorder(30, 20, 20, 20));
 
-        RoundedBorderPanel content = new RoundedBorderPanel(
-                PANEL_FILL, ARC, BORDER_STROKE, PANEL_BORDER_TOP, PANEL_BORDER_BOT, Orientation.TOP_BOTTOM);
-        content.setOpaque(false);
-        content.setLayout(new BorderLayout());
-        content.setBorder(new EmptyBorder(18, 18, 18, 18));
-        contentMargin.add(content, BorderLayout.CENTER);
+    RoundedBorderPanel content = new RoundedBorderPanel(PANEL_FILL, ARC, BORDER_STROKE, PANEL_BORDER_TOP, PANEL_BORDER_BOT, Orientation.TOP_BOTTOM);
+    content.setOpaque(false);
+    content.setLayout(new BorderLayout());
+    content.setBorder(new EmptyBorder(18, 18, 18, 18));
+    contentMargin.add(content, BorderLayout.CENTER);
 
-        content.add(makeTitle("PAYMENT METHOD", 28), BorderLayout.NORTH);
+    // ===== PAYMENT METHODS =====
+    content.add(makeTitle("PAYMENT METHOD", 28), BorderLayout.NORTH);
 
-        JPanel pmGrid = new JPanel(new GridLayout(2, 2, 18, 18));
-        pmGrid.setOpaque(false);
-        JToggleButton pm1 = makeImageSquareRadio(imagePath_payment_card,   SQUARE_PM, Orientation.TOP_BOTTOM, paymentGroup);
-        JToggleButton pm2 = makeImageSquareRadio(imagePath_payment_paypal, SQUARE_PM, Orientation.TOP_BOTTOM, paymentGroup);
-        JToggleButton pm3 = makeImageSquareRadio(null, SQUARE_PM, Orientation.TOP_BOTTOM, paymentGroup);
-        JToggleButton pm4 = makeImageSquareRadio(null, SQUARE_PM, Orientation.TOP_BOTTOM, paymentGroup);
-        paymentMethodButtons.add(pm1); paymentMethodButtons.add(pm2); paymentMethodButtons.add(pm3); paymentMethodButtons.add(pm4);
-        pmGrid.add(pm1); pmGrid.add(pm2); pmGrid.add(pm3); pmGrid.add(pm4);
-        content.add(pmGrid, BorderLayout.CENTER);
+    JPanel pmGrid = new JPanel(new GridLayout(2, 2, 18, 18));
+    pmGrid.setOpaque(false);
 
-        JPanel currencyWrap = new JPanel(new BorderLayout());
-        currencyWrap.setOpaque(false);
-        JLabel cTitle = makeTitle("CURRENCY", 28);
-        cTitle.setBorder(new EmptyBorder(14, 0, 8, 0));
-        currencyWrap.add(cTitle, BorderLayout.NORTH);
+    JToggleButton pm1 = makeImageSquareRadio(imagePath_payment_card,   SQUARE_PM, Orientation.TOP_BOTTOM, paymentGroup);
+    JToggleButton pm2 = makeImageSquareRadio(imagePath_payment_paypal, SQUARE_PM, Orientation.TOP_BOTTOM, paymentGroup);
+    JToggleButton pm3 = makeImageSquareRadio(null, SQUARE_PM, Orientation.TOP_BOTTOM, paymentGroup);
+    JToggleButton pm4 = makeImageSquareRadio(null, SQUARE_PM, Orientation.TOP_BOTTOM, paymentGroup);
 
-        JPanel curBtns = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 6));
-        curBtns.setOpaque(false);
-        JToggleButton thb = makeTextRadio("THB", 76, 40, Orientation.TOP_BOTTOM, currencyGroup);
-        JToggleButton usd = makeTextRadio("USD", 76, 40, Orientation.TOP_BOTTOM, currencyGroup);
-        JToggleButton eur = makeTextRadio("EUR", 76, 40, Orientation.TOP_BOTTOM, currencyGroup);
-        JToggleButton jpy = makeTextRadio("JPY", 76, 40, Orientation.TOP_BOTTOM, currencyGroup);
+    paymentMethodButtons.add(pm1); paymentMethodButtons.add(pm2);
+    paymentMethodButtons.add(pm3); paymentMethodButtons.add(pm4);
 
-        currencyButtons.add(thb); currencyButtons.add(usd); currencyButtons.add(eur); currencyButtons.add(jpy);
-        curBtns.add(thb); curBtns.add(usd); curBtns.add(eur); curBtns.add(jpy);
-        currencyWrap.add(curBtns, BorderLayout.CENTER);
+    pmGrid.add(pm1); pmGrid.add(pm2);
+    pmGrid.add(pm3); pmGrid.add(pm4);
 
-        content.add(currencyWrap, BorderLayout.SOUTH);
+    content.add(pmGrid, BorderLayout.CENTER);
 
-        // แถบปุ่มล่าง: ห่าง content 10px และห่างขอบล่าง 20px
-        JPanel bottomBar = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
-        bottomBar.setOpaque(false);
-        bottomBar.setBorder(new EmptyBorder(10, 0, 20, 0));
+    // ===== CURRENCY =====
+    JPanel currencyWrap = new JPanel(new BorderLayout());
+    currencyWrap.setOpaque(false);
+    JLabel cTitle = makeTitle("CURRENCY", 28);
+    cTitle.setBorder(new EmptyBorder(14, 0, 8, 0));
+    currencyWrap.add(cTitle, BorderLayout.NORTH);
 
-        paymentConfirmBtn = makePrimaryButton("CONFIRM", 150, 44);
-        paymentConfirmBtn.setEnabled(false);
-        paymentConfirmBtn.addActionListener(e -> {
-            JOptionPane.showMessageDialog(frame,
-                    "Payment successful. Please wait for your coffee.",
-                    "Payment", JOptionPane.INFORMATION_MESSAGE);
-            show("MENU1");
-            resetPaymentSelections();
-            resetAddonSelections();
-        });
+    JPanel curBtns = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 6));
+    curBtns.setOpaque(false);
 
-        JButton cancel = makeSecondaryButton("CANCEL", 150, 44, Orientation.LEFT_RIGHT);
-        cancel.addActionListener(e -> {
-            resetPaymentSelections();
-            resetAddonSelections();
-            updatePaymentConfirmEnabled();
-            show("MENU1");
-        });
+    JToggleButton thb = makeTextRadio("THB", 76, 40, Orientation.LEFT_RIGHT, currencyGroup);
+    JToggleButton usd = makeTextRadio("USD", 76, 40, Orientation.TOP_BOTTOM, currencyGroup);
+    JToggleButton eur = makeTextRadio("EUR", 76, 40, Orientation.TOP_BOTTOM, currencyGroup);
+    JToggleButton jpy = makeTextRadio("JPY", 76, 40, Orientation.RIGHT_LEFT, currencyGroup);
 
-        bottomBar.add(paymentConfirmBtn);
-        bottomBar.add(cancel);
+    currencyButtons.add(thb); currencyButtons.add(usd);
+    currencyButtons.add(eur); currencyButtons.add(jpy);
 
-        // listener เพื่ออัปเดตสถานะปุ่ม Confirm
-        ItemListener payListener = e -> updatePaymentConfirmEnabled();
-        paymentMethodButtons.forEach(b -> b.addItemListener(payListener));
-        currencyButtons.forEach(b -> b.addItemListener(payListener));
+    curBtns.add(thb); curBtns.add(usd);
+    curBtns.add(eur); curBtns.add(jpy);
 
-        page.add(contentMargin, BorderLayout.CENTER);
-        page.add(bottomBar,      BorderLayout.SOUTH);
-        return page;
-    }
+    currencyWrap.add(curBtns, BorderLayout.CENTER);
+    content.add(currencyWrap, BorderLayout.SOUTH);
+
+    // ===== BottomBar: CONFIRM + CANCEL =====
+    JPanel bottomBar = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+    bottomBar.setOpaque(false);
+    bottomBar.setBorder(new EmptyBorder(10, 0, 20, 0));
+
+    paymentConfirmBtn = makeSecondaryButton("CONFIRM", 150, 44, Orientation.LEFT_RIGHT);
+    paymentConfirmBtn.addActionListener(e -> {
+        JOptionPane.showMessageDialog(frame,
+            "Please select Payment Method and Currency completely",
+            "Incomplete Selection", JOptionPane.WARNING_MESSAGE);
+    });
+
+    JButton cancel = makeSecondaryButton("CANCEL", 150, 44, Orientation.RIGHT_LEFT);
+    cancel.addActionListener(e -> {
+        resetPaymentSelections();
+        resetAddonSelections();
+        updatePaymentConfirmEnabled();
+        show("MENU1");
+    });
+
+    bottomBar.add(paymentConfirmBtn);
+    bottomBar.add(cancel);
+
+    ItemListener payListener = e -> updatePaymentConfirmEnabled();
+    paymentMethodButtons.forEach(b -> b.addItemListener(payListener));
+    currencyButtons.forEach(b -> b.addItemListener(payListener));
+
+    page.add(contentMargin, BorderLayout.CENTER);
+    page.add(bottomBar, BorderLayout.SOUTH);
+    return page;
+}
 
     // ============================ Components ============================
 
-    private enum Orientation { TOP_BOTTOM, LEFT_RIGHT }
+    private enum Orientation { TOP_BOTTOM, LEFT_RIGHT, RIGHT_LEFT }
 
-    // Panel พื้นทึบ + ขอบ gradient
     private static class RoundedBorderPanel extends JPanel {
         private final Color fill;
         private final int arc;
@@ -418,10 +442,13 @@ public class MaeveCoffeeUI {
             g2.setColor(fill);
             g2.fill(new RoundRectangle2D.Float(0, 0, w, h, arc, arc));
 
-            // gradient border (สีล่างขึ้นมา 70%)
-            GradientPaint gp = (ori == Orientation.TOP_BOTTOM)
-                    ? new GradientPaint(0, 0, c1, 0, (int)(h * 0.7), c2)
-                    : new GradientPaint(0, 0, c1, w, 0, c2);
+            GradientPaint gp;
+
+            if (ori == Orientation.TOP_BOTTOM) {
+                gp = new GradientPaint(0, 0, c1, 0, (int)(h * 0.7), c2);
+            } else {
+                gp = new GradientPaint(0, 0, c1, w, 0, c2);
+            }
 
             g2.setPaint(gp);
             g2.setStroke(new BasicStroke(stroke));
@@ -432,167 +459,142 @@ public class MaeveCoffeeUI {
         }
     }
 
-    // วาดพื้นทึบ + เส้นขอบ gradient (ใช้กับปุ่ม/ท็อกเกิล)
-    private static void paintRounded(Graphics2D g2, int w, int h, int arc,
-                                     Color fill, float stroke, Color c1, Color c2, Orientation ori) {
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setColor(fill);
-        g2.fill(new RoundRectangle2D.Float(0, 0, w, h, arc, arc));
-        GradientPaint gp = (ori == Orientation.TOP_BOTTOM)
-                ? new GradientPaint(0, 0, c1, 0, (int)(h * 0.7), c2)
-                : new GradientPaint(0, 0, c1, w, 0, c2);
-        g2.setPaint(gp);
-        g2.setStroke(new BasicStroke(stroke));
-        g2.draw(new RoundRectangle2D.Float(stroke/2f, stroke/2f, w - stroke, h - stroke, arc, arc));
-    }
-
-    // ปุ่มหลัก (ไม่มีเส้นขอบ)
-    // - ถ้า disabled → พื้น #333333 (เหมือน Cancel), ข้อความ #d9d9d9
-    // - ถ้า enabled ปกติ → พื้น #d9d9d9, hover → #1e1e1e (SEL_FILL)
     private JButton makePrimaryButton(String text, int w, int h) {
-        return new JButton(text) {
-            { setPreferredSize(new Dimension(w, h));
-              setFont(new Font("SansSerif", Font.PLAIN, 18));
-              setFocusPainted(false); setContentAreaFilled(false); setBorderPainted(false); setOpaque(false); }
-            @Override protected void paintComponent(Graphics g) {
-                boolean enabled = isEnabled();
-                boolean hover = getModel().isRollover() && enabled;
-                Color body = enabled ? (hover ? SEL_FILL : PRIMARY_FILL) : SECONDARY_FILL;
-
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(body);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), ARC, ARC));
-                g2.dispose();
-
-                g.setFont(getFont());
-                g.setColor(enabled ? (hover ? TITLE : PRIMARY_TEXT) : TITLE);
-                FontMetrics fm = g.getFontMetrics();
-                int tx = (getWidth() - fm.stringWidth(getText())) / 2;
-                int ty = (getHeight() + fm.getAscent()) / 2 - 4;
-                g.drawString(getText(), tx, ty);
-            }
-        };
+    RoundedButton btn = new RoundedButton(
+        text,
+        ARC, 0f, false,
+        PRIMARY_FILL, SEL_FILL,
+        SEL_FILL, SECONDARY_FILL,
+        PRIMARY_TEXT, TITLE, TITLE, TITLE,
+        PANEL_BORDER_TOP, PANEL_BORDER_BOT,
+        RoundedButton.Orientation.TOP_BOTTOM
+    );
+    btn.setPreferredSize(new Dimension(w, h));
+    btn.setFont(new Font("SansSerif", Font.PLAIN, 18));
+    return btn;
     }
 
-    // ปุ่มรอง (มีเส้นขอบ gradient ซ้าย->ขวา, hover PREVIOUS=#d9d9d9 / อื่น=#1e1e1e)
     private JButton makeSecondaryButton(String text, int w, int h, Orientation borderOri) {
-        return new JButton(text) {
-            { setPreferredSize(new Dimension(w, h));
-              setFont(new Font("SansSerif", Font.PLAIN, 18));
-              setFocusPainted(false); setContentAreaFilled(false); setBorderPainted(false); setOpaque(false); }
-            @Override protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                boolean isPrev = getText().equalsIgnoreCase("PREVIOUS");
-                boolean hover  = getModel().isRollover();
-                Color body = hover ? (isPrev ? hex("#d9d9d9") : SEL_FILL) : SECONDARY_FILL;
-                Color left = (borderOri == Orientation.LEFT_RIGHT) ? SECONDARY_LEFT : PANEL_BORDER_TOP;
-                Color right= (borderOri == Orientation.LEFT_RIGHT) ? SECONDARY_RIGHT: PANEL_BORDER_BOT;
-                paintRounded(g2, getWidth(), getHeight(), ARC, body, BORDER_STROKE, left, right, borderOri);
-                g2.dispose();
+    Orientation ori = borderOri;
 
-                g.setFont(getFont());
-                g.setColor(isPrev && hover ? hex("#1e1e1e") : SECONDARY_TEXT);
-                FontMetrics fm = g.getFontMetrics();
-                int tx = (getWidth() - fm.stringWidth(getText())) / 2;
-                int ty = (getHeight() + fm.getAscent()) / 2 - 4;
-                g.drawString(getText(), tx, ty);
-            }
-        };
+    Color c1, c2;
+    if (ori == Orientation.TOP_BOTTOM) {
+        c1 = PANEL_BORDER_TOP;
+        c2 = PANEL_BORDER_BOT;
+    } else {
+        c1 = SECONDARY_LEFT;
+        c2 = SECONDARY_RIGHT;
     }
 
-    // ปุ่มเมนู "สี่เหลี่ยมจัตุรัส + ข้อความใต้รูป"
+    Color hoverText;
+    if (text.equalsIgnoreCase("PREVIOUS")) {
+        hoverText = hex("#1e1e1e");
+    } else {
+        hoverText = SECONDARY_TEXT;
+    }
+
+    RoundedButton btn = new RoundedButton(
+        text,
+        ARC, 1f, true,
+        SECONDARY_FILL, SEL_FILL, SEL_FILL, SECONDARY_FILL,
+        SECONDARY_TEXT, hoverText, hoverText, SECONDARY_TEXT,
+        c1, c2, toRB(ori)
+    );
+    btn.setPreferredSize(new Dimension(w, h));
+    btn.setFont(new Font("SansSerif", Font.PLAIN, 18));
+    return btn;
+}
+
+
     private JButton makeMenuSquare(String imagePath, String label, int size, Runnable onClick) {
-    return new JButton(label) {
-        { 
-            setPreferredSize(new Dimension(size, size));
-            setFont(new Font("SansSerif", Font.PLAIN, 16));
-            setForeground(TITLE);
-            setHorizontalTextPosition(SwingConstants.CENTER);
-            setVerticalTextPosition(SwingConstants.BOTTOM); // 👈 ช่วยจัดข้อความลงล่าง
-            setFocusPainted(false); 
-            setContentAreaFilled(false); 
-            setBorderPainted(false); 
-            setOpaque(false);
-            addActionListener(e -> onClick.run());
-        }
-
-        @Override 
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = (Graphics2D) g.create();
-
-            // วาดพื้นหลังสี่เหลี่ยมโค้งมน (เต็มปุ่ม)
-            Color body = getModel().isRollover() ? SEL_FILL : ITEM_FILL;
-            paintRounded(g2, getWidth(), getHeight(), ARC, body, BORDER_STROKE,
-                    ITEM_BORDER_TOP, ITEM_BORDER_BOT, Orientation.TOP_BOTTOM);
-
-            // --- วาดรูป ---
-            int inset = 12;
-            int imageArea = (int)(getHeight() * 0.7); // 70% บนไว้สำหรับรูป
-            drawImageKeepRatio(g2, imagePath, inset, inset, getWidth() - inset*2, imageArea - inset);
-
-            g2.dispose();
-
-            // --- วาดข้อความ ---
-            g.setFont(getFont());
-            g.setColor(getForeground());
-            FontMetrics fm = g.getFontMetrics();
-            int textY = getHeight() - fm.getDescent() - 6; // เว้นจากล่าง 6px
-            int textX = (getWidth() - fm.stringWidth(getText())) / 2;
-            g.drawString(getText(), textX, textY);
-            }
-        };
-    }
-
-    // Toggle รูปแบบ "สี่เหลี่ยมจัตุรัส" (หลายตัวเลือก)
-    private JToggleButton makeImageSquareToggle(String imagePath, int size, Orientation borderOri) {
-        return new JToggleButton() {
-            { setPreferredSize(new Dimension(size, size));
-              setFocusPainted(false); setContentAreaFilled(false); setBorderPainted(false); setOpaque(false); }
-            @Override protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                Color body = isSelected() ? SEL_FILL : ITEM_FILL;
-                Color c1 = (borderOri==Orientation.LEFT_RIGHT)? SECONDARY_LEFT : ITEM_BORDER_TOP;
-                Color c2 = (borderOri==Orientation.LEFT_RIGHT)? SECONDARY_RIGHT: ITEM_BORDER_BOT;
-                paintRounded(g2, getWidth(), getHeight(), ARC, body, BORDER_STROKE, c1, c2, borderOri);
-
+    RoundedButton btn = new RoundedButton (
+        label,
+        ARC, BORDER_STROKE, true,
+        ITEM_FILL, SEL_FILL, SEL_FILL, ITEM_FILL,
+        TITLE, TITLE, TITLE, TITLE,
+        ITEM_BORDER_TOP, ITEM_BORDER_BOT, RoundedButton.Orientation.TOP_BOTTOM) 
+        {
+            @Override 
+            protected void paintContent(Graphics2D g2, Color textColor) {
                 int inset = 12;
-                drawImageKeepRatio(g2, imagePath, inset, inset, getWidth()-inset*2, getHeight()-inset*2);
-                g2.dispose();
+                int imageArea = (int)(getHeight() * 0.7);
+                drawImageKeepRatio(g2, imagePath, inset, inset, getWidth() - inset*2, imageArea - inset);
+
+                g2.setFont(getFont());
+                g2.setColor(textColor);
+                FontMetrics fm = g2.getFontMetrics();
+                int textY = getHeight() - fm.getDescent() - 6;
+                int textX = (getWidth() - fm.stringWidth(getText())) / 2;
+                g2.drawString(getText(), textX, textY);
             }
         };
+        btn.setPreferredSize(new Dimension(size, size));
+        btn.setFont(new Font("SansSerif", Font.BOLD, 16));
+        btn.setForeground(TITLE);
+        btn.addActionListener(e -> onClick.run());
+        return btn;
     }
 
-    // Toggle รูปแบบ "สี่เหลี่ยมจัตุรัส + single choice"
-    private JToggleButton makeImageSquareRadio(String imagePath, int size, Orientation ori, ButtonGroup group) {
-        JToggleButton t = makeImageSquareToggle(imagePath, size, ori);
-        group.add(t);
+    private JToggleButton makeImageSquareToggle(String imagePath, int size, Orientation borderOri) {
+    Color c1;
+    Color c2;
+
+    if (borderOri == Orientation.LEFT_RIGHT) {
+        c1 = SECONDARY_LEFT;
+        c2 = SECONDARY_RIGHT;
+    } else {
+        c1 = ITEM_BORDER_TOP;
+        c2 = ITEM_BORDER_BOT;
+    }
+
+    RoundedToggleButton t = new RoundedToggleButton(
+        "",
+        ARC, BORDER_STROKE, true,
+        ITEM_FILL,
+        SEL_FILL,
+        SEL_FILL,
+        ITEM_FILL,
+
+        SEL_FILL,
+        PRIMARY_FILL,
+        SEL_FILL,
+
+        TITLE, TITLE, TITLE, TITLE,
+        TITLE, PRIMARY_TEXT, TITLE,
+        c1, c2, toRT(borderOri)
+    ) {
+        @Override
+        protected void paintContent(Graphics2D g2, Color textColor) {
+            int inset = 12;
+            drawImageKeepRatio(g2, imagePath, inset, inset, getWidth() - inset * 2, getHeight() - inset * 2);
+        }
+    };
+    t.setPreferredSize(new Dimension(size, size));
+    return t;
+}
+
+    private JToggleButton makeTextToggle(String text, int w, int h, Orientation ori) {
+        RoundedToggleButton t = new RoundedToggleButton(
+            text,
+            ARC, 1f, true,
+            ITEM_FILL,
+            SEL_FILL,
+            SEL_FILL,
+            ITEM_FILL,
+
+            SEL_FILL,
+            PRIMARY_FILL,
+            SEL_FILL,
+
+            TITLE, TITLE, TITLE, TITLE,
+            TITLE, PRIMARY_TEXT, TITLE,
+            ITEM_BORDER_TOP, ITEM_BORDER_BOT, toRT(ori)
+        );
+        t.setPreferredSize(new Dimension(w, h));
+        t.setFont(new Font("SansSerif", Font.BOLD, 16));
         return t;
     }
 
-    // Toggle ตัวหนังสือ
-    private JToggleButton makeTextToggle(String text, int w, int h, Orientation ori) {
-        return new JToggleButton(text) {
-            { setPreferredSize(new Dimension(w, h));
-              setFont(new Font("SansSerif", Font.PLAIN, 16));
-              setForeground(TITLE);
-              setFocusPainted(false); setContentAreaFilled(false); setBorderPainted(false); setOpaque(false); }
-            @Override protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                Color body = isSelected() ? SEL_FILL : ITEM_FILL;
-                paintRounded(g2, getWidth(), getHeight(), ARC, body, BORDER_STROKE,
-                        ITEM_BORDER_TOP, ITEM_BORDER_BOT, ori);
-                g2.dispose();
-
-                g.setFont(getFont());
-                g.setColor(TITLE);
-                FontMetrics fm = g.getFontMetrics();
-                int tx = (getWidth() - fm.stringWidth(getText())) / 2;
-                int ty = (getHeight() + fm.getAscent()) / 2 - 4;
-                g.drawString(getText(), tx, ty);
-            }
-        };
-    }
 
     private JToggleButton makeTextRadio(String text, int w, int h, Orientation ori, ButtonGroup group) {
         JToggleButton t = makeTextToggle(text, w, h, ori);
@@ -600,16 +602,23 @@ public class MaeveCoffeeUI {
         return t;
     }
 
+    private JToggleButton makeImageSquareRadio(String imagePath, int size, Orientation ori, ButtonGroup group) {
+        JToggleButton t = makeImageSquareToggle(imagePath, size, ori);
+        group.add(t);
+        return t;
+    }
+
+
     // ============================ Helpers ============================
 
     private JPanel createHeaderOnlyPage(String headerText) {
         JPanel page = new JPanel(new BorderLayout());
         page.setBackground(BG);
 
-        JLabel header = new JLabel(headerText, SwingConstants.CENTER);
+        JLabel header = new JLabel(headerText, SwingConstants.LEFT);
         header.setForeground(TITLE);
         header.setFont(new Font("SansSerif", Font.BOLD, 52));
-        header.setBorder(new EmptyBorder(22, 0, 6, 0));
+        header.setBorder(new EmptyBorder(22, 20, 6, 0));
         page.add(header, BorderLayout.NORTH);
 
         return page;
@@ -627,7 +636,6 @@ public class MaeveCoffeeUI {
 
     private static Color hex(String h) { return Color.decode(h); }
 
-    // วาดรูปแบบรักษาอัตราส่วน
     private static void drawImageKeepRatio(Graphics2D g2, String path, int x, int y, int w, int h) {
         g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         if (path == null) {
@@ -650,26 +658,73 @@ public class MaeveCoffeeUI {
         }
     }
 
-    // ---- Enable/Disable logic for Confirm buttons ----
+    // ---- Enable/Disable Confirm buttons ----
     private void updateAddonConfirmEnabled() {
-        boolean toppingSelected = toppingButtons.stream().anyMatch(AbstractButton::isSelected);
-        boolean sweetSelected   = sweetnessButtons.stream().anyMatch(AbstractButton::isSelected);
-        boolean ok = toppingSelected && sweetSelected;
-        if (addonConfirmBtn != null) {
-            addonConfirmBtn.setEnabled(ok);
-            addonConfirmBtn.repaint();
+    boolean toppingSelected = toppingButtons.stream().anyMatch(AbstractButton::isSelected);
+    boolean sweetSelected   = sweetnessButtons.stream().anyMatch(AbstractButton::isSelected);
+    boolean ok = toppingSelected && sweetSelected;
+
+    if (addonConfirmBtn != null) {
+        JPanel parent = (JPanel) addonConfirmBtn.getParent();
+        int index = parent.getComponentZOrder(addonConfirmBtn);
+        parent.remove(addonConfirmBtn);
+
+        if (ok) {
+            addonConfirmBtn = makePrimaryButton("CONFIRM", 150, 44);
+            addonConfirmBtn.addActionListener(ev -> {
+                show("PAYMENT");
+                resetAddonSelections();
+            });
+        } else {
+            addonConfirmBtn = makeSecondaryButton("CONFIRM", 150, 44, Orientation.LEFT_RIGHT);
+            addonConfirmBtn.addActionListener(ev -> {
+                JOptionPane.showMessageDialog(frame,
+                    "Please select Topping and Sweetness completely",
+                    "Incomplete Selection", JOptionPane.WARNING_MESSAGE);
+            });
         }
+
+        parent.add(addonConfirmBtn, index);
+        parent.revalidate();
+        parent.repaint();
     }
+}
+
 
     private void updatePaymentConfirmEnabled() {
-        boolean pmSel  = paymentMethodButtons.stream().anyMatch(AbstractButton::isSelected);
-        boolean curSel = currencyButtons.stream().anyMatch(AbstractButton::isSelected);
-        boolean ok = pmSel && curSel;
-        if (paymentConfirmBtn != null) {
-            paymentConfirmBtn.setEnabled(ok);
-            paymentConfirmBtn.repaint();
+    boolean pmSel  = paymentMethodButtons.stream().anyMatch(AbstractButton::isSelected);
+    boolean curSel = currencyButtons.stream().anyMatch(AbstractButton::isSelected);
+    boolean ok = pmSel && curSel;
+
+    if (paymentConfirmBtn != null) {
+        JPanel parent = (JPanel) paymentConfirmBtn.getParent();
+        int index = parent.getComponentZOrder(paymentConfirmBtn);
+        parent.remove(paymentConfirmBtn);
+
+        if (ok) {
+            paymentConfirmBtn = makePrimaryButton("CONFIRM", 150, 44);
+            paymentConfirmBtn.addActionListener(ev -> {
+                JOptionPane.showMessageDialog(frame,
+                    "Payment successful. Please wait for your coffee.",
+                    "Payment", JOptionPane.INFORMATION_MESSAGE);
+                show("MENU1");
+                resetPaymentSelections();
+                resetAddonSelections();
+            });
+        } else {
+            paymentConfirmBtn = makeSecondaryButton("CONFIRM", 150, 44, Orientation.LEFT_RIGHT);
+            paymentConfirmBtn.addActionListener(ev -> {
+                JOptionPane.showMessageDialog(frame,
+                    "Please select Payment Method and Currency completely",
+                    "Incomplete Selection", JOptionPane.WARNING_MESSAGE);
+            });
         }
+
+        parent.add(paymentConfirmBtn, index);
+        parent.revalidate();
+        parent.repaint();
     }
+}
 
     // ---- Reset selections ----
     private void resetAddonSelections() {
