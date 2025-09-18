@@ -14,7 +14,7 @@ public class CoffeeDecorator implements Coffee {
     }
 
     @Override
-    public int getPrice() {
+    public double getPrice() {
         return wrappedCoffee.getPrice();
     }
 

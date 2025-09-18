@@ -2,9 +2,9 @@ package FactoryMethodPattern;
 
 public class HotCoffee implements Coffee {
     private String name;
-    private int price;
+    private double price;
 
-    public HotCoffee(String name, int price) {
+    public HotCoffee(String name, double price) {
         this.name = name;
         this.price = price;
     }
@@ -15,7 +15,7 @@ public class HotCoffee implements Coffee {
     }
 
     @Override
-    public int getPrice() {
+    public double getPrice() {
         return price;
     }
     
