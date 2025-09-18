@@ -1,12 +1,12 @@
-package model;
+package gui;
 
-public class Coffee {
+public class ShowCoffee {
     private String name;
     private double price;
     private String description;
     private String imagePath;
 
-    public Coffee(String name, double price, String description, String imagePath) {
+    public ShowCoffee(String name, double price, String description, String imagePath) {
         this.name = name;
         this.price = price;
         this.description = description;

@@ -1,10 +1,10 @@
-package model;
+package FactoryMethodPattern;
 
-public class ConcreteCoffee implements Coffee {
+public class HotCoffee implements Coffee {
     private String name;
     private int price;
 
-    public ConcreteCoffee(String name, int price) {
+    public HotCoffee(String name, int price) {
         this.name = name;
         this.price = price;
     }
@@ -17,11 +17,6 @@ public class ConcreteCoffee implements Coffee {
     @Override
     public int getPrice() {
         return price;
-    }
-
-    @Override
-    public String getDescription() {
-        return "This is a delicious " + name + " coffee.";
     }
     
 }
