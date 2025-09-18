@@ -6,7 +6,9 @@ import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
 public class RoundedToggleButton extends JToggleButton {
-    public enum Orientation { TOP_BOTTOM, LEFT_RIGHT, RIGHT_LEFT }
+    public enum Orientation {
+        TOP_BOTTOM, LEFT_RIGHT, RIGHT_LEFT
+    }
 
     private boolean hover, pressed;
     private final int arc;
@@ -25,34 +27,37 @@ public class RoundedToggleButton extends JToggleButton {
     public RoundedToggleButton(
             String text,
             int arc, float stroke, boolean drawBorder,
-            Color fillNormal,  Color fillHover,  Color fillPressed,  Color fillDisabled,
+            Color fillNormal, Color fillHover, Color fillPressed, Color fillDisabled,
             Color fillSelected, Color fillSelectedHover, Color fillSelectedPressed,
-            Color textNormal,  Color textHover,  Color textPressed,  Color textDisabled,
+            Color textNormal, Color textHover, Color textPressed, Color textDisabled,
             Color textSelected, Color textSelectedHover, Color textSelectedPressed,
-            Color borderC1, Color borderC2, Orientation orientation
-    ) {
+            Color borderC1, Color borderC2, Orientation orientation) {
         super(text);
-        this.arc = arc; this.stroke = stroke; this.drawBorder = drawBorder;
+        this.arc = arc;
+        this.stroke = stroke;
+        this.drawBorder = drawBorder;
 
-        this.fillNormal   = fillNormal;
-        this.fillHover    = fillHover;
-        this.fillPressed  = fillPressed;
+        this.fillNormal = fillNormal;
+        this.fillHover = fillHover;
+        this.fillPressed = fillPressed;
         this.fillDisabled = fillDisabled;
 
-        this.fillSelected        = fillSelected;
-        this.fillSelectedHover   = fillSelectedHover;
+        this.fillSelected = fillSelected;
+        this.fillSelectedHover = fillSelectedHover;
         this.fillSelectedPressed = fillSelectedPressed;
 
-        this.textNormal   = textNormal;
-        this.textHover    = textHover;
-        this.textPressed  = textPressed;
+        this.textNormal = textNormal;
+        this.textHover = textHover;
+        this.textPressed = textPressed;
         this.textDisabled = textDisabled;
 
-        this.textSelected        = textSelected;
-        this.textSelectedHover   = textSelectedHover;
+        this.textSelected = textSelected;
+        this.textSelectedHover = textSelectedHover;
         this.textSelectedPressed = textSelectedPressed;
 
-        this.borderC1 = borderC1; this.borderC2 = borderC2; this.orientation = orientation;
+        this.borderC1 = borderC1;
+        this.borderC2 = borderC2;
+        this.orientation = orientation;
 
         setFocusPainted(false);
         setContentAreaFilled(false);
@@ -61,10 +66,29 @@ public class RoundedToggleButton extends JToggleButton {
         setRolloverEnabled(true);
 
         addMouseListener(new MouseAdapter() {
-            @Override public void mouseEntered(MouseEvent e) { hover = true;  repaint(); }
-            @Override public void mouseExited (MouseEvent e) { hover = false; repaint(); }
-            @Override public void mousePressed(MouseEvent e) { pressed = true; repaint(); }
-            @Override public void mouseReleased(MouseEvent e){ pressed = false;repaint(); }
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                hover = true;
+                repaint();
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                hover = false;
+                repaint();
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                pressed = true;
+                repaint();
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                pressed = false;
+                repaint();
+            }
         });
     }
 
@@ -78,15 +102,17 @@ public class RoundedToggleButton extends JToggleButton {
         Color body, tcol;
 
         if (!isEnabled()) {
-            body = fillDisabled; 
+            body = fillDisabled;
             tcol = textDisabled;
         } else if (sel) {
-            // ---- PRIORITY: selected ก่อน ----
             if (pressed) {
                 body = fillSelectedPressed;
                 tcol = textSelectedPressed;
+            }
+            else if (hover) {
+                body = Color.decode("#2a2a2a");
+                tcol = Color.decode("#d9d9d9");
             } else {
-                // ไม่สน hover → ใช้ selected ปกติ
                 body = fillSelected;
                 tcol = textSelected;
             }
@@ -101,15 +127,13 @@ public class RoundedToggleButton extends JToggleButton {
             tcol = textNormal;
         }
 
-        // background
         g2.setColor(body);
         g2.fill(new RoundRectangle2D.Float(0, 0, w, h, arc, arc));
 
-        // border (ถ้าต้องการ)
         if (drawBorder && stroke > 0f) {
             Paint p;
             if (orientation == Orientation.TOP_BOTTOM) {
-                p = new GradientPaint(0, 0, borderC1, 0, (int)(h * 0.7f), borderC2);
+                p = new GradientPaint(0, 0, borderC1, 0, (int) (h * 0.7f), borderC2);
             } else {
                 boolean reverse = (orientation == Orientation.RIGHT_LEFT);
                 Color cStart;
@@ -117,10 +141,10 @@ public class RoundedToggleButton extends JToggleButton {
 
                 if (reverse) {
                     cStart = borderC2;
-                    cEnd   = borderC1;
+                    cEnd = borderC1;
                 } else {
                     cStart = borderC1;
-                    cEnd   = borderC2;
+                    cEnd = borderC2;
                 }
 
                 p = new GradientPaint(0, 0, cStart, w, 0, cEnd);
@@ -134,7 +158,6 @@ public class RoundedToggleButton extends JToggleButton {
         g2.dispose();
     }
 
-    /** ดีฟอลต์: วาดข้อความกึ่งกลาง */
     protected void paintContent(Graphics2D g2, Color textColor) {
         g2.setFont(getFont());
         g2.setColor(textColor);
