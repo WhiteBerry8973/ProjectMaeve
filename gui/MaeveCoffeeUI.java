@@ -30,15 +30,13 @@ import javax.swing.border.EmptyBorder;
  */
 public class MaeveCoffeeUI {
 
-    private static final String imagePath_topping1 = "gui/americano.png";
-    private static final String imagePath_topping2 = "gui/americano.png";
-    private static final String imagePath_topping3 = "gui/americano.png";
-    private static final String imagePath_topping4 = "gui/americano.png";
-    private static final String imagePath_topping5 = "gui/americano.png";
-    private static final String imagePath_topping6 = "gui/americano.png";
+    private static final String imagePath_topping1 = "Imgs/toppings/whipping_cream.png";
+    private static final String imagePath_topping2 = "Imgs/toppings/chocolate.png";
+    private static final String imagePath_topping3 = "Imgs/toppings/americano.png";
 
-    private static final String imagePath_payment_card = "gui/americano.png";
-    private static final String imagePath_payment_paypal = "gui/americano.png";
+    private static final String imagePath_payment_paypal = "Imgs/payments/paypal.png";
+    private static final String imagePath_payment_promptpay = "Imgs/payments/promptpay.png";
+    private static final String imagePath_payment_card = "Imgs/payments/card.png";
 
     // ======= Colors =======
     private static final Color BG = hex("#1e1e1e");
@@ -93,6 +91,27 @@ public class MaeveCoffeeUI {
     private final ButtonGroup paymentGroup = new ButtonGroup();
     private final ButtonGroup currencyGroup = new ButtonGroup();
 
+    // --- Selection state for ADDON page ---
+    private MenuCoffee selectedCoffee;
+
+    private enum DrinkType {
+        HOT, ICED
+    }
+
+    private DrinkType selectedType = DrinkType.HOT;
+
+    private int extraShots = 1;
+    private JLabel lblCoffeeName;
+    private JLabel lblTotal;
+    private JLabel lblShotNote;
+    private JLabel lblShotCount;
+
+    private JToggleButton hotToggle, icedToggle;
+    private final ButtonGroup typeGroup = new ButtonGroup();
+
+    // total
+    private final Map<AbstractButton, Double> toppingPriceMap = new HashMap<>();
+
     private JButton addonConfirmBtn;
     private JButton paymentConfirmBtn;
 
@@ -129,7 +148,7 @@ public class MaeveCoffeeUI {
         cards = new JPanel(cardLayout);
         cards.setOpaque(false);
 
-        MenuFromCSV("./gui/coffee_menus.csv");
+        MenuFromCSV("./files/coffee_menus.csv");
         for (int p = 0; p < totalMenuPages; p++) {
             cards.add(buildMenuPage(p), "MENU" + (p + 1));
         }
@@ -152,37 +171,44 @@ public class MaeveCoffeeUI {
         this.totalMenuPages = Math.max(1, (int) Math.ceil(this.menuItems.size() / (double) MENU_ITEMS_PER_PAGE));
     }
 
-    private static List<MenuCoffee> loadMenuFromCSV(String filePath) {
-        List<MenuCoffee> list = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",");
-                if (parts.length >= 4) {
-                    String name = parts[0].trim();
-                    double price = Double.parseDouble(parts[1].trim());
-                    String desc = parts[2].trim();
-                    String img = parts[3].trim();
-                    list.add(new MenuCoffee(name, price, desc, img));
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
-
+    // ---- Data Model ----
     private static class MenuCoffee {
         final String name;
-        final double price;
-        final String description;
         final String imagePath;
+        final double hotPrice;
+        final double icedPrice;
+        final boolean icedAvailable;
+        final double shotPrice;
 
-        MenuCoffee(String n, double p, String d, String img) {
-            this.name = n;
-            this.price = p;
-            this.description = d;
+        MenuCoffee(String name, double hot, double iced,
+                boolean icedAvail, double shotPrice, String img) {
+            this.name = name;
+            this.hotPrice = hot;
+            this.icedPrice = iced;
+            this.icedAvailable = icedAvail;
+            this.shotPrice = shotPrice;
             this.imagePath = img;
+        }
+    }
+
+    // ---- Read CSV ----
+    private static List<MenuCoffee> loadMenuFromCSV(String filePath) {
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            return br.lines()
+                    .map(String::trim)
+                    .filter(l -> !l.isEmpty() && !l.startsWith("#"))
+                    .map(l -> l.split(","))
+                    .map(parts -> new MenuCoffee(
+                            parts[0].trim(),
+                            Double.parseDouble(parts[1].trim()),
+                            Double.parseDouble(parts[2].trim()),
+                            parts[3].trim().equals("1"),
+                            Double.parseDouble(parts[4].trim()),
+                            parts[5].trim()))
+                    .toList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
         }
     }
 
@@ -209,8 +235,15 @@ public class MaeveCoffeeUI {
         for (int i = start; i < end; i++) {
             MenuCoffee mc = menuItems.get(i);
             grid.add(makeMenuSquare(mc.imagePath, mc.name, SQUARE_ITEM, () -> {
+                // จำกาแฟที่เลือก
+                selectedCoffee = mc;
+                selectedType = DrinkType.HOT; // ค่าเริ่มต้น
+                extraShots = 1; // ตามภาพ
+                // รีเฟรช UI ของหน้า ADDON ให้โชว์ชื่อ/ราคา/enable ปุ่ม
+                refreshAddonForSelection();
                 show("ADDON");
             }));
+
         }
 
         for (int k = end; k < start + MENU_ITEMS_PER_PAGE; k++) {
@@ -251,82 +284,188 @@ public class MaeveCoffeeUI {
     }
 
     private JPanel buildAddonPage() {
-        JPanel page = createHeaderOnlyPage("ADDON");
+        JPanel page = new JPanel(new BorderLayout());
+        page.setBackground(BG);
 
+        // ---------- HEADER ----------
+        JPanel header = new JPanel(new BorderLayout());
+        header.setOpaque(false);
+        header.setBorder(new EmptyBorder(22, 20, 6, 20));
+
+        JPanel left = new JPanel(new BorderLayout());
+        left.setOpaque(false);
+
+        JLabel title = new JLabel("ADDON");
+        title.setForeground(TITLE);
+        title.setFont(new Font("SansSerif", Font.BOLD, 52));
+
+        lblCoffeeName = new JLabel(" ");
+        lblCoffeeName.setForeground(TITLE);
+        lblCoffeeName.setFont(new Font("SansSerif", Font.PLAIN, 22));
+
+        JPanel addonRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        addonRow.setOpaque(false);
+        addonRow.add(title);
+        addonRow.add(lblCoffeeName);
+
+        header.add(addonRow, BorderLayout.SOUTH);
+
+        RoundedBorderPanel totalBadge = new RoundedBorderPanel(
+                ITEM_FILL, ARC, 1f, ITEM_BORDER_TOP, ITEM_BORDER_BOT, Orientation.TOP_BOTTOM);
+        totalBadge.setOpaque(false);
+        totalBadge.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        lblTotal = new JLabel("Total : 0฿");
+        lblTotal.setForeground(TITLE);
+        lblTotal.setFont(new Font("SansSerif", Font.BOLD, 16));
+        lblTotal.setBorder(new EmptyBorder(5, 24, 5, 24));
+
+        totalBadge.add(lblTotal);
+
+        header.add(left, BorderLayout.WEST);
+        header.add(totalBadge, BorderLayout.EAST);
+        page.add(header, BorderLayout.NORTH);
+
+        // ---------- CONTENT ----------
         JPanel contentMargin = new JPanel(new BorderLayout());
         contentMargin.setOpaque(false);
-        contentMargin.setBorder(new EmptyBorder(30, 20, 20, 20));
+        contentMargin.setBorder(new EmptyBorder(10, 20, 20, 20));
 
-        RoundedBorderPanel content = new RoundedBorderPanel(PANEL_FILL, ARC, BORDER_STROKE, PANEL_BORDER_TOP,
-                PANEL_BORDER_BOT, Orientation.TOP_BOTTOM);
+        RoundedBorderPanel content = new RoundedBorderPanel(
+                PANEL_FILL, ARC, BORDER_STROKE, PANEL_BORDER_TOP, PANEL_BORDER_BOT, Orientation.TOP_BOTTOM);
         content.setOpaque(false);
-        content.setLayout(new BorderLayout());
-        content.setBorder(new EmptyBorder(18, 18, 18, 18));
-        contentMargin.add(content, BorderLayout.CENTER);
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+        content.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        // ===== TOPPINGS =====
-        content.add(makeTitle("TOPPINGS", 28), BorderLayout.NORTH);
+        // ===== TYPE =====
+        JPanel typeRow = new JPanel(new BorderLayout());
+        typeRow.setOpaque(false);
+        typeRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
 
-        JPanel grid = new JPanel(new GridLayout(2, 3, 18, 18));
-        grid.setOpaque(false);
+        JLabel typeTitle = makeTitle("TYPE", 22);
+        typeTitle.setHorizontalAlignment(SwingConstants.LEFT);
+        typeRow.add(typeTitle, BorderLayout.WEST);
 
-        JToggleButton t1 = makeImageSquareToggle(imagePath_topping1, SQUARE_TOPPING, Orientation.TOP_BOTTOM);
-        JToggleButton t2 = makeImageSquareToggle(imagePath_topping2, SQUARE_TOPPING, Orientation.TOP_BOTTOM);
-        JToggleButton t3 = makeImageSquareToggle(imagePath_topping3, SQUARE_TOPPING, Orientation.TOP_BOTTOM);
-        JToggleButton t4 = makeImageSquareToggle(imagePath_topping4, SQUARE_TOPPING, Orientation.TOP_BOTTOM);
-        JToggleButton t5 = makeImageSquareToggle(imagePath_topping5, SQUARE_TOPPING, Orientation.TOP_BOTTOM);
-        JToggleButton t6 = makeImageSquareToggle(imagePath_topping6, SQUARE_TOPPING, Orientation.TOP_BOTTOM);
+        JPanel typeBtns = new JPanel(new GridLayout(1, 2, 0, 0));
+        typeBtns.setOpaque(false);
+        typeBtns.setPreferredSize(new Dimension(270, 40));
 
+        hotToggle = makeTextRadio("HOT --฿", 135, 40, Orientation.TOP_BOTTOM, typeGroup);
+        icedToggle = makeTextRadio("ICED --฿", 135, 40, Orientation.TOP_BOTTOM, typeGroup);
+
+        typeBtns.add(hotToggle);
+        typeBtns.add(icedToggle);
+        typeRow.add(typeBtns, BorderLayout.EAST);
+
+        content.add(typeRow);
+        content.add(Box.createVerticalStrut(20));
+
+        // ===== EXTRA SHOT =====
+        JPanel shotRow = new JPanel(new BorderLayout());
+        shotRow.setOpaque(false);
+        shotRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
+
+        JLabel shotTitle = makeTitle("EXTRA SHOT", 22);
+        shotTitle.setHorizontalAlignment(SwingConstants.LEFT);
+        shotRow.add(shotTitle, BorderLayout.WEST);
+
+        JPanel shotBtns = new JPanel(new GridBagLayout());
+        shotBtns.setOpaque(false);
+        shotBtns.setMaximumSize(new Dimension(270, 40));
+
+        JButton minus = makePrimaryButton("-", 50, 40);
+        JButton plus = makePrimaryButton("+", 50, 40);
+        lblShotCount = new JLabel("1", SwingConstants.CENTER);
+        lblShotCount.setForeground(TITLE);
+        lblShotCount.setFont(new Font("SansSerif", Font.BOLD, 18));
+
+        RoundedBorderPanel countBg = new RoundedBorderPanel(
+                ITEM_FILL, ARC, 1f, ITEM_BORDER_TOP, ITEM_BORDER_BOT, Orientation.TOP_BOTTOM);
+        countBg.setLayout(new BorderLayout());
+        countBg.add(lblShotCount, BorderLayout.CENTER);
+        countBg.setPreferredSize(new Dimension(170, 40));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridy = 0;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weighty = 1.0;
+
+        gbc.gridx = 0;
+        gbc.weightx = 0.15;
+        shotBtns.add(minus, gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 0.7;
+        shotBtns.add(countBg, gbc);
+
+        gbc.gridx = 2;
+        gbc.weightx = 0.15;
+        shotBtns.add(plus, gbc);
+
+        shotRow.add(shotBtns, BorderLayout.EAST);
+
+        content.add(shotRow);
+
+        lblShotNote = new JLabel("+ 5฿ / 1 Shot");
+        lblShotNote.setForeground(new Color(150, 150, 150));
+        lblShotNote.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        lblShotNote.setBorder(new EmptyBorder(2, 0, 10, 0));
+        shotRow.add(lblShotNote, BorderLayout.SOUTH);
+        content.add(Box.createVerticalStrut(10));
+
+        // ===== TOPPING =====
+        // title
+        JLabel tTitle = makeTitle("TOPPING", 28);
+        tTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        tTitle.setBorder(new EmptyBorder(0, 0, 30, 0));
+        content.add(tTitle);
+
+        JPanel topRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        topRow.setOpaque(false);
+        JToggleButton t1 = makeToppingToggle(imagePath_topping1, 140, 10, Orientation.TOP_BOTTOM);
+        JToggleButton t2 = makeToppingToggle(imagePath_topping2, 140, 10, Orientation.TOP_BOTTOM);
+        JToggleButton t3 = makeToppingToggle(imagePath_topping3, 140, 10, Orientation.TOP_BOTTOM);
+        toppingButtons.clear();
         toppingButtons.add(t1);
         toppingButtons.add(t2);
         toppingButtons.add(t3);
-        toppingButtons.add(t4);
-        toppingButtons.add(t5);
-        toppingButtons.add(t6);
-
-        grid.add(t1);
-        grid.add(t2);
-        grid.add(t3);
-        grid.add(t4);
-        grid.add(t5);
-        grid.add(t6);
-
-        content.add(grid, BorderLayout.CENTER);
+        topRow.add(t1);
+        topRow.add(t2);
+        topRow.add(t3);
+        content.add(topRow);
+        content.add(Box.createVerticalStrut(20));
 
         // ===== SWEETNESS =====
-        JPanel sweetWrap = new JPanel(new BorderLayout());
-        sweetWrap.setOpaque(false);
+        // title
         JLabel sTitle = makeTitle("SWEETNESS", 28);
-        sTitle.setBorder(new EmptyBorder(18, 0, 8, 0));
-        sweetWrap.add(sTitle, BorderLayout.NORTH);
+        sTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        sTitle.setBorder(new EmptyBorder(0, 0, 30, 0));
+        content.add(sTitle);
 
-        JPanel sweetBtns = new JPanel(new FlowLayout(FlowLayout.CENTER, 16, 6));
+        JPanel sweetBtns = new JPanel(new FlowLayout(FlowLayout.CENTER, 16, 10));
         sweetBtns.setOpaque(false);
-
         JToggleButton bsw0 = makeTextToggle("0%", 76, 40, Orientation.LEFT_RIGHT);
         JToggleButton bsw50 = makeTextToggle("50%", 76, 40, Orientation.TOP_BOTTOM);
         JToggleButton bsw100 = makeTextToggle("100%", 76, 40, Orientation.TOP_BOTTOM);
         JToggleButton bsw120 = makeTextToggle("120%", 76, 40, Orientation.RIGHT_LEFT);
-
         sweetnessGroup.add(bsw0);
         sweetnessGroup.add(bsw50);
         sweetnessGroup.add(bsw100);
         sweetnessGroup.add(bsw120);
-
+        sweetnessButtons.clear();
         sweetnessButtons.add(bsw0);
         sweetnessButtons.add(bsw50);
         sweetnessButtons.add(bsw100);
         sweetnessButtons.add(bsw120);
-
         sweetBtns.add(bsw0);
         sweetBtns.add(bsw50);
         sweetBtns.add(bsw100);
         sweetBtns.add(bsw120);
+        content.add(sweetBtns);
 
-        sweetWrap.add(sweetBtns, BorderLayout.CENTER);
-        content.add(sweetWrap, BorderLayout.SOUTH);
+        contentMargin.add(content, BorderLayout.CENTER);
+        page.add(contentMargin, BorderLayout.CENTER);
 
-        // CONFIRM, CANCEL
+        // ===== CONFIRM, CANCEL =====
         JPanel bottomBar = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         bottomBar.setOpaque(false);
         bottomBar.setBorder(new EmptyBorder(10, 0, 20, 0));
@@ -336,7 +475,8 @@ public class MaeveCoffeeUI {
             boolean toppingSelected = toppingButtons.stream().anyMatch(AbstractButton::isSelected);
             boolean sweetSelected = sweetnessButtons.stream().anyMatch(AbstractButton::isSelected);
             if (!(toppingSelected && sweetSelected)) {
-                JOptionPane.showMessageDialog(frame, "Please select Topping and Sweetness completely",
+                JOptionPane.showMessageDialog(frame,
+                        "Please select Topping and Sweetness completely",
                         "Incomplete Selection", JOptionPane.WARNING_MESSAGE);
             } else {
                 show("PAYMENT");
@@ -354,15 +494,34 @@ public class MaeveCoffeeUI {
 
         bottomBar.add(addonConfirmBtn);
         bottomBar.add(cancel);
+        page.add(bottomBar, BorderLayout.SOUTH);
 
         ItemListener addonListener = e -> updateAddonConfirmEnabled();
         toppingButtons.forEach(b -> b.addItemListener(addonListener));
         sweetnessButtons.forEach(b -> b.addItemListener(addonListener));
 
-        page.add(contentMargin, BorderLayout.CENTER);
-        page.add(bottomBar, BorderLayout.SOUTH);
-        return page;
+        // ===== Extra Shots =====
+        minus.addActionListener(e -> {
+            if (extraShots > 0) {
+                extraShots--;
+                lblShotCount.setText(String.valueOf(extraShots));
+                updateTotalBadge();
+            } else {
+                JOptionPane.showMessageDialog(frame, "at least 0 shot", "Limit", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
 
+        plus.addActionListener(e -> {
+            if (extraShots < 3) {
+                extraShots++;
+                lblShotCount.setText(String.valueOf(extraShots));
+                updateTotalBadge();
+            } else {
+                JOptionPane.showMessageDialog(frame, "at most 3 shots", "Limit", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+
+        return page;
     }
 
     private JPanel buildPaymentPage() {
@@ -385,11 +544,9 @@ public class MaeveCoffeeUI {
         JPanel pmGrid = new JPanel(new GridLayout(2, 2, 18, 18));
         pmGrid.setOpaque(false);
 
-        JToggleButton pm1 = makeImageSquareRadio(imagePath_payment_card, SQUARE_PM, Orientation.TOP_BOTTOM,
-                paymentGroup);
-        JToggleButton pm2 = makeImageSquareRadio(imagePath_payment_paypal, SQUARE_PM, Orientation.TOP_BOTTOM,
-                paymentGroup);
-        JToggleButton pm3 = makeImageSquareRadio(null, SQUARE_PM, Orientation.TOP_BOTTOM, paymentGroup);
+        JToggleButton pm1 = makeImageSquareRadio(imagePath_payment_promptpay, SQUARE_PM, Orientation.TOP_BOTTOM,paymentGroup);
+        JToggleButton pm2 = makeImageSquareRadio(imagePath_payment_paypal, SQUARE_PM, Orientation.TOP_BOTTOM,paymentGroup);
+        JToggleButton pm3 = makeImageSquareRadio(imagePath_payment_card, SQUARE_PM, Orientation.TOP_BOTTOM,paymentGroup);
         JToggleButton pm4 = makeImageSquareRadio(null, SQUARE_PM, Orientation.TOP_BOTTOM, paymentGroup);
 
         paymentMethodButtons.add(pm1);
@@ -584,38 +741,34 @@ public class MaeveCoffeeUI {
         return btn;
     }
 
-    private JToggleButton makeImageSquareToggle(String imagePath, int size, Orientation borderOri) {
-        Color c1;
-        Color c2;
-
-        if (borderOri == Orientation.LEFT_RIGHT) {
-            c1 = SECONDARY_LEFT;
-            c2 = SECONDARY_RIGHT;
-        } else {
-            c1 = ITEM_BORDER_TOP;
-            c2 = ITEM_BORDER_BOT;
-        }
+    private JToggleButton makeToppingToggle(String imagePath, int size, double price, Orientation borderOri) {
+        Color c1 = (borderOri == Orientation.LEFT_RIGHT) ? SECONDARY_LEFT : ITEM_BORDER_TOP;
+        Color c2 = (borderOri == Orientation.LEFT_RIGHT) ? SECONDARY_RIGHT : ITEM_BORDER_BOT;
 
         RoundedToggleButton t = new RoundedToggleButton(
                 "",
                 ARC, BORDER_STROKE, true,
-                ITEM_FILL,
-                SEL_FILL,
-                SEL_FILL,
-                ITEM_FILL,
-                SEL_FILL,
-                PRIMARY_FILL,
-                SEL_FILL,
+                ITEM_FILL, SEL_FILL, SEL_FILL, ITEM_FILL,
+                SEL_FILL, PRIMARY_FILL, SEL_FILL,
                 TITLE, TITLE, TITLE, TITLE,
                 TITLE, PRIMARY_TEXT, TITLE,
                 c1, c2, toRT(borderOri)) {
             @Override
             protected void paintContent(Graphics2D g2, Color textColor) {
                 int inset = 12;
-                drawImageKeepRatio(g2, imagePath, inset, inset, getWidth() - inset * 2, getHeight() - inset * 2);
+                drawImageKeepRatio(g2, imagePath, inset, inset, getWidth() - inset * 2, getHeight() - inset * 2 - 22);
+                g2.setFont(getFont().deriveFont(Font.PLAIN, 12f));
+                g2.setColor(new Color(170, 170, 170));
+                String priceText = "+ " + (int) price + " ฿";
+                FontMetrics fm = g2.getFontMetrics();
+                int tx = (getWidth() - fm.stringWidth(priceText)) / 2;
+                int ty = getHeight() - fm.getDescent() - 6;
+                g2.drawString(priceText, tx, ty);
             }
         };
         t.setPreferredSize(new Dimension(size, size));
+        toppingPriceMap.put(t, price);
+        t.addItemListener(e -> updateTotalBadge());
         return t;
     }
 
@@ -645,7 +798,7 @@ public class MaeveCoffeeUI {
     }
 
     private JToggleButton makeImageSquareRadio(String imagePath, int size, Orientation ori, ButtonGroup group) {
-        JToggleButton t = makeImageSquareToggle(imagePath, size, ori);
+        JToggleButton t = makeToppingToggle(imagePath, size, size, ori);
         group.add(t);
         return t;
     }
@@ -774,6 +927,64 @@ public class MaeveCoffeeUI {
             parent.revalidate();
             parent.repaint();
         }
+    }
+
+    // เรียกทุกครั้งที่เลือกกาแฟจากหน้า MENU
+    private void refreshAddonForSelection() {
+        if (selectedCoffee == null)
+            return;
+
+        // ชื่อกาแฟข้าง "ADDON"
+        if (lblCoffeeName != null) {
+            lblCoffeeName.setText("  " + selectedCoffee.name);
+        }
+
+        // ปุ่ม HOT/ICED ใส่ราคา / disable iced ถ้าใช้ไม่ได้
+        if (hotToggle != null) {
+            hotToggle.setText("HOT " + (int) selectedCoffee.hotPrice + "฿");
+            hotToggle.setEnabled(true);
+            typeGroup.setSelected(hotToggle.getModel(), true);
+            selectedType = DrinkType.HOT;
+        }
+        if (icedToggle != null) {
+            icedToggle.setText("ICED " + (int) selectedCoffee.icedPrice + "฿");
+            icedToggle.setEnabled(selectedCoffee.icedAvailable);
+            if (!selectedCoffee.icedAvailable && icedToggle.isSelected()) {
+                typeGroup.setSelected(hotToggle.getModel(), true);
+                selectedType = DrinkType.HOT;
+            }
+        }
+
+        // NOTE: ราคาต่อช็อต
+        if (lblShotNote != null) {
+            lblShotNote.setText("+ " + (int) selectedCoffee.shotPrice + "฿ / 1 Shot");
+        }
+        if (lblShotCount != null) {
+            lblShotCount.setText(String.valueOf(extraShots));
+        }
+
+        updateTotalBadge();
+    }
+
+    // คำนวณราคารวมและอัปเดต badge
+    private void updateTotalBadge() {
+        if (selectedCoffee == null || lblTotal == null)
+            return;
+
+        double base = (selectedType == DrinkType.ICED && selectedCoffee.icedAvailable)
+                ? selectedCoffee.icedPrice
+                : selectedCoffee.hotPrice;
+
+        double shotSum = extraShots * selectedCoffee.shotPrice;
+
+        double topSum = toppingButtons.stream()
+                .filter(AbstractButton::isSelected)
+                .mapToDouble(b -> toppingPriceMap.getOrDefault(b, 0.0))
+                .sum();
+
+        double total = base + shotSum + topSum;
+
+        lblTotal.setText("Total : " + (int) total + "฿");
     }
 
     // ---- Reset selections ----
