@@ -13,7 +13,7 @@ public class MarshmallowDecorator extends CoffeeDecorator {
     }
 
     @Override
-    public int getPrice() {
+    public double getPrice() {
         return wrappedCoffee.getPrice() + 5;
     }
     

@@ -13,8 +13,8 @@ public class WhippingcreamDecorator extends CoffeeDecorator {
     }
 
     @Override
-    public int getPrice() {
-        return wrappedCoffee.getPrice() + 5;
+    public double getPrice() {
+        return wrappedCoffee.getPrice() + 10;
     }
     
 }
