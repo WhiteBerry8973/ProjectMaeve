@@ -2,7 +2,7 @@ import FactoryMethodPattern.*;
 import DecoratorMethodPattern.*;
 import StrategyPattern.*;
 
-public class Test {
+public class OrderTest {
     public static void main(String[] args) {
         DiscountStrategy discountedPrice = new PointToCashDiscount();
         double finalPrice = 0;
