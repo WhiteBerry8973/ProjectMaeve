@@ -1,4 +1,4 @@
-package Admin;
+package Account.Admin;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -43,7 +43,7 @@ public class AdminLogin {
                 String[] parts = s.split(",");
                 String Username = parts[0];
                 String Password = parts[1];
-                if (Username.equals(this.username) && Password.equals(this.password)) {
+                if (Username.equals(username) && Password.equals(password)) {
                     return "Login successful!";
                 }
             }

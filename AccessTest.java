@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-import Admin.AdminLogin;
+import Account.Admin.AdminLogin;
 
 public class AccessTest {
 
@@ -16,5 +16,7 @@ public class AccessTest {
         AdminLogin admin = new AdminLogin(username, password);
         String result = admin.login();
         System.out.println(result);
+        input.close();
+
     }
 }
