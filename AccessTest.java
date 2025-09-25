@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-import Account.Admin.AdminLogin;
+import Admin.AdminLogin;
 
 public class AccessTest {
 

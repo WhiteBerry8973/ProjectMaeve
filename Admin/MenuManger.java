@@ -1,4 +1,4 @@
-package Account.Admin;
+package Admin;
 
 import java.io.File;
 
