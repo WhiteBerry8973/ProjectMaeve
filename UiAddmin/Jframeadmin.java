@@ -28,8 +28,8 @@ public class Jframeadmin extends JFrame {
         Password = new JLabel("Password : ");
         Conpass  = new JLabel("Confirm Password : ");
         t1 = new JTextField(20);
-        t2 = new JTextField(20);
-        t3 = new JTextField(20);
+        t2 = new JPasswordField(20);
+        t3 = new JPasswordField(20);
         b1 = new JButton("Login");
         b2 = new JButton("Guest");  
         
