@@ -69,11 +69,9 @@ public class MaeveCoffeeUI {
     private final Set<JToggleButton> toppingButtons = new HashSet<>();
     private final Set<JToggleButton> sweetnessButtons = new HashSet<>();
     private final Set<JToggleButton> paymentMethodButtons = new HashSet<>();
-    private final Set<JToggleButton> currencyButtons = new HashSet<>();
 
     private final ButtonGroup sweetnessGroup = new ButtonGroup();
     private final ButtonGroup paymentGroup = new ButtonGroup();
-    private final ButtonGroup currencyGroup = new ButtonGroup();
 
     // --- Selection state for ADDON page ---
     private MenuCoffee selectedCoffee;
@@ -464,7 +462,8 @@ public class MaeveCoffeeUI {
             boolean toppingSelected = toppingButtons.stream().anyMatch(AbstractButton::isSelected);
             boolean sweetSelected = sweetnessButtons.stream().anyMatch(AbstractButton::isSelected);
             if (!(toppingSelected && sweetSelected)) {
-                JOptionPane.showMessageDialog(frame, "Please select Topping and Sweetness completely", "Incomplete Selection", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "Please select Topping and Sweetness completely",
+                        "Incomplete Selection", JOptionPane.WARNING_MESSAGE);
             } else {
                 show("PAYMENT");
                 resetAddonSelections();
@@ -532,10 +531,14 @@ public class MaeveCoffeeUI {
         JPanel pmGrid = new JPanel(new GridLayout(2, 2, 18, 18));
         pmGrid.setOpaque(false);
 
-        JToggleButton pm1 = paymentMethodButtons(imagePath_payment_promptpay, SQUARE_PM, Orientation.TOP_BOTTOM, paymentGroup);
-        JToggleButton pm2 = paymentMethodButtons(imagePath_payment_paypal, SQUARE_PM, Orientation.TOP_BOTTOM, paymentGroup);
-        JToggleButton pm3 = paymentMethodButtons(imagePath_payment_card, SQUARE_PM, Orientation.TOP_BOTTOM, paymentGroup);
-        JToggleButton pm4 = paymentMethodButtons(imagePath_payment_cash, SQUARE_PM, Orientation.TOP_BOTTOM, paymentGroup);
+        JToggleButton pm1 = paymentMethodButtons(imagePath_payment_promptpay, SQUARE_PM, Orientation.TOP_BOTTOM,
+                paymentGroup);
+        JToggleButton pm2 = paymentMethodButtons(imagePath_payment_paypal, SQUARE_PM, Orientation.TOP_BOTTOM,
+                paymentGroup);
+        JToggleButton pm3 = paymentMethodButtons(imagePath_payment_card, SQUARE_PM, Orientation.TOP_BOTTOM,
+                paymentGroup);
+        JToggleButton pm4 = paymentMethodButtons(imagePath_payment_cash, SQUARE_PM, Orientation.TOP_BOTTOM,
+                paymentGroup);
 
         paymentMethodButtons.add(pm1);
         paymentMethodButtons.add(pm2);
@@ -549,34 +552,6 @@ public class MaeveCoffeeUI {
 
         content.add(pmGrid, BorderLayout.CENTER);
 
-        // ===== CURRENCY =====
-        JPanel currencyWrap = new JPanel(new BorderLayout());
-        currencyWrap.setOpaque(false);
-        JLabel cTitle = makeTitle("CURRENCY", 28);
-        cTitle.setBorder(new EmptyBorder(14, 0, 8, 0));
-        currencyWrap.add(cTitle, BorderLayout.NORTH);
-
-        JPanel curBtns = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 6));
-        curBtns.setOpaque(false);
-
-        JToggleButton thb = makeTextRadio("THB", 76, 40, Orientation.LEFT_RIGHT, currencyGroup);
-        JToggleButton usd = makeTextRadio("USD", 76, 40, Orientation.TOP_BOTTOM, currencyGroup);
-        JToggleButton eur = makeTextRadio("EUR", 76, 40, Orientation.TOP_BOTTOM, currencyGroup);
-        JToggleButton jpy = makeTextRadio("JPY", 76, 40, Orientation.RIGHT_LEFT, currencyGroup);
-
-        currencyButtons.add(thb);
-        currencyButtons.add(usd);
-        currencyButtons.add(eur);
-        currencyButtons.add(jpy);
-
-        curBtns.add(thb);
-        curBtns.add(usd);
-        curBtns.add(eur);
-        curBtns.add(jpy);
-
-        currencyWrap.add(curBtns, BorderLayout.CENTER);
-        content.add(currencyWrap, BorderLayout.SOUTH);
-
         // CONFIRM, CANCEL
         JPanel bottomBar = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         bottomBar.setOpaque(false);
@@ -584,7 +559,7 @@ public class MaeveCoffeeUI {
 
         paymentConfirmBtn = makeSecondaryButton("CONFIRM", 150, 44, Orientation.LEFT_RIGHT);
         paymentConfirmBtn.addActionListener(e -> {
-            JOptionPane.showMessageDialog(frame, "Please select Payment Method and Currency completely",
+            JOptionPane.showMessageDialog(frame, "Please select Payment Method completely",
                     "Incomplete Selection", JOptionPane.WARNING_MESSAGE);
         });
 
@@ -601,7 +576,6 @@ public class MaeveCoffeeUI {
 
         ItemListener payListener = e -> updatePaymentConfirmEnabled();
         paymentMethodButtons.forEach(b -> b.addItemListener(payListener));
-        currencyButtons.forEach(b -> b.addItemListener(payListener));
 
         page.add(contentMargin, BorderLayout.CENTER);
         page.add(bottomBar, BorderLayout.SOUTH);
@@ -892,7 +866,8 @@ public class MaeveCoffeeUI {
             } else {
                 addonConfirmBtn = makeSecondaryButton("CONFIRM", 150, 44, Orientation.LEFT_RIGHT);
                 addonConfirmBtn.addActionListener(ev -> {
-                    JOptionPane.showMessageDialog(frame,"Please select Sweetness and Drink Type (Hot/Iced)","Incomplete Selection", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(frame, "Please select Sweetness and Drink Type (Hot/Iced)",
+                            "Incomplete Selection", JOptionPane.WARNING_MESSAGE);
                 });
             }
 
@@ -904,8 +879,7 @@ public class MaeveCoffeeUI {
 
     // payment confirm
     private void updatePaymentConfirmEnabled() {
-        boolean ok = paymentMethodButtons.stream().anyMatch(AbstractButton::isSelected)
-                && currencyButtons.stream().anyMatch(AbstractButton::isSelected);
+        boolean ok = paymentMethodButtons.stream().anyMatch(AbstractButton::isSelected);
 
         if (paymentConfirmBtn != null) {
             JPanel parent = (JPanel) paymentConfirmBtn.getParent();
@@ -926,7 +900,7 @@ public class MaeveCoffeeUI {
                 paymentConfirmBtn = makeSecondaryButton("CONFIRM", 150, 44, Orientation.LEFT_RIGHT);
                 paymentConfirmBtn.addActionListener(ev -> {
                     JOptionPane.showMessageDialog(frame,
-                            "Please select Payment Method and Currency completely",
+                            "Please select Payment Method completely",
                             "Incomplete Selection", JOptionPane.WARNING_MESSAGE);
                 });
             }
@@ -1002,8 +976,6 @@ public class MaeveCoffeeUI {
     private void resetPaymentSelections() {
         paymentMethodButtons.stream().forEach(b -> b.setSelected(false));
         paymentGroup.clearSelection();
-        currencyButtons.stream().forEach(b -> b.setSelected(false));
-        currencyGroup.clearSelection();
     }
 
     // Resize
