@@ -1,4 +1,4 @@
-import gui.MaeveCoffeeUI;
+import Gui.MainGui.MaeveCoffeeUI;
 
 public class Main {
     public static void main(String[] args) {
