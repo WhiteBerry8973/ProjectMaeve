@@ -3,8 +3,6 @@ package Gui;
 import java.io.*;
 import java.util.*;
 
-import model.*;
-
 public class JframeCreator {
     public static List<ShowCoffee> loadFromCSV(String filePath) {
         List<ShowCoffee> coffees = new ArrayList<>();
