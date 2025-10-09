@@ -114,11 +114,11 @@ public class RoundedToggleButton extends JToggleButton {
             body = new Color(0x492316);
             tcol = new Color(0xE8E3D5);
         } else if (pressed) {
-            body = fillPressed;
-            tcol = textPressed;
+            body = new Color(0x492316);
+            tcol = new Color(0xE8E3D5);
         } else if (hover) {
-            body = new Color(0xCFC8B4);
-            tcol = new Color(0x633322);
+            body = new Color(0x633322);
+            tcol = new Color(0xE8E3D5);
         } else {
             body = fillNormal;
             tcol = textNormal;

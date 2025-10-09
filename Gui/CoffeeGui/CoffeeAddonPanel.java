@@ -23,6 +23,8 @@ public class CoffeeAddonPanel extends JPanel {
     private JButton lblTotal;
     private JLabel lblShotNote;
     private JLabel lblShotCount;
+    private JPanel totalWrap;
+    private boolean totalSolid = false;
 
     private final Set<JToggleButton> toppingButtons = new HashSet<>();
     private final Map<AbstractButton, Double> toppingPriceMap = new HashMap<>();
@@ -74,10 +76,28 @@ public class CoffeeAddonPanel extends JPanel {
         contentMargin.setOpaque(false);
         contentMargin.setBorder(new EmptyBorder(10, 20, 0, 20));
 
-        // ===== Rounded content =====
-        Ui.RoundedBorderPanel content = new Ui.RoundedBorderPanel(
-                Ui.PANEL_FILL, Ui.ARC, Ui.BORDER_STROKE,
-                Ui.PANEL_BORDER_TOP, Ui.PANEL_BORDER_BOT, Ui.Orientation.TOP_BOTTOM);
+        // ===== White card =====
+        JPanel content = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                int w = getWidth();
+                int h = getHeight();
+                int r = 18;
+
+                g2.setColor(new Color(0xE8E3D5));
+                g2.fillRoundRect(0, 0, w, h, r, r);
+
+                g2.setColor(Ui.TITLE_DARK);
+                g2.setStroke(new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                g2.drawRoundRect(1, 1, w - 2 - 0, h - 2 - 0, r, r);
+
+                g2.dispose();
+            }
+        };
         content.setOpaque(false);
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
         content.setBorder(new EmptyBorder(20, 20, 20, 20));
@@ -89,32 +109,62 @@ public class CoffeeAddonPanel extends JPanel {
 
         JLabel typeTitle = makeTitle("TYPE", 28);
         typeTitle.setHorizontalAlignment(SwingConstants.LEFT);
+        typeTitle.setForeground(Ui.TITLE_DARK);
         typeRow.add(typeTitle, BorderLayout.WEST);
 
-        JPanel typeStrip = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        typeStrip.setOpaque(false);
-
         hotToggle = new SegmentedTab("HOT --฿", true, false, true, false, 14);
-        hotToggle.setPreferredSize(new Dimension(140, 44));
-        hotToggle.setFont(new Font("SansSerif", Font.BOLD, 16));
-        typeGroup.add(hotToggle);
-
-        JPanel typeDivider = new JPanel();
-        typeDivider.setPreferredSize(new Dimension(1, 44));
-        typeDivider.setBackground(new Color(0x633322));
-
         icedToggle = new SegmentedTab("ICED --฿", false, true, false, true, 14);
-        icedToggle.setPreferredSize(new Dimension(140, 44));
+
+        hotToggle.setOpaque(false);
+        icedToggle.setOpaque(false);
+        hotToggle.setFont(new Font("SansSerif", Font.BOLD, 16));
         icedToggle.setFont(new Font("SansSerif", Font.BOLD, 16));
-        icedToggle.setDisabledColors(new Color(0x572b1c), new Color(0x9d715c));
+        hotToggle.setBorder(new EmptyBorder(0, 16, 0, 16));
+        icedToggle.setBorder(new EmptyBorder(0, 16, 0, 16));
+        typeGroup.add(hotToggle);
         typeGroup.add(icedToggle);
 
-        typeStrip.add(hotToggle);
-        typeStrip.add(typeDivider);
-        typeStrip.add(icedToggle);
+        JPanel typePill = new JPanel(new GridLayout(1, 2, 0, 0)) {
+            @Override
+            public void paint(Graphics g) {
+                super.paint(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);
 
+                int w = getWidth(), h = getHeight(), r = 22;
+
+                g2.setColor(Ui.TITLE_DARK);
+                g2.setStroke(new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                g2.drawRoundRect(1, 1, w - 2, h - 2, r, r);
+
+                int cx = (w - 2) / 2 + 1;
+                g2.fillRect(cx, 2, 1, h - 4);
+
+                g2.dispose();
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                int w = getWidth(), h = getHeight(), r = 22;
+                g2.setColor(Ui.BG);
+                g2.fillRoundRect(0, 0, w, h, r, r);
+                g2.dispose();
+            }
+        };
+        typePill.setOpaque(false);
+        typePill.setPreferredSize(new Dimension(300, 44));
+
+        typePill.add(hotToggle);
+        typePill.add(icedToggle);
+
+        JPanel typeWrap = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        typeWrap.setOpaque(false);
+        typeWrap.add(typePill);
         typeRow.add(Box.createHorizontalStrut(16), BorderLayout.CENTER);
-        typeRow.add(typeStrip, BorderLayout.EAST);
+        typeRow.add(typeWrap, BorderLayout.EAST);
 
         content.add(typeRow);
         content.add(Box.createVerticalStrut(40));
@@ -126,41 +176,50 @@ public class CoffeeAddonPanel extends JPanel {
 
         JLabel shotTitle = makeTitle("EXTRA SHOT", 30);
         shotTitle.setHorizontalAlignment(SwingConstants.LEFT);
+        shotTitle.setForeground(Ui.TITLE_DARK);
         shotRow.add(shotTitle, BorderLayout.WEST);
 
         JPanel shotBtns = new JPanel(new GridBagLayout());
         shotBtns.setOpaque(false);
-        shotBtns.setMaximumSize(new Dimension(300, 44));
+        shotBtns.setMaximumSize(new Dimension(320, 44));
 
         JButton minus = createStepButton("-", true, false, 56, 44);
         JButton plus = createStepButton("+", false, true, 56, 44);
 
-        lblShotCount = new JLabel("1", SwingConstants.CENTER);
-        lblShotCount.setForeground(Ui.TITLE);
+        lblShotCount = new JLabel("0", SwingConstants.CENTER);
+        lblShotCount.setForeground(Ui.TITLE_DARK);
         lblShotCount.setFont(new Font("SansSerif", Font.BOLD, 18));
 
-        Ui.RoundedBorderPanel countBg = new Ui.RoundedBorderPanel(
-                Ui.ITEM_FILL, 0, 2f,
-                Ui.TITLE, Ui.TITLE, Ui.Orientation.TOP_BOTTOM);
-        countBg.setLayout(new BorderLayout());
-        countBg.add(lblShotCount, BorderLayout.CENTER);
-        countBg.setPreferredSize(new Dimension(100, 44));
-
+        JPanel countMid = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(Ui.BG);
+                g2.fillRect(0, 0, getWidth(), getHeight());
+                g2.setColor(Ui.TITLE_DARK);
+                g2.setStroke(new BasicStroke(1f));
+                g2.drawRect(1, 0, getWidth() - 2, getHeight() - 2);
+                g2.dispose();
+            }
+        };
+        countMid.setOpaque(false);
+        countMid.setPreferredSize(new Dimension(88, 44));
+        countMid.add(lblShotCount, BorderLayout.CENTER);
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = 0;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weighty = 1.0;
+        gbc.insets = new Insets(0, -2, 0, 0);
 
         gbc.gridx = 0;
         gbc.weightx = 0;
-        gbc.insets = new Insets(0, 0, 0, 0);
         shotBtns.add(minus, gbc);
-
         gbc.gridx = 1;
-        gbc.weightx = 1.0;
-        shotBtns.add(countBg, gbc);
-
+        gbc.weightx = 1;
+        shotBtns.add(countMid, gbc);
         gbc.gridx = 2;
         gbc.weightx = 0;
         shotBtns.add(plus, gbc);
@@ -171,7 +230,7 @@ public class CoffeeAddonPanel extends JPanel {
         content.add(shotRow);
 
         lblShotNote = new JLabel("+ 5฿ / 1 Shot");
-        lblShotNote.setForeground(new Color(0xE8E3D5));
+        lblShotNote.setForeground(Ui.TITLE_DARK);
         lblShotNote.setFont(new Font("SansSerif", Font.PLAIN, 12));
         lblShotNote.setBorder(new EmptyBorder(2, 0, 10, 0));
         shotRow.add(lblShotNote, BorderLayout.SOUTH);
@@ -180,6 +239,7 @@ public class CoffeeAddonPanel extends JPanel {
 
         // ===== TOPPING =====
         JLabel tTitle = makeTitle("TOPPING", 30);
+        tTitle.setForeground(Ui.TITLE_DARK);
         tTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
         tTitle.setBorder(new EmptyBorder(0, 0, 25, 0));
         content.add(tTitle);
@@ -189,6 +249,10 @@ public class CoffeeAddonPanel extends JPanel {
         JToggleButton t1 = Ui.makeToppingToggle(IMG_TOPPING1, 140, 15, Ui.Orientation.TOP_BOTTOM);
         JToggleButton t2 = Ui.makeToppingToggle(IMG_TOPPING2, 140, 10, Ui.Orientation.TOP_BOTTOM);
         JToggleButton t3 = Ui.makeToppingToggle(IMG_TOPPING3, 140, 10, Ui.Orientation.TOP_BOTTOM);
+        t1.setActionCommand("Whippingcream");
+        t2.setActionCommand("Chocolate");
+        t3.setActionCommand("Marshmallow");
+
         toppingButtons.clear();
         toppingButtons.add(t1);
         toppingButtons.add(t2);
@@ -204,6 +268,7 @@ public class CoffeeAddonPanel extends JPanel {
 
         // ===== SWEETNESS =====
         JLabel sTitle = makeTitle("SWEETNESS", 30);
+        sTitle.setForeground(Ui.TITLE_DARK);
         sTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
         sTitle.setBorder(new EmptyBorder(0, 0, 25, 0));
         content.add(sTitle);
@@ -236,27 +301,16 @@ public class CoffeeAddonPanel extends JPanel {
         add(contentMargin, BorderLayout.CENTER);
 
         // ===== Bottom =====
-        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 30));
+        JPanel bottom = new JPanel(new BorderLayout());
         bottom.setOpaque(false);
-
-        int totalArc = 22;
-        Ui.RoundedBorderPanel totalPill = new Ui.RoundedBorderPanel(
-                Ui.ITEM_FILL, totalArc, 1f,
-                Ui.ITEM_BORDER_TOP, Ui.ITEM_BORDER_BOT, Ui.Orientation.TOP_BOTTOM);
-        totalPill.setOpaque(false);
-        totalPill.setLayout(new BorderLayout());
-
-        lblTotal = Ui.makePrimaryButton("Total : 0฿", 546, 44);
-        lblTotal.setBorder(BorderFactory.createEmptyBorder());
-        lblTotal.setContentAreaFilled(false);
-        lblTotal.setOpaque(false);
-
-        lblTotal.addActionListener(e -> handleTotalClick());
-
-        totalPill.add(lblTotal, BorderLayout.CENTER);
-        bottom.add(totalPill);
-
+        bottom.setBorder(new EmptyBorder(16, 20, 16, 20));
         add(bottom, BorderLayout.SOUTH);
+
+        totalWrap = new JPanel(new GridLayout(1, 1));
+        totalWrap.setOpaque(false);
+        bottom.add(totalWrap, BorderLayout.CENTER);
+
+        rebuildTotalButton(false);
 
         // ===== Listeners =====
         ItemListener addonListener = e -> {
@@ -362,6 +416,14 @@ public class CoffeeAddonPanel extends JPanel {
         double total = base + shotSum + topSum;
         if (lblTotal != null) {
             lblTotal.setText("Total : " + (int) total + "฿");
+
+            boolean ready = isSweetSelected() && total > 0;
+
+            if (ready != totalSolid) {
+                rebuildTotalButton(ready);
+            }
+
+            lblTotal.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
     }
 
@@ -377,21 +439,57 @@ public class CoffeeAddonPanel extends JPanel {
         if (!isSweetSelected()) {
             JOptionPane.showMessageDialog(
                     this,
-                    "โปรดเลือกความหวานก่อน",
-                    "เลือกไม่ครบ",
+                    "Please select sweetness level",
+                    "Not Selected",
                     JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         int ans = JOptionPane.showConfirmDialog(
                 this,
-                "ยืนยันสั่งซื้อรายการนี้หรือไม่?",
-                "ยืนยันคำสั่งซื้อ",
+                "Confirm to order this item?",
+                "Confirm Order",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE);
 
         if (ans == JOptionPane.YES_OPTION) {
-            ui.show("COFFEE_BILL");
+            MaeveCoffeeUI.MenuDrink d = ui.getSelectedDrink();
+            if (d != null) {
+                MaeveCoffeeUI.OrderSummary o = new MaeveCoffeeUI.OrderSummary();
+                o.username = ui.getCurrentUser();
+                o.pointsBefore = ui.getCurrentPoints();
+                o.date = java.time.LocalDate.now();
+                o.time = java.time.LocalTime.now();
+
+                boolean icedOk = (ui.getSelectedType() == MaeveCoffeeUI.DrinkType.ICED && d.icedAvailable);
+                int base = (int) (icedOk ? d.icedPrice : d.hotPrice);
+                o.items.add(new MaeveCoffeeUI.OrderItem(d.name, 1, base));
+
+                int shots = ui.getExtraShots();
+                if (shots > 0) {
+                    o.items.add(new MaeveCoffeeUI.OrderItem(shots + " Extrashot(+" + (int) d.shotPrice + "฿)", 1,
+                            (int) (shots * d.shotPrice)));
+                }
+
+                for (AbstractButton b : toppingButtons) {
+                    if (b.isSelected()) {
+                        String label = (b.getActionCommand() == null || b.getActionCommand().isBlank())
+                                ? "Topping"
+                                : b.getActionCommand();
+                        int tp = (int) Math.round(toppingPriceMap.getOrDefault(b, 0.0));
+                        o.items.add(new MaeveCoffeeUI.OrderItem(label, 1, tp));
+                    }
+                }
+
+                o.pointsEarned = "GUEST".equalsIgnoreCase(o.username) ? 0 : 1;
+                if (o.pointsEarned > 0) {
+                    ui.setCurrentPoints(o.pointsBefore + o.pointsEarned);
+                }
+
+                ui.setLastOrder(o);
+            }
+            ui.show("BILL");
+            return;
         } else {
             resetSelections();
             ui.show("COFFEE_MENU");
@@ -409,6 +507,27 @@ public class CoffeeAddonPanel extends JPanel {
         updateTotalBadge();
     }
 
+    private void rebuildTotalButton(boolean solid) {
+        if (totalWrap == null)
+            return;
+        String text = (lblTotal != null) ? lblTotal.getText() : "Total : 0฿";
+
+        totalWrap.removeAll();
+        totalSolid = solid;
+
+        JButton newBtn = solid
+                ? Ui.makePrimaryButton(text, 10, 56)
+                : Ui.makeLightCapsuleButton(text, 10, 56);
+
+        newBtn.setFont(newBtn.getFont().deriveFont(Font.BOLD, 18f));
+        newBtn.addActionListener(e -> handleTotalClick());
+
+        lblTotal = newBtn;
+        totalWrap.add(lblTotal);
+        totalWrap.revalidate();
+        totalWrap.repaint();
+    }
+
     // ===== Helper =====
     private JButton createStepButton(String text, boolean roundLeft, boolean roundRight, int w, int h) {
         JButton b = new JButton(text) {
@@ -419,10 +538,10 @@ public class CoffeeAddonPanel extends JPanel {
                 int ww = getWidth(), hh = getHeight(), r = Ui.ARC;
 
                 Shape shape = makeSideRoundedRect(0, 0, ww - 1, hh - 1, r, roundLeft, roundRight);
-                g2.setColor(new Color(0xE8E3D5));
+                g2.setColor(Ui.TITLE_DARK);
                 g2.fill(shape);
 
-                g2.setColor(new Color(0x633322));
+                g2.setColor(Ui.BG);
                 FontMetrics fm = g2.getFontMetrics(getFont());
                 g2.drawString(getText(), (ww - fm.stringWidth(getText())) / 2,
                         (hh - fm.getHeight()) / 2 + fm.getAscent());

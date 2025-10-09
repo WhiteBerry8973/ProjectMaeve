@@ -93,7 +93,6 @@ public class RoundedButton extends JButton {
             body = fillPressed;
             tcol = textPressed;
         } else if (hover) {
-            // Hover color per spec
             body = Color.decode("#CFC8B4");
             tcol = Color.decode("#633322");
         } else {
@@ -105,7 +104,6 @@ public class RoundedButton extends JButton {
         g2.setColor(body);
         g2.fill(new RoundRectangle2D.Float(0, 0, w, h, arc, arc));
 
-        // optional border
         if (drawBorder && stroke > 0f) {
             Paint p;
             if (orientation == Orientation.TOP_BOTTOM) {

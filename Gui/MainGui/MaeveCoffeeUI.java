@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import Gui.CoffeeGui.*;
+import Gui.MainGui.MaeveCoffeeUI.MenuDrink;
 import Gui.UserGui.*;
 import Gui.AdminGui.*;
 
@@ -15,6 +16,13 @@ public class MaeveCoffeeUI {
     private JFrame frame;
     private CardLayout cardLayout;
     private JPanel cards;
+    private static final String CSV_COFFEE = "files/coffee_menus.csv";
+    private static final String CSV_TEA = "files/tea_menus.csv";
+    private static final String CSV_MILK = "files/milk_menus.csv";
+
+    private List<MenuDrink> coffeeMenu = new ArrayList<>();
+    private List<MenuDrink> teaMenu = new ArrayList<>();
+    private List<MenuDrink> milkMenu = new ArrayList<>();
 
     // ===== Shared State =====
     public static class MenuDrink {
@@ -36,8 +44,6 @@ public class MaeveCoffeeUI {
         }
     }
 
-    private List<MenuDrink> coffeeMenu = new ArrayList<>();
-
     private MenuDrink selectedDrink;
 
     // Addon state
@@ -55,7 +61,9 @@ public class MaeveCoffeeUI {
     private int currentPoints = 0;
 
     public MaeveCoffeeUI() {
-        coffeeMenu = loadMenuFromCSV("files/coffee_menus.csv");
+        coffeeMenu = loadMenuFromCSV(CSV_COFFEE);
+        teaMenu = loadMenuFromCSV(CSV_TEA);
+        milkMenu = loadMenuFromCSV(CSV_MILK);
     }
 
     public void start() {
@@ -72,12 +80,16 @@ public class MaeveCoffeeUI {
         cards = new JPanel(cardLayout);
 
         cards.add(new StartPanel(this), "HOME_PAGE");
-        //cards.add(new SignupPanel(this), "SIGNUP");
-        //cards.add(new LoginPanel(this), "LOGIN");
+        // cards.add(new SignupPanel(this), "SIGNUP");
+        // cards.add(new LoginPanel(this), "LOGIN");
         cards.add(new AdminLoginPanel(this), "ADMIN_LOGIN");
         cards.add(new CoffeeMenuPanel(this), "COFFEE_MENU");
         cards.add(new CoffeeAddonPanel(this), "COFFEE_ADDON");
-        //cards.add(new CoffeePaymentPanel(this), "COFFEE_PAYMENT");
+        cards.add(new MenuCatalogPanel(this, MenuCatalogPanel.Catalog.COFFEE), "COFFEE_MENU");
+        cards.add(new MenuCatalogPanel(this, MenuCatalogPanel.Catalog.TEA), "TEA_MENU");
+        cards.add(new MenuCatalogPanel(this, MenuCatalogPanel.Catalog.MILK), "MILK_MENU");
+
+        cards.add(new ReceiptDialog(this), "BILL");
 
         frame.add(cards, BorderLayout.CENTER);
         frame.setLocationRelativeTo(null);
@@ -86,7 +98,48 @@ public class MaeveCoffeeUI {
         show("HOME_PAGE");
     }
 
+    // ===== Order model for receipt =====
+    public static class OrderItem {
+        public final String label;
+        public final int qty;
+        public final int price;
+
+        public OrderItem(String label, int qty, int price) {
+            this.label = label;
+            this.qty = qty;
+            this.price = price;
+        }
+
+        public int lineTotal() {
+            return qty * price;
+        }
+    }
+
+    public static class OrderSummary {
+        public String username;
+        public int pointsBefore;
+        public int pointsEarned;
+        public java.time.LocalDate date;
+        public java.time.LocalTime time;
+        public java.util.List<OrderItem> items = new java.util.ArrayList<>();
+
+        public int total() {
+            return items.stream().mapToInt(OrderItem::lineTotal).sum();
+        }
+    }
+
+    private OrderSummary lastOrder;
+
     // ===== State getters/setters =====
+
+    public OrderSummary getLastOrder() {
+        return lastOrder;
+    }
+
+    public void setLastOrder(OrderSummary o) {
+        lastOrder = o;
+    }
+
     public List<MenuDrink> getCoffeeMenu() {
         return coffeeMenu;
     }
@@ -154,6 +207,18 @@ public class MaeveCoffeeUI {
         cardLayout.show(cards, name);
     }
 
+    public java.util.List<MenuDrink> getMenuByCatalog(MenuCatalogPanel.Catalog cat) {
+        switch (cat) {
+            case TEA:
+                return teaMenu;
+            case MILK:
+                return milkMenu;
+            case COFFEE:
+            default:
+                return coffeeMenu;
+        }
+    }
+
     // ===== CSV Loader =====
     private static List<MenuDrink> loadMenuFromCSV(String filePath) {
         List<MenuDrink> menuList = new ArrayList<>();
@@ -186,16 +251,5 @@ public class MaeveCoffeeUI {
             e.printStackTrace();
         }
         return menuList;
-    }
-
-    // ===== Helper: get topping price (dummy 10฿ for example) =====
-    public int getToppingPrice(String t) {
-        if (t.toLowerCase().contains("whip"))
-            return 15;
-        if (t.toLowerCase().contains("choco"))
-            return 10;
-        if (t.toLowerCase().contains("marsh"))
-            return 10;
-        return 10;
     }
 }

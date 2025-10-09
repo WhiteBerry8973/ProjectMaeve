@@ -223,16 +223,16 @@ public class Ui {
 
         private Shape makeBottomRoundedRect(int x, int y, int w, int h, int r) {
             Path2D.Double p = new Path2D.Double();
-            // ด้านบนเป็น "เหลี่ยม"
+
             p.moveTo(x, y);
             p.lineTo(x + w, y);
-            // ขวาลง ล่าง-ขวา (โค้ง)
+
             p.lineTo(x + w, y + h - r);
             p.quadTo(x + w, y + h, x + w - r, y + h);
-            // ลากไปซ้าย โค้งล่าง-ซ้าย
+
             p.lineTo(x + r, y + h);
             p.quadTo(x, y + h, x, y + h - r);
-            // ปิด path ขึ้นไปด้านบน (เหลี่ยม)
+
             p.lineTo(x, y);
             p.closePath();
             return p;
@@ -348,6 +348,26 @@ public class Ui {
         return btn;
     }
 
+ public static RoundedButton makeLightCapsuleButton(String text, int w, int h) {
+        RoundedButton b = new RoundedButton(
+                text,
+                18, 1f, true,
+                C_BG,
+                new Color(0xCFC8B4),
+                new Color(0x492316),
+                C_BG,
+                C_PRIMARY,
+                C_PRIMARY,
+                Color.WHITE,
+                new Color(0xB8AEA0),
+                C_PRIMARY, C_PRIMARY,
+                RoundedButton.Orientation.LEFT_RIGHT
+        );
+        b.setPreferredSize(new Dimension(w, h));
+        b.setFont(b.getFont().deriveFont(Font.BOLD, 20f));
+        return b;
+    }
+
     public static JButton makeMenuSquare(String imagePath, String label, int size, Runnable onClick) {
         RoundedButton btn = new RoundedButton(
                 label,
@@ -381,8 +401,9 @@ public class Ui {
         Color c2 = (borderOri == Orientation.LEFT_RIGHT) ? SECONDARY_RIGHT : ITEM_BORDER_BOT;
 
         RoundedToggleButton t = new RoundedToggleButton(
-                "", ARC, BORDER_STROKE, true, ITEM_FILL, SELECTED_FILL, SELECTED_FILL, ITEM_FILL, SEL_FILL, PRIMARY_FILL,
-                SEL_FILL, TITLE, TITLE, TITLE, TITLE, TITLE, PRIMARY_TEXT, TITLE, c1, c2, toRT(borderOri)) {
+                "", ARC, BORDER_STROKE, true, ITEM_FILL, SELECTED_FILL, SELECTED_FILL, TITLE_DARK, TITLE_DARK,
+                TITLE_DARK,
+                TITLE_DARK, TITLE_DARK, TITLE_DARK, TITLE_DARK, TITLE_DARK, TITLE_DARK, PRIMARY_TEXT, TITLE_DARK, c1, c2, toRT(borderOri)) {
             @Override
             protected void paintContent(Graphics2D g2, Color textColor) {
                 int inset = 12;
@@ -405,8 +426,8 @@ public class Ui {
         RoundedToggleButton t = new RoundedToggleButton(
                 text,
                 ARC, 1f, true,
-                ITEM_FILL, HOVER_FILL, SELECTED_FILL, ITEM_FILL, SEL_FILL, PRIMARY_FILL, SEL_FILL, TITLE, TITLE, TITLE,
-                TITLE, TITLE, PRIMARY_TEXT, TITLE, ITEM_BORDER_TOP, ITEM_BORDER_BOT, toRT(ori));
+                BG, HOVER_FILL, SELECTED_FILL, TITLE_DARK, TITLE_DARK, PRIMARY_FILL, TITLE_DARK, TITLE_DARK, TITLE_DARK, TITLE_DARK,
+                TITLE_DARK, TITLE_DARK, TITLE_DARK, TITLE_DARK, TITLE_DARK, TITLE_DARK, toRT(ori));
         t.setPreferredSize(new Dimension(w, h));
         t.setFont(new Font("SansSerif", Font.BOLD, 16));
         return t;
@@ -418,7 +439,7 @@ public class Ui {
         return t;
     }
 
-    // ===== Image helper =====
+    // ===== Image Helper =====
     public static void drawImageKeepRatio(Graphics2D g2, String path, int x, int y, int w, int h) {
         g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         if (path == null) {
