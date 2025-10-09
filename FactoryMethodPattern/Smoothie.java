@@ -3,6 +3,7 @@ package FactoryMethodPattern;
 public class Smoothie implements Soda {
     private String name ;
     private double price ;
+    private final double SMOOTHIE_EXTRA_COST = 10;
 
     public Smoothie(String name, double price) {
         this.name = name;
@@ -17,7 +18,7 @@ public class Smoothie implements Soda {
 
     @Override
     public double getPrice() {
-        return price + 10;
+        return price + SMOOTHIE_EXTRA_COST;
     }
     
 }

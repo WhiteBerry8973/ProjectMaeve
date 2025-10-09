@@ -1,8 +1,7 @@
 package FactoryMethodPattern;
 
 public class SodaFactory {
-
-        public static Soda createSoda(String type, String name, double price) {
+    public static Soda createSoda(String type, String name, double price) {
         if (type.equalsIgnoreCase("ice")) {
             return new IceSoda(name, price);
         } else if (type.equalsIgnoreCase("Smoothie")) {

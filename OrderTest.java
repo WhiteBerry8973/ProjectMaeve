@@ -29,7 +29,15 @@ public class OrderTest {
 
         System.out.println("------------------------------------------------------------------------");
 
+        Soda soda = FactoryMethodPattern.SodaFactory.createSoda("ice", "Coke", 40);
+        System.out.println("Soda: " + soda.getName() + ", Price: " + soda.getPrice() +" baht");
+        System.out.println("Final Price after discount: " + soda.getPrice() + " baht");
 
+        System.out.println("------------------------------------------------------------------------");
+
+        Soda smoothie = FactoryMethodPattern.SodaFactory.createSoda("smoothie", "Mango Smoothie", 70);
+        System.out.println("Soda: " + smoothie.getName() + ", Price: " + smoothie.getPrice() +" baht");
+        System.out.println("Final Price after discount: " + smoothie.getPrice() + " baht");
 
     }
 }
