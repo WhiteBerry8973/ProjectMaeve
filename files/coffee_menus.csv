@@ -1,0 +1,9 @@
+name, hotprice, iceprice, iceavailable, shotprice, path
+Espresso,45,0,0,10,Imgs/coffees/espresso.png
+Americano,50,60,1,5,Imgs/coffees/americano.png
+Latte,60,70,1,5,Imgs/coffees/latte.png
+Cappuccino,60,70,1,5,Imgs/coffees/cappuccino.png
+Mocha,65,75,1,5,Imgs/coffees/mocha.png
+Caramel Macchiato,70,80,1,5,Imgs/coffees/caramel_macchiato.png
+Vanilla Latte,65,75,1,5,Imgs/coffees/vanilla_latte.png
+Hazelnut Latte,65,75,1,5,Imgs/coffees/hazelnut_latte.png
