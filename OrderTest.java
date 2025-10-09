@@ -1,6 +1,6 @@
 import FactoryMethodPattern.*;
-import StrategyPattern.*;
 import DecoratorMethodPattern.*;
+import StrategyPattern.*;
 
 public class OrderTest {
     public static void main(String[] args) {
@@ -28,8 +28,6 @@ public class OrderTest {
         System.out.println("Final Price after discount: " + finalPrice + " baht");
 
         System.out.println("------------------------------------------------------------------------");
-
-
 
     }
 }
