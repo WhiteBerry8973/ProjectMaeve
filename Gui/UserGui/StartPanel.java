@@ -10,46 +10,57 @@ public class StartPanel extends JPanel {
 
     public StartPanel(MaeveCoffeeUI ui) {
         setLayout(new BorderLayout());
-        setBackground(Ui.BG);
+        setBackground(Ui.WHITE);
 
         // ===== Title =====
+        JPanel header = new JPanel(new BorderLayout());
+        header.setOpaque(false);
+        header.setBorder(new EmptyBorder(16, 20, 0, 20));
+        
         JLabel title = new JLabel("MAEVE COFFEE", SwingConstants.CENTER);
-        title.setForeground(Ui.TITLE);
-        title.setFont(new Font("SansSerif", Font.BOLD, 42)); // 🔹 ใหญ่ขึ้น
-        title.setBorder(new EmptyBorder(60, 0, 40, 0)); // 🔹 เว้นระยะมากขึ้น
-        add(title, BorderLayout.NORTH);
+        title.setFont(new Font("SansSerif", Font.BOLD, 40));
+        title.setForeground(Ui.BROWN);
+        title.setBorder(new EmptyBorder(30, 0, 0, 0));
+        header.add(title, BorderLayout.SOUTH);
 
-        // ===== Rounded content =====
-        Ui.RoundedBorderPanel box = new Ui.RoundedBorderPanel(
-                Ui.PANEL_FILL, Ui.ARC, Ui.BORDER_STROKE,
-                Ui.PANEL_BORDER_TOP, Ui.PANEL_BORDER_BOT, Ui.Orientation.TOP_BOTTOM);
-        box.setLayout(new GridLayout(3, 1, 0, 50)); // 🔹 ระยะห่างปุ่มเยอะขึ้น
-        box.setBorder(new EmptyBorder(80, 80, 80, 80));
+        add(header, BorderLayout.NORTH);
+        
+        // ===== Main Center Panel =====
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new GridBagLayout());
+        mainPanel.setBorder(new EmptyBorder(0, 35, 35, 35));
+        mainPanel.setOpaque(false);
+        mainPanel.setMaximumSize(new Dimension(420, 700));
 
-        JButton signup = Ui.makePrimaryButton("SIGNUP", 300, 80); // 🔹 ปุ่มใหญ่ขึ้น
-        signup.addActionListener(e -> ui.show("SIGNUP"));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.weightx = 1.0;
 
-        JButton login = Ui.makeSecondaryButton("LOGIN", 300, 80, Ui.Orientation.TOP_BOTTOM);
-        login.addActionListener(e -> ui.show("LOGIN"));
+        int row = 0;
 
-        JButton guest = Ui.makeSecondaryButton("GUEST", 300, 80, Ui.Orientation.TOP_BOTTOM);
-        guest.addActionListener(e -> {
-            ui.setCurrentUser("GUEST", 0);
-            ui.show("COFFEE_MENU");
-        });
+        // ===== Image =====
+        ImageIcon icon = new ImageIcon("Imgs/logo.png");
+        Image img = icon.getImage().getScaledInstance(400, 400, Image.SCALE_SMOOTH);
+        JLabel imageLabel = new JLabel(new ImageIcon(img));
+        gbc.gridy = row++;
+        gbc.insets = new Insets(0, 0, 0, 0);
+        mainPanel.add(imageLabel, gbc);
 
-        box.add(signup);
-        box.add(login);
-        box.add(guest);
+        // ===== Order Now Button =====
+        JButton OrderNow = Ui.makePrimaryButton("ORDER NOW!", 130, 45);
+        OrderNow.addActionListener(e -> ui.show("COFFEE_MENU"));
+        gbc.gridy = row++;
+        gbc.insets = new Insets(60, 20, 0, 20);
+        mainPanel.add(OrderNow, gbc);
 
-        JPanel center = new JPanel(new GridBagLayout());
-        center.setOpaque(false);
-        center.add(box);
-        add(center, BorderLayout.CENTER);
+        add(mainPanel, BorderLayout.CENTER);
+
 
         // ===== Adminster link =====
         JLabel admin = new JLabel("Adminster", SwingConstants.RIGHT);
-        admin.setForeground(new Color(150, 150, 150));
+        admin.setForeground(Ui.BROWN_DARK);
         admin.setFont(new Font("SansSerif", Font.PLAIN, 14));
         admin.setBorder(new EmptyBorder(0, 0, 20, 20));
         admin.setCursor(new Cursor(Cursor.HAND_CURSOR));

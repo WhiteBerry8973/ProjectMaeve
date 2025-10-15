@@ -1,7 +1,8 @@
 name, hotprice, iceprice, iceavailable, shotprice, path
-Thai Tea,45,0,0,10,Imgs/coffees/espresso.png
-Xeron Tea,50,60,1,5,Imgs/coffees/americano.png
-Jasmine Milk Tea,60,70,1,5,Imgs/coffees/latte.png
-Oolong Milk Tea,60,70,1,5,Imgs/coffees/cappuccino.png
-Jasmine Matcha,65,75,1,5,Imgs/coffees/mocha.png
-Matcha,70,80,1,5,Imgs/coffees/caramel_macchiato.png
+Thai Milk Tea,30,40,1,0,Imgs/teas/thai_milk_tea.png
+Jasmine Tea,25,35,1,0,Imgs/teas/jasmine_tea.png
+Matcha,40,70,1,0,Imgs/teas/matcha.png
+Black Tea,25,70,1,0,Imgs/teas/black_tea.png
+Earl Grey,35,75,1,0,Imgs/teas/earl_grey.png
+Caramel Milk Tea,45,55,1,0,Imgs/teas/caramel_milk_tea.png
+Cocoa Milk Tea,35,40,1,0,Imgs/teas/cocoa_milk_tea.png

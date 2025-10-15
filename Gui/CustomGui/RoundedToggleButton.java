@@ -1,6 +1,9 @@
 package Gui.CustomGui;
 
 import javax.swing.*;
+
+import Gui.MainGui.Ui;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
@@ -111,14 +114,14 @@ public class RoundedToggleButton extends JToggleButton {
             body = fillDisabled;
             tcol = textDisabled;
         } else if (sel) {
-            body = new Color(0x492316);
-            tcol = new Color(0xE8E3D5);
+            body = Ui.BROWN_DARK;
+            tcol = Ui.WHITE;
         } else if (pressed) {
-            body = new Color(0x492316);
-            tcol = new Color(0xE8E3D5);
+            body = Ui.BROWN_DARK;
+            tcol = Ui.WHITE;
         } else if (hover) {
-            body = new Color(0x633322);
-            tcol = new Color(0xE8E3D5);
+            body = Ui.BROWN;
+            tcol = Ui.WHITE;
         } else {
             body = fillNormal;
             tcol = textNormal;

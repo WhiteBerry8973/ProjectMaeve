@@ -16,7 +16,7 @@ public class AdminLoginPanel extends JPanel {
     public AdminLoginPanel(MaeveCoffeeUI ui) {
         this.ui = ui;
         setLayout(new BorderLayout());
-        setBackground(Ui.BG);
+        setBackground(Ui.WHITE);
 
         // ===== Title =====
         JLabel title = new JLabel("LOGIN AS ADMIN", SwingConstants.CENTER);

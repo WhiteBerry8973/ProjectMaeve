@@ -14,23 +14,45 @@ public class SignupPanel extends JPanel {
     private boolean showPassword = false;
     private boolean showConfirm = false;
 
+    private final int fieldHeight = 45;
     private final int labelToFieldGap = 20;
     private final int fieldToNextLabelGap = 40;
 
     public SignupPanel(MaeveCoffeeUI ui) {
         this.ui = ui;
         setLayout(new BorderLayout());
-        setBackground(Ui.BG);
+        setBackground(Ui.WHITE);
 
         // ===== Title =====
-        JLabel title = new JLabel("SIGNUP", SwingConstants.CENTER);
+        JPanel header = new JPanel(new BorderLayout());
+        header.setOpaque(false);
+        header.setBorder(new EmptyBorder(16, 20, 10, 20));
+        
+        JLabel title = new JLabel("SIGN UP", SwingConstants.CENTER);
         title.setFont(new Font("SansSerif", Font.BOLD, 40));
-        title.setForeground(new Color(0xd9d9d9));
+        title.setForeground(Ui.BROWN);
         title.setBorder(new EmptyBorder(30, 0, 30, 0));
-        add(title, BorderLayout.NORTH);
+        header.add(title, BorderLayout.SOUTH);
+
+        // ===== Close Button =====
+        JButton closeBtn = new JButton("\u2715");
+        closeBtn.setFocusPainted(false);
+        closeBtn.setBorderPainted(false);
+        closeBtn.setContentAreaFilled(false);
+        closeBtn.setOpaque(false);
+        closeBtn.setForeground(Ui.BROWN);
+        closeBtn.setFont(new Font("SansSerif", Font.BOLD, 24));
+        closeBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        closeBtn.addActionListener(e -> ui.show("COFFEE_MENU"));
+        JPanel closeWrap = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        closeWrap.setOpaque(false);
+        closeWrap.add(closeBtn);
+        header.add(closeWrap, BorderLayout.EAST);
+
+        add(header, BorderLayout.NORTH);
 
         // ===== Main Center Panel =====
-        JPanel mainPanel = new Ui.RoundedPanel(20, new Color(40, 40, 40));
+        JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
         mainPanel.setBorder(new EmptyBorder(35, 35, 35, 35));
         mainPanel.setOpaque(false);
@@ -46,75 +68,82 @@ public class SignupPanel extends JPanel {
 
         // ===== USERNAME =====
         gbc.gridy = row++;
-        gbc.insets = new Insets(0, 0, labelToFieldGap, 0);
+        gbc.insets = new Insets(0, 20, labelToFieldGap, 20);
         mainPanel.add(makeLabel("USERNAME"), gbc);
 
         gbc.gridy = row++;
-        gbc.insets = new Insets(0, 0, fieldToNextLabelGap, 0);
+        gbc.insets = new Insets(0, 20, fieldToNextLabelGap, 20);
         usernameField = makeTextField();
         mainPanel.add(usernameField, gbc);
 
         // ===== PASSWORD =====
         gbc.gridy = row++;
-        gbc.insets = new Insets(0, 0, labelToFieldGap, 0);
+        gbc.insets = new Insets(0, 20, labelToFieldGap, 20);
         mainPanel.add(makeLabel("PASSWORD"), gbc);
 
         gbc.gridy = row++;
-        gbc.insets = new Insets(0, 0, fieldToNextLabelGap, 0);
+        gbc.insets = new Insets(0, 20, fieldToNextLabelGap, 20);
         passwordField = makePasswordField();
         mainPanel.add(makePasswordPanel(passwordField, true), gbc);
 
         // ===== CONFIRM PASSWORD =====
         gbc.gridy = row++;
-        gbc.insets = new Insets(0, 0, labelToFieldGap, 0);
+        gbc.insets = new Insets(0, 20, labelToFieldGap, 20);
         mainPanel.add(makeLabel("CONFIRM PASSWORD"), gbc);
 
         gbc.gridy = row++;
-        gbc.insets = new Insets(0, 0, 0, 0);
+        gbc.insets = new Insets(0, 20, 0, 20);
         confirmPasswordField = makePasswordField();
         mainPanel.add(makePasswordPanel(confirmPasswordField, false), gbc);
 
         // ===== Button Panel =====
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 40, 25));
-        buttonPanel.setOpaque(false);
+        JButton SignInBtn = Ui.makePrimaryButton("SIGN UP", 130, 45);
+        SignInBtn.addActionListener(e -> attemptSignup());
+        gbc.gridy = row++;
+        gbc.insets = new Insets(40, 20, 0, 20);
+        mainPanel.add(SignInBtn, gbc);
+        
+        add(mainPanel, BorderLayout.CENTER);
 
-        JButton backBtn = Ui.makeSecondaryButton("BACK", 130, 50, Ui.Orientation.LEFT_RIGHT);
-        backBtn.addActionListener(e -> ui.show("HOME_PAGE"));
+        // ===== Footer SignUpBtn =====
+        gbc.gridy = row++;
+        gbc.insets = new Insets(30, 20, 20, 20);
+        JLabel haveAccountLbl = new JLabel("Already have an account?", SwingConstants.CENTER);
+        haveAccountLbl.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        haveAccountLbl.setForeground(Ui.BROWN);
+        haveAccountLbl.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        haveAccountLbl.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                ui.show("SIGNIN");
+            }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                haveAccountLbl.setForeground(Ui.BROWN_DARK);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                haveAccountLbl.setForeground(Ui.BROWN);
+            }
+        });
+        mainPanel.add(haveAccountLbl, gbc);
 
-        JButton signupBtn = Ui.makePrimaryButton("SIGNUP", 130, 50);
-        signupBtn.addActionListener(e -> attemptSignup());
-
-        buttonPanel.add(backBtn);
-        buttonPanel.add(signupBtn);
-
-        // ===== Wrap =====
-        JPanel wrapper = new JPanel();
-        wrapper.setLayout(new BoxLayout(wrapper, BoxLayout.Y_AXIS));
-        wrapper.setOpaque(false);
-        wrapper.add(mainPanel);
-        wrapper.add(Box.createVerticalStrut(30));
-        wrapper.add(buttonPanel);
-
-        add(wrapper, BorderLayout.CENTER);
     }
 
     // ===== Helper Components =====
     private JLabel makeLabel(String text) {
         JLabel lbl = new JLabel(text);
         lbl.setFont(new Font("SansSerif", Font.BOLD, 20));
-        lbl.setForeground(new Color(0xd9d9d9));
+        lbl.setForeground(Ui.BROWN);
         return lbl;
     }
 
     private JTextField makeTextField() {
         JTextField field = new Ui.RoundedTextField(20);
-        field.setPreferredSize(new Dimension(0, 45));
+        field.setPreferredSize(new Dimension(0, fieldHeight));
         return field;
     }
 
     private JPasswordField makePasswordField() {
         JPasswordField field = new Ui.RoundedPasswordField(20);
-        field.setPreferredSize(new Dimension(0, 45));
+        field.setPreferredSize(new Dimension(0, fieldHeight));
         field.setEchoChar('•');
         return field;
     }
@@ -124,22 +153,22 @@ public class SignupPanel extends JPanel {
         panel.setOpaque(false);
 
         JButton toggleBtn = new JButton();
-        toggleBtn.setPreferredSize(new Dimension(45, 45));
+        toggleBtn.setPreferredSize(new Dimension(fieldHeight, fieldHeight));
         toggleBtn.setFocusPainted(false);
         toggleBtn.setBorder(BorderFactory.createEmptyBorder());
-        toggleBtn.setBackground(new Color(20, 20, 20));
+        toggleBtn.setBackground(Ui.BROWN);
         toggleBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        toggleBtn.setIcon(new Ui.EyeIcon(new Color(0xd9d9d9), 22, false));
+        toggleBtn.setIcon(new Ui.EyeIcon(Ui.WHITE, 22, false));
 
         toggleBtn.addActionListener(e -> {
             if (isPassword) {
                 showPassword = !showPassword;
                 field.setEchoChar(showPassword ? (char) 0 : '•');
-                toggleBtn.setIcon(new Ui.EyeIcon(new Color(0xd9d9d9), 22, showPassword));
+                toggleBtn.setIcon(new Ui.EyeIcon(Ui.WHITE, 22, showPassword));
             } else {
                 showConfirm = !showConfirm;
                 field.setEchoChar(showConfirm ? (char) 0 : '•');
-                toggleBtn.setIcon(new Ui.EyeIcon(new Color(0xd9d9d9), 22, showConfirm));
+                toggleBtn.setIcon(new Ui.EyeIcon(Ui.WHITE, 22, showConfirm));
             }
         });
 

@@ -1,22 +1,26 @@
-package FactoryMethodPattern;
+package Gui;
 
-public class HotCoffee implements Coffee {
+public class Show {
     private String name;
     private double price;
+    private String imagePath;
 
-    public HotCoffee(String name, double price) {
+    public Show(String name, double price, String imagePath) {
         this.name = name;
         this.price = price;
+        this.imagePath = imagePath;
     }
 
-    @Override
     public String getName() {
         return name;
     }
 
-    @Override
     public double getPrice() {
         return price;
     }
-    
+
+
+    public String getImagePath() {
+        return imagePath;
+    }
 }

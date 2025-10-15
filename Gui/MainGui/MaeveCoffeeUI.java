@@ -7,11 +7,19 @@ import java.util.List;
 import java.util.ArrayList;
 
 import Gui.CoffeeGui.*;
-import Gui.MainGui.MaeveCoffeeUI.MenuDrink;
+import Gui.TeaGui.*;
 import Gui.UserGui.*;
+import StrategyPattern.*;
+import Lib.*;
+import StrategyPattern.DefaultPricingStrategy;
 import Gui.AdminGui.*;
 
 public class MaeveCoffeeUI {
+
+    
+    public void start() {
+        SwingUtilities.invokeLater(this::createAndShowGUI);
+    }
 
     private JFrame frame;
     private CardLayout cardLayout;
@@ -20,11 +28,13 @@ public class MaeveCoffeeUI {
     private static final String CSV_TEA = "files/tea_menus.csv";
     private static final String CSV_MILK = "files/milk_menus.csv";
 
+    private PricingService pricingService = new PricingService("files/size.csv", "files/topping.csv");
+
     private List<MenuDrink> coffeeMenu = new ArrayList<>();
     private List<MenuDrink> teaMenu = new ArrayList<>();
     private List<MenuDrink> milkMenu = new ArrayList<>();
 
-    // ===== Shared State =====
+    // ===== SHARED STATE =====
     public static class MenuDrink {
         public final String name;
         public final String imagePath;
@@ -46,7 +56,6 @@ public class MaeveCoffeeUI {
 
     private MenuDrink selectedDrink;
 
-    // Addon state
     public enum DrinkType {
         HOT, ICED
     }
@@ -56,7 +65,7 @@ public class MaeveCoffeeUI {
     private List<String> selectedToppings = new ArrayList<>();
     private String selectedSweetness = null;
 
-    // ===== User state =====
+    // ===== USER =====
     private String currentUser = "GUEST";
     private int currentPoints = 0;
 
@@ -66,10 +75,7 @@ public class MaeveCoffeeUI {
         milkMenu = loadMenuFromCSV(CSV_MILK);
     }
 
-    public void start() {
-        SwingUtilities.invokeLater(this::createAndShowGUI);
-    }
-
+    // ===== PAGES =====
     private void createAndShowGUI() {
         frame = new JFrame("Maeve Coffee");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -80,16 +86,18 @@ public class MaeveCoffeeUI {
         cards = new JPanel(cardLayout);
 
         cards.add(new StartPanel(this), "HOME_PAGE");
-        // cards.add(new SignupPanel(this), "SIGNUP");
-        // cards.add(new LoginPanel(this), "LOGIN");
+        cards.add(new SignupPanel(this), "SIGNUP");
+        cards.add(new SigninPanel(this), "SIGNIN");
         cards.add(new AdminLoginPanel(this), "ADMIN_LOGIN");
-        cards.add(new CoffeeMenuPanel(this), "COFFEE_MENU");
-        cards.add(new CoffeeAddonPanel(this), "COFFEE_ADDON");
         cards.add(new MenuCatalogPanel(this, MenuCatalogPanel.Catalog.COFFEE), "COFFEE_MENU");
         cards.add(new MenuCatalogPanel(this, MenuCatalogPanel.Catalog.TEA), "TEA_MENU");
         cards.add(new MenuCatalogPanel(this, MenuCatalogPanel.Catalog.MILK), "MILK_MENU");
 
+        cards.add(new CoffeeAddonPanel(this), MenuCatalogPanel.COFFEE_ADDON);
+        cards.add(new TeaAddonPanel(this), MenuCatalogPanel.TEA_ADDON);
+
         cards.add(new ReceiptDialog(this), "BILL");
+        cards.add(new SummaryPanel(this), "SUMMARY");
 
         frame.add(cards, BorderLayout.CENTER);
         frame.setLocationRelativeTo(null);
@@ -98,7 +106,7 @@ public class MaeveCoffeeUI {
         show("HOME_PAGE");
     }
 
-    // ===== Order model for receipt =====
+    // ===== ORDER ITEM =====
     public static class OrderItem {
         public final String label;
         public final int qty;
@@ -130,7 +138,11 @@ public class MaeveCoffeeUI {
 
     private OrderSummary lastOrder;
 
-    // ===== State getters/setters =====
+    // ===== STATE GETTERS/SETTERS =====
+
+    public PricingService getPricingService() {
+        return pricingService;
+    }
 
     public OrderSummary getLastOrder() {
         return lastOrder;
@@ -184,7 +196,7 @@ public class MaeveCoffeeUI {
         return selectedSweetness;
     }
 
-    // ===== User =====
+    // User
     public void setCurrentUser(String username, int points) {
         this.currentUser = username;
         this.currentPoints = points;
@@ -202,7 +214,7 @@ public class MaeveCoffeeUI {
         this.currentPoints = points;
     }
 
-    // ===== Navigation =====
+    // Show Page
     public void show(String name) {
         cardLayout.show(cards, name);
     }
@@ -219,7 +231,7 @@ public class MaeveCoffeeUI {
         }
     }
 
-    // ===== CSV Loader =====
+    // ===== CSV LOADER =====
     private static List<MenuDrink> loadMenuFromCSV(String filePath) {
         List<MenuDrink> menuList = new ArrayList<>();
         File f = new File(filePath);

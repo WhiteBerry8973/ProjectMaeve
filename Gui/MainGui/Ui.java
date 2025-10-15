@@ -9,44 +9,18 @@ import Gui.CustomGui.*;
 
 public class Ui {
 
-    // ===== Colors =====
-    public static final Color C_PRIMARY = new Color(0x633322);
-    public static final Color C_BG = new Color(0xE8E3D5);
-    public static final Color C_DISABLED = new Color(0x492316);
+    public static final Color WHITE = new Color(0xE8E3D5);
+    public static final Color WHITE_DARK = new Color(0xCFC8B4);
+    public static final Color BROWN = new Color(0x633322);
+    public static final Color BROWN_LIGHT = new Color(0x9d715c);
+    public static final Color BROWN_DARK = new Color(0x35190f);
 
-    public static final Color HOVER_FILL = new Color(0xCFC8B4);
-    public static final Color SELECTED_FILL = C_DISABLED;
-
-    public static final Color BG = C_BG;
-    public static final Color TITLE = C_BG;
-    public static final Color TITLE_DARK = C_PRIMARY;
-
-    public static final Color PANEL_FILL = C_PRIMARY;
-    public static final Color PANEL_BORDER_TOP = C_BG;
-    public static final Color PANEL_BORDER_BOT = C_BG;
-
-    public static final Color ITEM_FILL = C_PRIMARY;
-    public static final Color ITEM_BORDER_TOP = C_BG;
-    public static final Color ITEM_BORDER_BOT = C_BG;
-
-    public static final Color SEL_FILL = C_PRIMARY;
-
-    public static final Color PRIMARY_FILL = C_PRIMARY;
-    public static final Color PRIMARY_TEXT = C_BG;
-
-    public static final Color SECONDARY_FILL = C_BG;
-    public static final Color SECONDARY_TEXT = C_PRIMARY;
-    public static final Color SECONDARY_LEFT = C_PRIMARY;
-    public static final Color SECONDARY_RIGHT = C_PRIMARY;
-
-    // ===== Sizes =====
     public static final int ARC = 18;
     public static final float BORDER_STROKE = 1f;
 
     public static final int SQUARE_ITEM = 140;
     public static final int SQUARE_PM = 120;
 
-    // ===== Orientation enum =====
     public enum Orientation {
         TOP_BOTTOM, LEFT_RIGHT, RIGHT_LEFT
     }
@@ -73,7 +47,7 @@ public class Ui {
         }
     }
 
-    // ===== Rounded Border Panel =====
+    // ===== ROUNDED BORDER PANEL =====
     public static class RoundedBorderPanel extends JPanel {
         private final Color fill;
         private final int arc;
@@ -109,7 +83,7 @@ public class Ui {
         }
     }
 
-    // ===== Rounded Panel =====
+    // ===== ROUNDED PANEL =====
     public static class RoundedPanel extends JPanel {
         private final int arc;
         private final Color bgColor;
@@ -131,31 +105,31 @@ public class Ui {
         }
     }
 
-    // ===== Rounded Text Field =====
+    // ===== ROUNDED TEXT FIELD =====
     public static class RoundedTextField extends JTextField {
         private int arc = 12;
-
+        
         public RoundedTextField(int columns) {
             super(columns);
             setOpaque(false);
             setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 10));
             setFont(new Font("SansSerif", Font.PLAIN, 18));
-            setForeground(Color.BLACK);
-            setCaretColor(Color.BLACK);
+            setForeground(WHITE);
+            setCaretColor(WHITE);
         }
 
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(new Color(220, 220, 220));
+            g2.setColor(BROWN);
             g2.fillRoundRect(0, 0, getWidth(), getHeight(), arc, arc);
             g2.dispose();
             super.paintComponent(g);
         }
     }
 
-    // ===== Rounded Password Field =====
+    // ===== ROUNDED PASSWORD FIELD =====
     public static class RoundedPasswordField extends JPasswordField {
         private int arc = 12;
 
@@ -164,22 +138,22 @@ public class Ui {
             setOpaque(false);
             setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 10));
             setFont(new Font("SansSerif", Font.PLAIN, 18));
-            setForeground(Color.BLACK);
-            setCaretColor(Color.BLACK);
+            setForeground(WHITE);
+            setCaretColor(WHITE);
         }
 
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(new Color(220, 220, 220));
+            g2.setColor(BROWN);
             g2.fillRoundRect(0, 0, getWidth(), getHeight(), arc, arc);
             g2.dispose();
             super.paintComponent(g);
         }
     }
 
-    // ===== Rounded Bottom Panel =====
+    // ===== ROUNDED BOTTOM PANEL =====
     public static class BottomRoundedBorderPanel extends JPanel {
         private final Color fill;
         private final int arc;
@@ -209,7 +183,6 @@ public class Ui {
 
             Shape shape = makeBottomRoundedRect(0, 0, w, h, r);
 
-            // fill
             g2.setColor(fill);
             g2.fill(shape);
 
@@ -239,7 +212,7 @@ public class Ui {
         }
     }
 
-    // ===== Eye Icon =====
+    // ===== EYE ICON =====
     public static class EyeIcon implements Icon {
         private final Color color;
         private final int size;
@@ -285,8 +258,7 @@ public class Ui {
         }
     }
 
-    // ===== Factory Methods =====
-
+    // ===== METHOD =====
     public static JPanel makeTextFieldWithPadding(JTextField field, int w, int h) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setOpaque(false);
@@ -323,9 +295,9 @@ public class Ui {
         RoundedButton btn = new RoundedButton(
                 text,
                 ARC, 0f, false,
-                PRIMARY_FILL, HOVER_FILL, SELECTED_FILL, SECONDARY_FILL,
-                PRIMARY_TEXT, TITLE, TITLE, TITLE,
-                PANEL_BORDER_TOP, PANEL_BORDER_BOT,
+                BROWN_DARK, WHITE_DARK, WHITE_DARK, WHITE,
+                WHITE, BROWN_DARK, BROWN_DARK, BROWN_DARK,
+                WHITE, WHITE,
                 RoundedButton.Orientation.TOP_BOTTOM);
         btn.setPreferredSize(new Dimension(w, h));
         btn.setFont(new Font("SansSerif", Font.PLAIN, 18));
@@ -333,15 +305,15 @@ public class Ui {
     }
 
     public static JButton makeSecondaryButton(String text, int w, int h, Orientation borderOri) {
-        Color c1 = (borderOri == Orientation.TOP_BOTTOM) ? PANEL_BORDER_TOP : SECONDARY_LEFT;
-        Color c2 = (borderOri == Orientation.TOP_BOTTOM) ? PANEL_BORDER_BOT : SECONDARY_RIGHT;
+        Color c1 = (borderOri == Orientation.TOP_BOTTOM) ? WHITE : BROWN_DARK;
+        Color c2 = (borderOri == Orientation.TOP_BOTTOM) ? WHITE : BROWN_DARK;
 
-        Color hoverText = text.equalsIgnoreCase("PREVIOUS") ? Color.decode("#E8E3D5") : SECONDARY_TEXT;
+        Color hoverText = text.equalsIgnoreCase("PREVIOUS") ? WHITE : BROWN_DARK;
 
         RoundedButton btn = new RoundedButton(text,
                 ARC, 1f, true,
-                SECONDARY_FILL, HOVER_FILL, SELECTED_FILL, SECONDARY_FILL,
-                SECONDARY_TEXT, hoverText, hoverText, SECONDARY_TEXT,
+                WHITE, WHITE_DARK, WHITE_DARK, WHITE,
+                BROWN_DARK, hoverText, hoverText, BROWN_DARK,
                 c1, c2, toRB(borderOri));
         btn.setPreferredSize(new Dimension(w, h));
         btn.setFont(new Font("SansSerif", Font.PLAIN, 18));
@@ -352,15 +324,15 @@ public class Ui {
         RoundedButton b = new RoundedButton(
                 text,
                 18, 1f, true,
-                C_BG,
-                new Color(0xCFC8B4),
-                new Color(0x492316),
-                C_BG,
-                C_PRIMARY,
-                C_PRIMARY,
-                Color.WHITE,
-                new Color(0xB8AEA0),
-                C_PRIMARY, C_PRIMARY,
+                WHITE,
+                WHITE_DARK,
+                BROWN_DARK,
+                WHITE,
+                BROWN_DARK,
+                BROWN_DARK,
+                WHITE,
+                WHITE,
+                BROWN_DARK, BROWN_DARK,
                 RoundedButton.Orientation.LEFT_RIGHT
         );
         b.setPreferredSize(new Dimension(w, h));
@@ -372,9 +344,9 @@ public class Ui {
         RoundedButton btn = new RoundedButton(
                 label,
                 ARC, BORDER_STROKE, true,
-                ITEM_FILL, HOVER_FILL, SELECTED_FILL, ITEM_FILL,
-                TITLE, TITLE, TITLE, TITLE,
-                ITEM_BORDER_TOP, ITEM_BORDER_BOT, RoundedButton.Orientation.TOP_BOTTOM) {
+                BROWN_DARK, WHITE_DARK, WHITE_DARK, BROWN_DARK,
+                BROWN_DARK, BROWN_DARK, BROWN_DARK, BROWN_DARK,
+                WHITE, WHITE, RoundedButton.Orientation.TOP_BOTTOM) {
             @Override
             protected void paintContent(Graphics2D g2, Color textColor) {
                 int inset = 12;
@@ -391,26 +363,26 @@ public class Ui {
         };
         btn.setPreferredSize(new Dimension(size, size));
         btn.setFont(new Font("SansSerif", Font.BOLD, 16));
-        btn.setForeground(TITLE);
+        btn.setForeground(BROWN_DARK);
         btn.addActionListener(e -> onClick.run());
         return btn;
     }
 
     public static JToggleButton makeToppingToggle(String imagePath, int size, double price, Orientation borderOri) {
-        Color c1 = (borderOri == Orientation.LEFT_RIGHT) ? SECONDARY_LEFT : ITEM_BORDER_TOP;
-        Color c2 = (borderOri == Orientation.LEFT_RIGHT) ? SECONDARY_RIGHT : ITEM_BORDER_BOT;
+        Color c1 = (borderOri == Orientation.LEFT_RIGHT) ? BROWN_DARK : WHITE;
+        Color c2 = (borderOri == Orientation.LEFT_RIGHT) ? BROWN_DARK : WHITE;
 
         RoundedToggleButton t = new RoundedToggleButton(
-                "", ARC, BORDER_STROKE, true, ITEM_FILL, SELECTED_FILL, SELECTED_FILL, TITLE_DARK, TITLE_DARK,
-                TITLE_DARK,
-                TITLE_DARK, TITLE_DARK, TITLE_DARK, TITLE_DARK, TITLE_DARK, TITLE_DARK, PRIMARY_TEXT, TITLE_DARK, c1, c2, toRT(borderOri)) {
+                "", ARC, BORDER_STROKE, true, BROWN, WHITE_DARK, WHITE_DARK, BROWN, BROWN,
+                BROWN,
+                BROWN, BROWN, BROWN, BROWN, BROWN, BROWN, WHITE, BROWN, c1, c2, toRT(borderOri)) {
             @Override
             protected void paintContent(Graphics2D g2, Color textColor) {
                 int inset = 12;
                 drawImageKeepRatio(g2, imagePath, inset, inset,
                         getWidth() - inset * 2, getHeight() - inset * 2 - 22);
                 g2.setFont(getFont().deriveFont(Font.PLAIN, 12f));
-                g2.setColor(new Color(0xE8E3D5));
+                g2.setColor(WHITE_DARK);
                 String priceText = "+ " + (int) price + " ฿";
                 FontMetrics fm = g2.getFontMetrics();
                 int tx = (getWidth() - fm.stringWidth(priceText)) / 2;
@@ -426,8 +398,8 @@ public class Ui {
         RoundedToggleButton t = new RoundedToggleButton(
                 text,
                 ARC, 1f, true,
-                BG, HOVER_FILL, SELECTED_FILL, TITLE_DARK, TITLE_DARK, PRIMARY_FILL, TITLE_DARK, TITLE_DARK, TITLE_DARK, TITLE_DARK,
-                TITLE_DARK, TITLE_DARK, TITLE_DARK, TITLE_DARK, TITLE_DARK, TITLE_DARK, toRT(ori));
+                WHITE, WHITE_DARK, WHITE_DARK, BROWN, BROWN, BROWN_DARK, BROWN, BROWN, BROWN, BROWN,
+                BROWN, BROWN, BROWN, BROWN, BROWN, BROWN, toRT(ori));
         t.setPreferredSize(new Dimension(w, h));
         t.setFont(new Font("SansSerif", Font.BOLD, 16));
         return t;
@@ -439,18 +411,18 @@ public class Ui {
         return t;
     }
 
-    // ===== Image Helper =====
+    // ===== IMAGE =====
     public static void drawImageKeepRatio(Graphics2D g2, String path, int x, int y, int w, int h) {
         g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         if (path == null) {
-            g2.setColor(new Color(70, 70, 70));
+            g2.setColor(BROWN_DARK);
             g2.fillRoundRect(x, y, w, h, 12, 12);
             return;
         }
         try {
             java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(new java.io.File(path));
             if (img == null) {
-                g2.setColor(new Color(70, 70, 70));
+                g2.setColor(BROWN_DARK);
                 g2.fillRoundRect(x, y, w, h, 12, 12);
                 return;
             }
@@ -461,7 +433,7 @@ public class Ui {
             int dy = y + (h - dh) / 2;
             g2.drawImage(img, dx, dy, dw, dh, null);
         } catch (Exception ex) {
-            g2.setColor(new Color(70, 70, 70));
+            g2.setColor(BROWN_DARK);
             g2.fillRoundRect(x, y, w, h, 12, 12);
         }
     }

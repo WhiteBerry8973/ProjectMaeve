@@ -16,9 +16,13 @@ public class MenuCatalogPanel extends JPanel {
         COFFEE, TEA, MILK
     }
 
-    public static final String CARD_COFFEE = "COFFEE_MENU";
-    public static final String CARD_TEA = "TEA_MENU";
-    public static final String CARD_MILK = "MILK_MENU";
+    public static final String COFFEE = "COFFEE_MENU";
+    public static final String TEA = "TEA_MENU";
+    public static final String MILK = "MILK_MENU";
+    
+    public static final String COFFEE_ADDON = "COFFEE_ADDON";
+    public static final String TEA_ADDON = "TEA_ADDON";
+    public static final String MILK_ADDON = "MILK_ADDON";
 
     private final MaeveCoffeeUI ui;
     private final Catalog catalog;
@@ -35,11 +39,11 @@ public class MenuCatalogPanel extends JPanel {
         this.catalog = catalog;
 
         setLayout(new BorderLayout());
-        setBackground(Ui.BG);
+        setBackground(Ui.WHITE);
 
         // ===== Header =====
         JLabel header = new JLabel("MENU", SwingConstants.LEFT);
-        header.setForeground(Ui.TITLE_DARK);
+        header.setForeground(Ui.BROWN);
         header.setFont(new Font("SansSerif", Font.BOLD, 52));
 
         JButton signInBtn = Ui.makeLightCapsuleButton("SIGN IN", 110, 40);
@@ -59,7 +63,7 @@ public class MenuCatalogPanel extends JPanel {
 
         add(headerBar, BorderLayout.NORTH);
 
-        signInBtn.addActionListener(e -> ui.show("LOGIN"));
+        signInBtn.addActionListener(e -> ui.show("SIGNIN"));
 
         // ===== Content =====
         JPanel contentMargin = new JPanel(new BorderLayout());
@@ -85,7 +89,7 @@ public class MenuCatalogPanel extends JPanel {
 
                 int w = getWidth() - 1, h = TAB_H - 1;
 
-                g2.setColor(Ui.BG);
+                g2.setColor(Ui.WHITE);
                 g2.fillRect(0, 0, getWidth(), TAB_H);
 
                 Path2D p = new Path2D.Double();
@@ -98,7 +102,7 @@ public class MenuCatalogPanel extends JPanel {
                 p.closePath();
 
                 g2.setStroke(new BasicStroke(STK));
-                g2.setColor(Ui.TITLE_DARK);
+                g2.setColor(Ui.BROWN);
                 g2.draw(p);
                 g2.dispose();
             }
@@ -140,9 +144,9 @@ public class MenuCatalogPanel extends JPanel {
         sTea.setSelected(catalog == Catalog.TEA);
         sMilk.setSelected(catalog == Catalog.MILK);
 
-        sCoffee.addActionListener(e -> ui.show(CARD_COFFEE));
-        sTea.addActionListener(e -> ui.show(CARD_TEA));
-        sMilk.addActionListener(e -> ui.show(CARD_MILK));
+        sCoffee.addActionListener(e -> ui.show(COFFEE));
+        sTea.addActionListener(e -> ui.show(TEA));
+        sMilk.addActionListener(e -> ui.show(MILK));
 
         tabsRow.add(sCoffee);
         tabsRow.add(makeDividerCrop());
@@ -176,7 +180,7 @@ public class MenuCatalogPanel extends JPanel {
                 bg.quadTo(0, h, 0, h - r);
                 bg.closePath();
 
-                g2.setColor(Ui.BG);
+                g2.setColor(Ui.WHITE);
                 g2.fill(bg);
 
                 g2.translate(0.5, 0.5);
@@ -189,7 +193,7 @@ public class MenuCatalogPanel extends JPanel {
                 border.quadTo(0, h - 1, 0, h - 1 - r);
                 border.closePath();
 
-                g2.setColor(Ui.TITLE_DARK);
+                g2.setColor(Ui.BROWN);
                 g2.setStroke(new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
                 g2.draw(border);
 
@@ -222,7 +226,7 @@ public class MenuCatalogPanel extends JPanel {
         wrap.setOpaque(false);
         JPanel line = new JPanel();
         line.setPreferredSize(new Dimension(1, 60));
-        line.setBackground(Ui.TITLE_DARK);
+        line.setBackground(Ui.BROWN);
         wrap.add(line, BorderLayout.SOUTH);
         return wrap;
     }
@@ -325,13 +329,13 @@ public class MenuCatalogPanel extends JPanel {
 
         JLabel name = new JLabel(d.name);
         name.setAlignmentX(Component.CENTER_ALIGNMENT);
-        name.setForeground(Ui.TITLE_DARK);
+        name.setForeground(Ui.BROWN);
         name.setFont(name.getFont().deriveFont(Font.BOLD, 20f));
 
         double price = (d.hotPrice > 0) ? d.hotPrice : d.icedPrice;
         JLabel priceLbl = new JLabel(((int) price) + "B");
         priceLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
-        priceLbl.setForeground(Ui.TITLE_DARK);
+        priceLbl.setForeground(Ui.BROWN);
         priceLbl.setFont(priceLbl.getFont().deriveFont(Font.BOLD, 17f));
 
         text.add(Box.createVerticalStrut(8));
@@ -346,9 +350,27 @@ public class MenuCatalogPanel extends JPanel {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 ui.setSelectedDrink(d);
-                ui.setSelectedType(MaeveCoffeeUI.DrinkType.HOT);
-                ui.setExtraShots(0);
-                ui.show("COFFEE_ADDON");
+
+                // default type
+                if (d.icedAvailable) {
+                    ui.setSelectedType(MaeveCoffeeUI.DrinkType.ICED);
+                } else {
+                    ui.setSelectedType(MaeveCoffeeUI.DrinkType.HOT);
+                }
+
+                // ไปหน้า Addon ตามหมวดที่กำลังแสดง
+                switch (catalog) {
+                    case TEA:
+                        ui.show(TEA_ADDON); // <- หน้าของ TeaAddonPanel
+                        break;
+                    case MILK:
+                        ui.show(MILK_ADDON); // <- ถ้ามี MilkAddonPanel
+                        break;
+                    case COFFEE:
+                    default:
+                        ui.show(COFFEE_ADDON); // <- CoffeeAddonPanel
+                        break;
+                }
             }
         });
 

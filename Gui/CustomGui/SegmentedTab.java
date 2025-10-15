@@ -17,12 +17,12 @@ public class SegmentedTab extends JToggleButton {
 
     private int arc;
 
-    private Color bgUnselected = Ui.C_BG;
-    private Color fgUnselected = Ui.C_PRIMARY;
-    private Color bgSelected = new Color(0xcfc8b4);
-    private Color fgSelected = Ui.C_PRIMARY;
-    private Color disabledBg = Ui.C_DISABLED;
-    private Color disabledFg = Ui.C_BG;
+    private Color bgUnselected = Ui.WHITE;
+    private Color fgUnselected = Ui.BROWN_DARK;
+    private Color bgSelected = Ui.WHITE_DARK;
+    private Color fgSelected = Ui.BROWN_DARK;
+    private Color disabledBg = Ui.BROWN_DARK;
+    private Color disabledFg = Ui.BROWN_LIGHT;
 
     public SegmentedTab(String text, boolean roundLeft, boolean roundRight, int arc) {
         this(text, roundLeft, roundRight, roundLeft, roundRight, arc);

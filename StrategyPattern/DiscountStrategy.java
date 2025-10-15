@@ -1,5 +1,7 @@
 package StrategyPattern;
 
+
 public interface DiscountStrategy {
-    double applyDiscount(double price, int points);
+
+    double apply(double subtotal, PricingContext ctx);
 }

@@ -1,6 +1,9 @@
 package Gui.CustomGui;
 
 import javax.swing.*;
+
+import Gui.MainGui.Ui;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
@@ -93,8 +96,8 @@ public class RoundedButton extends JButton {
             body = fillPressed;
             tcol = textPressed;
         } else if (hover) {
-            body = Color.decode("#CFC8B4");
-            tcol = Color.decode("#633322");
+            body = Ui.WHITE_DARK;
+            tcol = Ui.BROWN_DARK;
         } else {
             body = fillNormal;
             tcol = textNormal;
