@@ -4,7 +4,9 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.geom.Path2D;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import Gui.CustomGui.SegmentedTab;
 
@@ -61,11 +63,25 @@ public class MenuCatalogPanel extends JPanel {
 
         JButton signInBtn = Ui.makeLightCapsuleButton("SIGN IN", 110, 40);
         signInBtn.addActionListener(e -> ui.show("SIGNIN"));
+
+        JButton adminBtn = Ui.makeLightCapsuleButton("ADMIN", 110, 40);
+        adminBtn.addActionListener(e -> ui.show("ADMIN_CATALOG"));
+        adminBtn.setVisible(ui.isAdminEnabled());
+
         JPanel signInWrap = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         signInWrap.setOpaque(false);
         signInWrap.setBorder(new EmptyBorder(14, 0, 0, 0));
         signInWrap.add(signInBtn);
         headerRight.add(signInWrap, "signin");
+
+        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        right.setOpaque(false);
+        right.setBorder(new EmptyBorder(14, 0, 0, 0));
+        right.add(adminBtn);
+        right.add(signInBtn);
+        headerBar.add(right, BorderLayout.EAST);
+
+        add(headerBar, BorderLayout.NORTH);
 
         final JLabel userNameLbl = new JLabel("USER");
         userNameLbl.setForeground(Ui.BROWN);
@@ -306,12 +322,29 @@ public class MenuCatalogPanel extends JPanel {
         bottomOuter.removeAll();
 
         List<MaeveCoffeeUI.MenuDrink> list = ui.getMenuByCatalog(catalog);
-        int start = pageIndex * ITEMS_PER_PAGE;
-        int end = Math.min(start + ITEMS_PER_PAGE, list.size());
 
-        for (int i = start; i < end; i++) {
-            grid.add(makePlainMenuItem(list.get(i)));
+        Map<String, Boolean> stockMap = ui.getStockMap(catalog);
+        List<MaeveCoffeeUI.MenuDrink> filtered = new ArrayList<>();
+        for (MaeveCoffeeUI.MenuDrink d : list) {
+            if (stockMap.getOrDefault(d.name, Boolean.TRUE)) {
+                filtered.add(d);
+            }
         }
+        list = filtered;
+
+        int count = list.size();
+        totalPages = Math.max(1, (int) Math.ceil(count / (double) ITEMS_PER_PAGE));
+
+        if (pageIndex > totalPages - 1)
+            pageIndex = totalPages - 1;
+        if (pageIndex < 0)
+            pageIndex = 0;
+
+        int start = pageIndex * ITEMS_PER_PAGE;
+        int end = Math.min(start + ITEMS_PER_PAGE, count);
+
+        for (int i = start; i < end; i++)
+            grid.add(makePlainMenuItem(list.get(i)));
         for (int k = end; k < start + ITEMS_PER_PAGE; k++) {
             JPanel placeholder = new JPanel();
             placeholder.setOpaque(false);
@@ -319,9 +352,9 @@ public class MenuCatalogPanel extends JPanel {
         }
 
         if (totalPages <= 1) {
-            bottomOuter.add(makeFullWidthButton(Ui.makeLightCapsuleButton("Next", 100, 54), false),
-                    BorderLayout.CENTER);
+            bottomOuter.setVisible(false);
         } else if (pageIndex == 0) {
+            bottomOuter.setVisible(true);
             JButton next = Ui.makeLightCapsuleButton("Next", 150, 54);
             next.addActionListener(e -> {
                 pageIndex++;
@@ -329,6 +362,7 @@ public class MenuCatalogPanel extends JPanel {
             });
             bottomOuter.add(makeFullWidthButton(next, true), BorderLayout.CENTER);
         } else if (pageIndex == totalPages - 1) {
+            bottomOuter.setVisible(true);
             JButton prev = Ui.makeLightCapsuleButton("Previous", 100, 54);
             prev.addActionListener(e -> {
                 pageIndex--;
@@ -336,6 +370,7 @@ public class MenuCatalogPanel extends JPanel {
             });
             bottomOuter.add(makeFullWidthButton(prev, true), BorderLayout.CENTER);
         } else {
+            bottomOuter.setVisible(true);
             JPanel two = new JPanel(new GridLayout(1, 2, 24, 0));
             two.setOpaque(false);
 
@@ -352,12 +387,9 @@ public class MenuCatalogPanel extends JPanel {
 
             two.add(prev);
             two.add(next);
-
             bottomOuter.add(two, BorderLayout.CENTER);
         }
 
-        grid.revalidate();
-        grid.repaint();
         bottomOuter.revalidate();
         bottomOuter.repaint();
     }

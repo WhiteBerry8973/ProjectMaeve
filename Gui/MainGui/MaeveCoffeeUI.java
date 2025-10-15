@@ -3,10 +3,16 @@ package Gui.MainGui;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import Gui.CoffeeGui.*;
+import Gui.MainGui.MenuCatalogPanel.Catalog;
 import Gui.TeaGui.*;
 import Gui.UserGui.*;
 import StrategyPattern.*;
@@ -20,9 +26,20 @@ public class MaeveCoffeeUI {
         SwingUtilities.invokeLater(this::createAndShowGUI);
     }
 
+    private boolean adminEnabled = true;
+
+    public boolean isAdminEnabled() {
+        return adminEnabled;
+    }
+
+    public void setAdminEnabled(boolean enabled) {
+        this.adminEnabled = enabled;
+    }
+
     private JFrame frame;
     private CardLayout cardLayout;
     private JPanel cards;
+
     private static final String CSV_COFFEE = "files/coffee_menus.csv";
     private static final String CSV_TEA = "files/tea_menus.csv";
     private static final String CSV_MILK = "files/milk_menus.csv";
@@ -88,6 +105,7 @@ public class MaeveCoffeeUI {
         cards.add(new SignupPanel(this), "SIGNUP");
         cards.add(new SigninPanel(this), "SIGNIN");
         cards.add(new AdminLoginPanel(this), "ADMIN_LOGIN");
+        cards.add(new AdminCatalogPanel(this), "ADMIN_CATALOG");
         cards.add(new MenuCatalogPanel(this, MenuCatalogPanel.Catalog.COFFEE), "COFFEE_MENU");
         cards.add(new MenuCatalogPanel(this, MenuCatalogPanel.Catalog.TEA), "TEA_MENU");
         cards.add(new MenuCatalogPanel(this, MenuCatalogPanel.Catalog.MILK), "MILK_MENU");
@@ -138,6 +156,70 @@ public class MaeveCoffeeUI {
     private OrderSummary lastOrder;
 
     // ===== STATE GETTERS/SETTERS =====
+
+    public String getMenuCsvPath(Catalog c) {
+        switch (c) {
+            case COFFEE:
+                return CSV_COFFEE;
+            case TEA:
+                return CSV_TEA;
+            case MILK:
+                return CSV_MILK;
+            default:
+                return null;
+        }
+    }
+
+    public Map<String, Boolean> getStockMap(MenuCatalogPanel.Catalog c) {
+        String filePath = getMenuCsvPath(c);
+        Map<String, Boolean> out = new LinkedHashMap<>();
+        if (filePath == null)
+            return out;
+        Path p = Paths.get(filePath);
+        if (!Files.exists(p))
+            return out;
+        try (BufferedReader br = Files.newBufferedReader(p)) {
+            String first = br.readLine();
+            if (first == null)
+                return out;
+            String[] cols = first.split(",", -1);
+            boolean hasHeader = false;
+            for (String h : cols)
+                if ("name".equalsIgnoreCase(h == null ? "" : h.trim())) {
+                    hasHeader = true;
+                    break;
+                }
+            int nameIdx = hasHeader ? indexOf(cols, "name") : 0;
+            int stockIdx = hasHeader ? indexOf(cols, "stock") : -1;
+
+            if (!hasHeader) {
+                return out;
+            }
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty() || line.startsWith("#"))
+                    continue;
+                String[] f = line.split(",", -1);
+                String name = (nameIdx >= 0 && nameIdx < f.length) ? f[nameIdx].trim() : "";
+                if (name.isEmpty())
+                    continue;
+                boolean in = (stockIdx >= 0 && stockIdx < f.length)
+                        ? "1".equals(f[stockIdx].trim()) || "true".equalsIgnoreCase(f[stockIdx].trim())
+                        : true;
+                out.put(name, in);
+            }
+        } catch (IOException ignore) {
+        }
+        return out;
+    }
+
+    private static int indexOf(String[] a, String key) {
+        for (int i = 0; i < a.length; i++)
+            if (key.equalsIgnoreCase(a[i] == null ? "" : a[i].trim()))
+                return i;
+        return -1;
+    }
 
     public PricingService getPricingService() {
         return pricingService;

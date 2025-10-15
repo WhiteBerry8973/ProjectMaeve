@@ -1,153 +1,153 @@
 package Gui.AdminGui;
 
 import Gui.MainGui.*;
+import Lib.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class AdminLoginPanel extends JPanel {
+
     private final MaeveCoffeeUI ui;
     private JTextField usernameField;
     private JPasswordField passwordField;
     private boolean showPassword = false;
+
+    private final int fieldHeight = 45;
+    private final int labelToFieldGap = 20;
+    private final int fieldToNextLabelGap = 40;
 
     public AdminLoginPanel(MaeveCoffeeUI ui) {
         this.ui = ui;
         setLayout(new BorderLayout());
         setBackground(Ui.WHITE);
 
-        // ===== Title =====
-        JLabel title = new JLabel("LOGIN AS ADMIN", SwingConstants.CENTER);
-        title.setFont(new Font("SansSerif", Font.BOLD, 36));
-        title.setForeground(new Color(0xd9d9d9));
-        title.setBorder(new EmptyBorder(30, 0, 20, 0));
-        add(title, BorderLayout.NORTH);
+        // ===== HEADER =====
+        JPanel header = new JPanel(new BorderLayout());
+        header.setOpaque(false);
+        header.setBorder(new EmptyBorder(16, 20, 0, 20));
 
-        // ===== Center Panel =====
-        JPanel centerPanel = new JPanel();
-        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
-        centerPanel.setOpaque(false);
+        JLabel title = new JLabel("LOGIN AS ADMINISTER", SwingConstants.CENTER);
+        title.setFont(new Font("SansSerif", Font.BOLD, 40));
+        title.setForeground(Ui.BROWN);
+        title.setBorder(new EmptyBorder(30, 0, 0, 0));
+        header.add(title, BorderLayout.SOUTH);
 
-        // ===== Rounded Main Panel =====
-        JPanel mainPanel = new Ui.RoundedPanel(20, new Color(40, 40, 40));
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBorder(new EmptyBorder(30, 30, 30, 30));
+        // Close
+        JButton closeBtn = new JButton("\u2715");
+        closeBtn.setFocusPainted(false);
+        closeBtn.setBorderPainted(false);
+        closeBtn.setContentAreaFilled(false);
+        closeBtn.setOpaque(false);
+        closeBtn.setForeground(Ui.BROWN);
+        closeBtn.setFont(new Font("SansSerif", Font.BOLD, 24));
+        closeBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        closeBtn.addActionListener(e -> ui.show(MenuCatalogPanel.COFFEE));
+        JPanel closeWrap = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        closeWrap.setOpaque(false);
+        closeWrap.add(closeBtn);
+        header.add(closeWrap, BorderLayout.EAST);
+
+        add(header, BorderLayout.NORTH);
+
+        // ===== MAIN =====
+        JPanel mainPanel = new JPanel(new GridBagLayout());
+        mainPanel.setBorder(new EmptyBorder(-75, 35, 35, 35));
         mainPanel.setOpaque(false);
-        mainPanel.setMaximumSize(new Dimension(420, 250));
-        mainPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        mainPanel.setMaximumSize(new Dimension(420, 700));
 
-        // ===== Input Fields =====
-        usernameField = new Ui.RoundedTextField(20);
-        passwordField = new Ui.RoundedPasswordField(20);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.weightx = 1.0;
 
-        JPanel usernamePanel = wrapField(usernameField, "USERNAME");
-        JPanel passwordPanel = wrapPasswordField(passwordField, "PASSWORD");
+        int row = 0;
 
-        mainPanel.add(usernamePanel);
-        mainPanel.add(Box.createVerticalStrut(20));
-        mainPanel.add(passwordPanel);
+        // Username
+        gbc.gridy = row++;
+        gbc.insets = new Insets(0, 20, labelToFieldGap, 20);
+        mainPanel.add(makeLabel("USERNAME"), gbc);
 
-        centerPanel.add(mainPanel);
-        centerPanel.add(Box.createVerticalStrut(40));
+        gbc.gridy = row++;
+        gbc.insets = new Insets(0, 20, fieldToNextLabelGap, 20);
+        usernameField = makeTextField();
+        mainPanel.add(usernameField, gbc);
 
-        // ===== Buttons =====
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
-        buttonPanel.setOpaque(false);
-        buttonPanel.setMaximumSize(new Dimension(420, 60));
-        buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        // Password
+        gbc.gridy = row++;
+        gbc.insets = new Insets(0, 20, labelToFieldGap, 20);
+        mainPanel.add(makeLabel("PASSWORD"), gbc);
 
-        JButton backBtn = Ui.makeSecondaryButton("BACK", 130, 50, Ui.Orientation.LEFT_RIGHT);
-        backBtn.addActionListener(e -> ui.show("HOME_PAGE"));
+        gbc.gridy = row++;
+        gbc.insets = new Insets(0, 20, 0, 20);
+        passwordField = makePasswordField();
+        mainPanel.add(makePasswordPanel(passwordField), gbc);
 
-        JButton loginBtn = Ui.makePrimaryButton("LOGIN", 130, 50);
-        loginBtn.setBackground(new Color(80, 80, 200));
-        loginBtn.setForeground(new Color(0xd9d9d9));
-        loginBtn.addActionListener(e -> attemptLogin());
+        // Sign In
+        JButton signInBtn = Ui.makePrimaryButton("SIGN IN", 130, 45);
+        signInBtn.addActionListener(e -> attemptLogin());
+        passwordField.addActionListener(e -> attemptLogin()); // Enter = login
+        gbc.gridy = row++;
+        gbc.insets = new Insets(40, 20, 0, 20);
+        mainPanel.add(signInBtn, gbc);
 
-        buttonPanel.add(backBtn);
-        buttonPanel.add(Box.createHorizontalGlue());
-        buttonPanel.add(loginBtn);
+        add(mainPanel, BorderLayout.CENTER);
 
-        centerPanel.add(buttonPanel);
+        // Footer
+        gbc.gridy = row++;
+        gbc.insets = new Insets(30, 0, 0, 0);}
 
-        add(centerPanel, BorderLayout.CENTER);
+    // ===== HELPER =====
+    private JLabel makeLabel(String text) {
+        JLabel lbl = new JLabel(text);
+        lbl.setFont(new Font("SansSerif", Font.BOLD, 20));
+        lbl.setForeground(Ui.BROWN);
+        return lbl;
     }
 
-    // ===== Wrap Field =====
-    private JPanel wrapField(JTextField field, String label) {
-        JPanel fieldPanel = new JPanel();
-        fieldPanel.setLayout(new BoxLayout(fieldPanel, BoxLayout.Y_AXIS));
-        fieldPanel.setOpaque(false);
-        fieldPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        JLabel lbl = new JLabel(label);
-        lbl.setFont(new Font("SansSerif", Font.BOLD, 20));
-        lbl.setForeground(new Color(0xd9d9d9));
-        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
-        field.setPreferredSize(new Dimension(0, 45));
-        field.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        fieldPanel.add(lbl);
-        fieldPanel.add(Box.createVerticalStrut(8));
-        fieldPanel.add(field);
-
-        return fieldPanel;
+    private JTextField makeTextField() {
+        JTextField field = new Ui.RoundedTextField(20);
+        field.setPreferredSize(new Dimension(0, fieldHeight));
+        return field;
     }
 
-    // ===== Wrap Password Field (with toggle) =====
-    private JPanel wrapPasswordField(JPasswordField field, String label) {
-        JPanel fieldPanel = new JPanel();
-        fieldPanel.setLayout(new BoxLayout(fieldPanel, BoxLayout.Y_AXIS));
-        fieldPanel.setOpaque(false);
-        fieldPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        JLabel lbl = new JLabel(label);
-        lbl.setFont(new Font("SansSerif", Font.BOLD, 20));
-        lbl.setForeground(new Color(0xd9d9d9));
-        lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        JPanel inputPanel = new JPanel();
-        inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.X_AXIS));
-        inputPanel.setOpaque(false);
-        inputPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
-        field.setPreferredSize(new Dimension(0, 45));
+    private JPasswordField makePasswordField() {
+        JPasswordField field = new Ui.RoundedPasswordField(20);
+        field.setPreferredSize(new Dimension(0, fieldHeight));
         field.setEchoChar('•');
+        return field;
+    }
 
-        inputPanel.add(field);
+    private JPanel makePasswordPanel(JPasswordField field) {
+        JPanel panel = new JPanel(new BorderLayout(5, 0));
+        panel.setOpaque(false);
 
         JButton toggleBtn = new JButton();
-        toggleBtn.setPreferredSize(new Dimension(45, 45));
-        toggleBtn.setMaximumSize(new Dimension(45, 45));
+        toggleBtn.setPreferredSize(new Dimension(fieldHeight, fieldHeight));
         toggleBtn.setFocusPainted(false);
         toggleBtn.setBorder(BorderFactory.createEmptyBorder());
-        toggleBtn.setBackground(new Color(20, 20, 20));
+        toggleBtn.setBackground(Ui.BROWN);
         toggleBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        toggleBtn.setIcon(new Ui.EyeIcon(new Color(0xd9d9d9), 22, false));
+        toggleBtn.setIcon(new Ui.EyeIcon(Ui.WHITE, 22, false));
 
         toggleBtn.addActionListener(e -> {
             showPassword = !showPassword;
             field.setEchoChar(showPassword ? (char) 0 : '•');
-            toggleBtn.setIcon(new Ui.EyeIcon(new Color(0xd9d9d9), 22, showPassword));
+            toggleBtn.setIcon(new Ui.EyeIcon(Ui.WHITE, 22, showPassword));
         });
 
-        inputPanel.add(Box.createHorizontalStrut(5));
-        inputPanel.add(toggleBtn);
-
-        fieldPanel.add(lbl);
-        fieldPanel.add(Box.createVerticalStrut(8));
-        fieldPanel.add(inputPanel);
-
-        return fieldPanel;
+        panel.add(field, BorderLayout.CENTER);
+        panel.add(toggleBtn, BorderLayout.EAST);
+        return panel;
     }
 
-    // ===== Admin Login Logic =====
+    // ===== SIGNIN LOGIC =====
     private void attemptLogin() {
         String user = usernameField.getText().trim();
         String pass = new String(passwordField.getPassword()).trim();
@@ -183,7 +183,7 @@ public class AdminLoginPanel extends JPanel {
 
             if (success) {
                 JOptionPane.showMessageDialog(this, "Welcome Admin " + user);
-                ui.show("ADMIN_PANEL");
+                ui.show("ADMIN_CATALOG");
             } else {
                 JOptionPane.showMessageDialog(this, "Invalid admin username or password");
             }
