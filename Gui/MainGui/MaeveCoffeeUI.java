@@ -16,7 +16,6 @@ import Gui.AdminGui.*;
 
 public class MaeveCoffeeUI {
 
-    
     public void start() {
         SwingUtilities.invokeLater(this::createAndShowGUI);
     }
@@ -66,8 +65,8 @@ public class MaeveCoffeeUI {
     private String selectedSweetness = null;
 
     // ===== USER =====
-    private String currentUser = "GUEST";
-    private int currentPoints = 0;
+    private final User user = new User("files/users.csv");
+    private String currentUser;
 
     public MaeveCoffeeUI() {
         coffeeMenu = loadMenuFromCSV(CSV_COFFEE);
@@ -103,7 +102,7 @@ public class MaeveCoffeeUI {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
-        show("HOME_PAGE");
+        show("PROFILE");
     }
 
     // ===== ORDER ITEM =====
@@ -197,9 +196,13 @@ public class MaeveCoffeeUI {
     }
 
     // User
-    public void setCurrentUser(String username, int points) {
-        this.currentUser = username;
-        this.currentPoints = points;
+
+    public User getUser() {
+        return user;
+    }
+
+    public boolean isSignedIn() {
+        return currentUser != null && !currentUser.trim().isEmpty();
     }
 
     public String getCurrentUser() {
@@ -207,11 +210,23 @@ public class MaeveCoffeeUI {
     }
 
     public int getCurrentPoints() {
-        return currentPoints;
+        return isSignedIn() ? user.getPoints(currentUser) : 0;
     }
 
-    public void setCurrentPoints(int points) {
-        this.currentPoints = points;
+    public void setCurrentUser(String username, int initialPointsIfNew) {
+        this.currentUser = username;
+    }
+
+    public void addPoints(int delta) {
+        if (!isSignedIn())
+            return;
+        user.addPoints(currentUser, delta);
+    }
+
+    public void setCurrentPoints(int pts) {
+        if (!isSignedIn())
+            return;
+        user.setPoints(currentUser, pts);
     }
 
     // Show Page

@@ -18,9 +18,9 @@ public class SegmentedTab extends JToggleButton {
     private int arc;
 
     private Color bgUnselected = Ui.WHITE;
-    private Color fgUnselected = Ui.BROWN_DARK;
+    private Color fgUnselected = Ui.BROWN;
     private Color bgSelected = Ui.WHITE_DARK;
-    private Color fgSelected = Ui.BROWN_DARK;
+    private Color fgSelected = Ui.BROWN;
     private Color disabledBg = Ui.BROWN_DARK;
     private Color disabledFg = Ui.BROWN_LIGHT;
 

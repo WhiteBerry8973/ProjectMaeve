@@ -1,10 +1,10 @@
 package Gui.UserGui;
 
 import Gui.MainGui.*;
+import Lib.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.io.*;
 
 public class SignupPanel extends JPanel {
     private final MaeveCoffeeUI ui;
@@ -34,7 +34,7 @@ public class SignupPanel extends JPanel {
         title.setBorder(new EmptyBorder(30, 0, 30, 0));
         header.add(title, BorderLayout.SOUTH);
 
-        // ===== Close Button =====
+        // Close
         JButton closeBtn = new JButton("\u2715");
         closeBtn.setFocusPainted(false);
         closeBtn.setBorderPainted(false);
@@ -51,7 +51,7 @@ public class SignupPanel extends JPanel {
 
         add(header, BorderLayout.NORTH);
 
-        // ===== Main Center Panel =====
+        // ===== MAIN ====
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
         mainPanel.setBorder(new EmptyBorder(35, 35, 35, 35));
@@ -66,7 +66,7 @@ public class SignupPanel extends JPanel {
 
         int row = 0;
 
-        // ===== USERNAME =====
+        // Username
         gbc.gridy = row++;
         gbc.insets = new Insets(0, 20, labelToFieldGap, 20);
         mainPanel.add(makeLabel("USERNAME"), gbc);
@@ -76,7 +76,7 @@ public class SignupPanel extends JPanel {
         usernameField = makeTextField();
         mainPanel.add(usernameField, gbc);
 
-        // ===== PASSWORD =====
+        // Password
         gbc.gridy = row++;
         gbc.insets = new Insets(0, 20, labelToFieldGap, 20);
         mainPanel.add(makeLabel("PASSWORD"), gbc);
@@ -86,7 +86,7 @@ public class SignupPanel extends JPanel {
         passwordField = makePasswordField();
         mainPanel.add(makePasswordPanel(passwordField, true), gbc);
 
-        // ===== CONFIRM PASSWORD =====
+        // Confirm Password
         gbc.gridy = row++;
         gbc.insets = new Insets(0, 20, labelToFieldGap, 20);
         mainPanel.add(makeLabel("CONFIRM PASSWORD"), gbc);
@@ -96,7 +96,7 @@ public class SignupPanel extends JPanel {
         confirmPasswordField = makePasswordField();
         mainPanel.add(makePasswordPanel(confirmPasswordField, false), gbc);
 
-        // ===== Button Panel =====
+        // Button Panel
         JButton SignInBtn = Ui.makePrimaryButton("SIGN UP", 130, 45);
         SignInBtn.addActionListener(e -> attemptSignup());
         gbc.gridy = row++;
@@ -105,7 +105,7 @@ public class SignupPanel extends JPanel {
         
         add(mainPanel, BorderLayout.CENTER);
 
-        // ===== Footer SignUpBtn =====
+        // Footer
         gbc.gridy = row++;
         gbc.insets = new Insets(30, 20, 20, 20);
         JLabel haveAccountLbl = new JLabel("Already have an account?", SwingConstants.CENTER);
@@ -127,7 +127,7 @@ public class SignupPanel extends JPanel {
 
     }
 
-    // ===== Helper Components =====
+    // ===== HELPER =====
     private JLabel makeLabel(String text) {
         JLabel lbl = new JLabel(text);
         lbl.setFont(new Font("SansSerif", Font.BOLD, 20));
@@ -177,7 +177,7 @@ public class SignupPanel extends JPanel {
         return panel;
     }
 
-    // ===== Signup Logic =====
+    // ===== SIGNUP LOGIC =====
     private void attemptSignup() {
         String user = usernameField.getText().trim();
         String pass = new String(passwordField.getPassword()).trim();
@@ -192,38 +192,10 @@ public class SignupPanel extends JPanel {
             return;
         }
 
-        File file = new File("files/users.csv");
-        file.getParentFile().mkdirs();
-
-        try {
-            if (file.exists()) {
-                try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-                    String line;
-                    while ((line = br.readLine()) != null) {
-                        String[] parts = line.split(",");
-                        if (parts.length >= 2 && parts[0].equalsIgnoreCase(user)) {
-                            JOptionPane.showMessageDialog(this, "This username already exists. Please choose another.");
-                            return;
-                        }
-                    }
-                }
-            }
-
-            try (FileWriter fw = new FileWriter(file, true);
-                 BufferedWriter bw = new BufferedWriter(fw);
-                 PrintWriter out = new PrintWriter(bw)) {
-
-                if (file.length() == 0) out.println("username,password");
-                out.println(user + "," + pass);
-            }
-
-            JOptionPane.showMessageDialog(this, "Signup successful for " + user);
-            ui.setCurrentUser(user, 0);
-            ui.show("COFFEE_MENU");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error saving user data: " + e.getMessage());
-        }
+        User store = ui.getUser();
+        store.upsertUser(user, pass, 0);
+        ui.setCurrentUser(user, 0);
+        JOptionPane.showMessageDialog(this, "Signup successful for " + user);
+        ui.show("COFFEE_MENU");
     }
 }

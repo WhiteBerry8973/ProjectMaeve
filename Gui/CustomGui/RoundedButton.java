@@ -96,8 +96,8 @@ public class RoundedButton extends JButton {
             body = fillPressed;
             tcol = textPressed;
         } else if (hover) {
-            body = Ui.WHITE_DARK;
-            tcol = Ui.BROWN_DARK;
+            body = fillHover;
+            tcol = textHover;
         } else {
             body = fillNormal;
             tcol = textNormal;

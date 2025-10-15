@@ -1,18 +1,19 @@
 package Gui.UserGui;
 
 import Gui.MainGui.*;
+import Lib.*;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.io.*;
 
 public class SigninPanel extends JPanel {
+
     private final MaeveCoffeeUI ui;
     private JTextField usernameField;
     private JPasswordField passwordField;
     private boolean showPassword = false;
 
-    // ค่าควบคุมระยะและความสูงช่อง
     private final int fieldHeight = 45;
     private final int labelToFieldGap = 20;
     private final int fieldToNextLabelGap = 40;
@@ -22,18 +23,18 @@ public class SigninPanel extends JPanel {
         setLayout(new BorderLayout());
         setBackground(Ui.WHITE);
 
-        // ===== Title =====
+        // ===== HEADER =====
         JPanel header = new JPanel(new BorderLayout());
         header.setOpaque(false);
         header.setBorder(new EmptyBorder(16, 20, 0, 20));
-        
+
         JLabel title = new JLabel("SIGN IN", SwingConstants.CENTER);
         title.setFont(new Font("SansSerif", Font.BOLD, 40));
         title.setForeground(Ui.BROWN);
         title.setBorder(new EmptyBorder(30, 0, 0, 0));
         header.add(title, BorderLayout.SOUTH);
 
-        // ===== Close Button =====
+        // Close
         JButton closeBtn = new JButton("\u2715");
         closeBtn.setFocusPainted(false);
         closeBtn.setBorderPainted(false);
@@ -42,7 +43,7 @@ public class SigninPanel extends JPanel {
         closeBtn.setForeground(Ui.BROWN);
         closeBtn.setFont(new Font("SansSerif", Font.BOLD, 24));
         closeBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        closeBtn.addActionListener(e -> ui.show("COFFEE_MENU"));
+        closeBtn.addActionListener(e -> ui.show(MenuCatalogPanel.COFFEE));
         JPanel closeWrap = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         closeWrap.setOpaque(false);
         closeWrap.add(closeBtn);
@@ -50,9 +51,8 @@ public class SigninPanel extends JPanel {
 
         add(header, BorderLayout.NORTH);
 
-        // ===== Main =====
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new GridBagLayout());
+        // ===== MAIN =====
+        JPanel mainPanel = new JPanel(new GridBagLayout());
         mainPanel.setBorder(new EmptyBorder(-75, 35, 35, 35));
         mainPanel.setOpaque(false);
         mainPanel.setMaximumSize(new Dimension(420, 700));
@@ -65,7 +65,7 @@ public class SigninPanel extends JPanel {
 
         int row = 0;
 
-        // ===== USERNAME =====
+        // Username
         gbc.gridy = row++;
         gbc.insets = new Insets(0, 20, labelToFieldGap, 20);
         mainPanel.add(makeLabel("USERNAME"), gbc);
@@ -75,7 +75,7 @@ public class SigninPanel extends JPanel {
         usernameField = makeTextField();
         mainPanel.add(usernameField, gbc);
 
-        // ===== PASSWORD =====
+        // Password
         gbc.gridy = row++;
         gbc.insets = new Insets(0, 20, labelToFieldGap, 20);
         mainPanel.add(makeLabel("PASSWORD"), gbc);
@@ -85,16 +85,17 @@ public class SigninPanel extends JPanel {
         passwordField = makePasswordField();
         mainPanel.add(makePasswordPanel(passwordField), gbc);
 
-        // ===== Button Panel =====
-        JButton SignInBtn = Ui.makePrimaryButton("SIGN IN", 130, 45);
-        SignInBtn.addActionListener(e -> attemptLogin());
+        // Sign In
+        JButton signInBtn = Ui.makePrimaryButton("SIGN IN", 130, 45);
+        signInBtn.addActionListener(e -> attemptLogin());
+        passwordField.addActionListener(e -> attemptLogin()); // Enter = login
         gbc.gridy = row++;
         gbc.insets = new Insets(40, 20, 0, 20);
-        mainPanel.add(SignInBtn, gbc);
+        mainPanel.add(signInBtn, gbc);
 
         add(mainPanel, BorderLayout.CENTER);
 
-        // ===== Footer SignInBtn =====
+        // Footer
         gbc.gridy = row++;
         gbc.insets = new Insets(30, 0, 0, 0);
         JLabel noAccountLbl = new JLabel("Don't have an account?", SwingConstants.CENTER);
@@ -102,21 +103,14 @@ public class SigninPanel extends JPanel {
         noAccountLbl.setForeground(Ui.BROWN);
         noAccountLbl.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         noAccountLbl.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                ui.show("SIGNUP");
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                noAccountLbl.setForeground(Ui.BROWN_DARK);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                noAccountLbl.setForeground(Ui.BROWN);
-            }
+            public void mouseClicked(java.awt.event.MouseEvent evt) { ui.show("SIGNUP"); }
+            public void mouseEntered(java.awt.event.MouseEvent evt) { noAccountLbl.setForeground(Ui.BROWN_DARK); }
+            public void mouseExited (java.awt.event.MouseEvent evt) { noAccountLbl.setForeground(Ui.BROWN); }
         });
         mainPanel.add(noAccountLbl, gbc);
-        
     }
 
-    // ===== Helper Components =====
+    // ===== HELPER =====
     private JLabel makeLabel(String text) {
         JLabel lbl = new JLabel(text);
         lbl.setFont(new Font("SansSerif", Font.BOLD, 20));
@@ -160,44 +154,23 @@ public class SigninPanel extends JPanel {
         return panel;
     }
 
-    // ===== Login Logic =====
+    // ===== SIGNIN LOGIC =====
     private void attemptLogin() {
         String user = usernameField.getText().trim();
-        String pass = new String(passwordField.getPassword()).trim();
+        String pass = new String(passwordField.getPassword());
 
         if (user.isEmpty() || pass.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill all fields");
+            JOptionPane.showMessageDialog(this, "Please enter username/password.");
             return;
         }
 
-        File file = new File("files/users.csv");
-        if (!file.exists()) {
-            JOptionPane.showMessageDialog(this, "No users found. Please sign up first.");
-            return;
-        }
-
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line;
-            boolean found = false;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",");
-                if (parts.length >= 2 && parts[0].equalsIgnoreCase(user) && parts[1].equals(pass)) {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (found) {
-                JOptionPane.showMessageDialog(this, "Welcome back, " + user + "!");
-                ui.setCurrentUser(user, 0);
-                ui.show("COFFEE_MENU");
-            } else {
-                JOptionPane.showMessageDialog(this, "Invalid username or password.");
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error reading user data: " + e.getMessage());
+        User store = ui.getUser();
+        if (store.authenticate(user, pass)) {
+            ui.setCurrentUser(user, 0);
+            JOptionPane.showMessageDialog(this, "Welcome back, " + user + "!");
+            ui.show(MenuCatalogPanel.COFFEE);
+        } else {
+            JOptionPane.showMessageDialog(this, "Invalid username or password.");
         }
     }
 }

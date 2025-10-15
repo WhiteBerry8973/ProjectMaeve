@@ -14,6 +14,8 @@ public class Ui {
     public static final Color BROWN = new Color(0x633322);
     public static final Color BROWN_LIGHT = new Color(0x9d715c);
     public static final Color BROWN_DARK = new Color(0x35190f);
+    public static final Color YELLOW = new Color(0xffcc80);
+    public static final Color YELLOW_DARK = new Color(0x8a4010);
 
     public static final int ARC = 18;
     public static final float BORDER_STROKE = 1f;
@@ -114,15 +116,15 @@ public class Ui {
             setOpaque(false);
             setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 10));
             setFont(new Font("SansSerif", Font.PLAIN, 18));
-            setForeground(WHITE);
-            setCaretColor(WHITE);
+            setForeground(BROWN_DARK);
+            setCaretColor(BROWN_DARK);
         }
 
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(BROWN);
+            g2.setColor(WHITE_DARK);
             g2.fillRoundRect(0, 0, getWidth(), getHeight(), arc, arc);
             g2.dispose();
             super.paintComponent(g);
@@ -138,15 +140,15 @@ public class Ui {
             setOpaque(false);
             setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 10));
             setFont(new Font("SansSerif", Font.PLAIN, 18));
-            setForeground(WHITE);
-            setCaretColor(WHITE);
+            setForeground(BROWN_DARK);
+            setCaretColor(BROWN_DARK);
         }
 
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(BROWN);
+            g2.setColor(WHITE_DARK);
             g2.fillRoundRect(0, 0, getWidth(), getHeight(), arc, arc);
             g2.dispose();
             super.paintComponent(g);
@@ -295,8 +297,8 @@ public class Ui {
         RoundedButton btn = new RoundedButton(
                 text,
                 ARC, 0f, false,
-                BROWN_DARK, WHITE_DARK, WHITE_DARK, WHITE,
-                WHITE, BROWN_DARK, BROWN_DARK, BROWN_DARK,
+                BROWN, BROWN_LIGHT, BROWN_DARK, WHITE,
+                WHITE, WHITE_DARK, BROWN_LIGHT, BROWN_DARK,
                 WHITE, WHITE,
                 RoundedButton.Orientation.TOP_BOTTOM);
         btn.setPreferredSize(new Dimension(w, h));
@@ -326,13 +328,13 @@ public class Ui {
                 18, 1f, true,
                 WHITE,
                 WHITE_DARK,
-                BROWN_DARK,
+                BROWN,
                 WHITE,
+                BROWN,
                 BROWN_DARK,
-                BROWN_DARK,
+                WHITE_DARK,
                 WHITE,
-                WHITE,
-                BROWN_DARK, BROWN_DARK,
+                BROWN, BROWN,
                 RoundedButton.Orientation.LEFT_RIGHT
         );
         b.setPreferredSize(new Dimension(w, h));
