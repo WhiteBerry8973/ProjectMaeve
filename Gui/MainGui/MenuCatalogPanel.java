@@ -285,6 +285,13 @@ public class MenuCatalogPanel extends JPanel {
         return wrap;
     }
 
+    public void refreshFromUi() {
+        updateHeaderUser();
+        refreshGrid();
+        revalidate();
+        repaint();
+    }
+
     private void refreshGrid() {
         if (grid == null || bottomOuter == null)
             return;

@@ -40,7 +40,11 @@ public class AdminCatalogPanel extends JPanel {
 
         top.add(new JLabel("Catalog:"));
         JButton btnBack = new JButton("Back");
-        btnBack.addActionListener(e -> ui.show(MenuCatalogPanel.COFFEE));
+        btnBack.addActionListener(e -> {
+            ui.refreshAllCatalogs();
+            MenuCatalogPanel.Catalog cat = (MenuCatalogPanel.Catalog) cbCatalog.getSelectedItem();
+            ui.show("COFFEE_MENU");
+        });
 
         top.add(cbCatalog);
         top.add(btnLoad);
@@ -92,6 +96,9 @@ public class AdminCatalogPanel extends JPanel {
             out.put(r.name, r.inStock);
 
         if (writeStockMap(ui.getMenuCsvPath(cat), out)) {
+
+            ui.refreshAllCatalogs();
+
             JOptionPane.showMessageDialog(this, "Saved stock to CSV for " + cat);
         } else {
             JOptionPane.showMessageDialog(this, "Failed to save", "Error", JOptionPane.ERROR_MESSAGE);

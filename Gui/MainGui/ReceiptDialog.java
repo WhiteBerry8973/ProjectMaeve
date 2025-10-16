@@ -201,23 +201,18 @@ public class ReceiptDialog extends JDialog {
             } else {
                 rewardLbl.setText("You may take this bill to cashier counter");
             }
-
         }
 
         itemsBox.revalidate();
         itemsBox.repaint();
     }
 
-    // ========= helper =========
+    // ========= HELPER =========
     private JLabel makeLabel(String t, int sz, int style, Color color) {
         JLabel l = new JLabel(t);
         l.setFont(new Font("SansSerif", style, sz));
         l.setForeground(color);
         return l;
-    }
-
-    private JLabel makeLabel(String t, int sz, int style, int rgb) {
-        return makeLabel(t, sz, style, new Color(rgb));
     }
 
     private JComponent dash() {

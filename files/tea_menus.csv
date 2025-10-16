@@ -2,7 +2,7 @@ name, hotprice, iceprice, iceavailable, shotprice, path, stock
 Thai Milk Tea,30,40,1,0,Imgs/teas/thai_milk_tea.png,1
 Jasmine Tea,25,35,1,0,Imgs/teas/jasmine_tea.png,1
 Matcha,40,70,1,0,Imgs/teas/matcha.png,1
-Black Tea,25,70,1,0,Imgs/teas/black_tea.png,0
-Earl Grey,35,75,1,0,Imgs/teas/earl_grey.png,0
-Caramel Milk Tea,45,55,1,0,Imgs/teas/caramel_milk_tea.png,0
+Black Tea,25,70,1,0,Imgs/teas/black_tea.png,1
+Earl Grey,35,75,1,0,Imgs/teas/earl_grey.png,1
+Caramel Milk Tea,45,55,1,0,Imgs/teas/caramel_milk_tea.png,1
 Cocoa Milk Tea,35,40,1,0,Imgs/teas/cocoa_milk_tea.png,1

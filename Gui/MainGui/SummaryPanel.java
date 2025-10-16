@@ -260,7 +260,7 @@ public class SummaryPanel extends JPanel {
         o.items.removeIf(it -> it.label.startsWith("Discount (Redeem "));
         if (discount > 0) {
             o.items.add(new MaeveCoffeeUI.OrderItem("Discount (Redeem " + usedPts + " pts)", 1, -discount));
-            ui.setCurrentPoints(Math.max(0, ui.getCurrentPoints() - usedPts));
+            ui.addPoints(-usedPts);
         }
 
         if (ui.isSignedIn()) {

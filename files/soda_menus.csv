@@ -1,11 +1,11 @@
 name, iceprice, Smoothprice, iceavailable, shotprice, path, stock
 Soda,25,0,0,10,Imgs/sodas/Soda.png,1
-Lemon Soda,50,60,1,5,Imgs/sodas/lemon_sodas.png,1
-Apple Soda,60,70,1,5,Imgs/sodas/apple_sodas.png,1
+Lemon Soda,50,60,1,5,Imgs/sodas/lemon_soda.png,1
+Apple Soda,60,70,1,5,Imgs/sodas/apple_soda.png,1
 HoneyLemon Soda,60,70,1,5,Imgs/sodas/HoneyLemon_Soda.png,1
 Mango Soda,65,75,1,5,Imgs/sodas/Mango_Soda.png,1
 Lychee Soda,70,80,1,5,Imgs/sodas/Lychee_Soda.png,1
 BlueHawaii Soda,65,75,1,5,Imgs/sodas/BlueHawaii_Soda.png,1
-Pineapple Soda,65,75,1,5,Imgs/sodas/pineapple_sodas.png,1
+Pineapple Soda,65,75,1,5,Imgs/sodas/pineapple_soda.png,1
 Strawberry Soda,65,75,1,5,Imgs/sodas/Strawberry_Soda.png,1
 Plum Soda,65,75,1,5,Imgs/sodas/Plum_Soda.png,1

@@ -3,9 +3,7 @@ package Gui.MainGui;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
@@ -13,6 +11,7 @@ import java.util.LinkedHashMap;
 
 import Gui.CoffeeGui.*;
 import Gui.MainGui.MenuCatalogPanel.Catalog;
+import Gui.SodaGui.*;
 import Gui.TeaGui.*;
 import Gui.UserGui.*;
 import Lib.*;
@@ -102,6 +101,7 @@ public class MaeveCoffeeUI {
 
         cards.add(new CoffeeAddonPanel(this), MenuCatalogPanel.COFFEE_ADDON);
         cards.add(new TeaAddonPanel(this), MenuCatalogPanel.TEA_ADDON);
+        cards.add(new SodaAddonPanel(this), MenuCatalogPanel.SODA_ADDON);
         cards.add(new SummaryPanel(this), "SUMMARY");
 
         frame.add(cards, BorderLayout.CENTER);
@@ -331,8 +331,23 @@ public class MaeveCoffeeUI {
     }
 
     // Show Page
+    public void refreshAllCatalogs() {
+        if (coffeePanel != null)
+            coffeePanel.refreshFromUi();
+        if (teaPanel != null)
+            teaPanel.refreshFromUi();
+        if (sodaPanel != null)
+            sodaPanel.refreshFromUi();
+    }
+
     public void show(String name) {
         cardLayout.show(cards, name);
+        if (MenuCatalogPanel.COFFEE.equals(name) && coffeePanel != null)
+            coffeePanel.refreshFromUi();
+        else if (MenuCatalogPanel.TEA.equals(name) && teaPanel != null)
+            teaPanel.refreshFromUi();
+        else if (MenuCatalogPanel.SODA.equals(name) && sodaPanel != null)
+            sodaPanel.refreshFromUi();
     }
 
     public java.util.List<MenuDrink> getMenuByCatalog(MenuCatalogPanel.Catalog cat) {
