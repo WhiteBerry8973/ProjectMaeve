@@ -231,9 +231,10 @@ public class CoffeeAddonPanel extends JPanel {
         JToggleButton t1 = Ui.makeToppingToggle(IMG_TOPPING1, 140, 15, Ui.Orientation.TOP_BOTTOM);
         JToggleButton t2 = Ui.makeToppingToggle(IMG_TOPPING2, 140, 10, Ui.Orientation.TOP_BOTTOM);
         JToggleButton t3 = Ui.makeToppingToggle(IMG_TOPPING3, 140, 10, Ui.Orientation.TOP_BOTTOM);
-        t1.setActionCommand("TP001");
-        t2.setActionCommand("TP002");
-        t3.setActionCommand("TP003");
+        t1.setActionCommand("Whipping Cream");
+        t2.setActionCommand("Chocolate");
+        t3.setActionCommand("Marshmallow");
+
 
         toppingButtons.clear();
         toppingButtons.add(t1);

@@ -2,7 +2,6 @@ package Lib;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,13 +10,6 @@ import StrategyPattern.DiscountStrategy;
 import StrategyPattern.PricingContext;
 import StrategyPattern.DefaultPricingStrategy;
 
-/**
- * Simple pricing service (Shopei-ei style):
- *  - Loads prices from size.csv and topping.csv once.
- *  - Exposes helpers getSizePrice(), getToppingPrice(), toInt().
- *  - Provides a single calcTotal() used by all Addon panels.
- *  - DiscountStrategy is optional; Default = no discount.
- */
 public class PricingService {
 
     private final Map<String, Double> sizePrice = new HashMap<>();

@@ -213,9 +213,9 @@ public class SodaAddonPanel extends JPanel {
         JToggleButton t1 = Ui.makeToppingToggle(IMG_TOPPING1, 140, 5, Ui.Orientation.TOP_BOTTOM);
         JToggleButton t2 = Ui.makeToppingToggle(IMG_TOPPING2, 140, 10, Ui.Orientation.TOP_BOTTOM);
         JToggleButton t3 = Ui.makeToppingToggle(IMG_TOPPING3, 140, 10, Ui.Orientation.TOP_BOTTOM);
-        t1.setActionCommand("TP004");
-        t2.setActionCommand("TP005");
-        t3.setActionCommand("TP006");
+        t1.setActionCommand("Black Pearl");
+        t2.setActionCommand("Konjac Pearl");
+        t3.setActionCommand("Golden Pearl");
 
         toppingButtons.clear();
         toppingButtons.add(t1);

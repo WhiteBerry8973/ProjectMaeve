@@ -24,9 +24,7 @@ public class MaeveCoffeeUI {
         SwingUtilities.invokeLater(this::createAndShowGUI);
     }
 
-    public MenuCatalogPanel coffeePanel;
-    public MenuCatalogPanel teaPanel;
-    public MenuCatalogPanel sodaPanel;
+    public MenuCatalogPanel coffeePanel, teaPanel, sodaPanel;
 
     private JFrame frame;
     private CardLayout cardLayout;
@@ -44,12 +42,9 @@ public class MaeveCoffeeUI {
 
     // ===== SHARED STATE =====
     public static class MenuDrink {
-        public final String name;
-        public final String imagePath;
-        public final double hotPrice;
-        public final double icedPrice;
+        public final String name, imagePath;
+        public final double hotPrice, icedPrice, shotPrice;
         public final boolean icedAvailable;
-        public final double shotPrice;
 
         public MenuDrink(String name, double hot, double iced, boolean icedAvail,
                 double shotPrice, String img) {
@@ -70,8 +65,6 @@ public class MaeveCoffeeUI {
 
     private DrinkType selectedType = DrinkType.HOT;
     private int extraShots = 0;
-    private List<String> selectedToppings = new ArrayList<>();
-    private String selectedSweetness = null;
 
     // ===== USER =====
     private final User user = new User("files/users.csv");
@@ -109,7 +102,6 @@ public class MaeveCoffeeUI {
 
         cards.add(new CoffeeAddonPanel(this), MenuCatalogPanel.COFFEE_ADDON);
         cards.add(new TeaAddonPanel(this), MenuCatalogPanel.TEA_ADDON);
-        cards.add(new ReceiptDialog(this), "BILL");
         cards.add(new SummaryPanel(this), "SUMMARY");
 
         frame.add(cards, BorderLayout.CENTER);
@@ -119,7 +111,19 @@ public class MaeveCoffeeUI {
         show("HOME_PAGE");
     }
 
-    // ===== ORDER ITEM =====
+    // ==== REAL TIME ====
+    public interface PointsListener {
+        void onPointsChanged(int newPoints);
+    }
+
+    private final java.util.List<PointsListener> pointsListeners = new java.util.ArrayList<>();
+
+    public void addPointsListener(PointsListener l) {
+        if (l != null)
+            pointsListeners.add(l);
+    }
+
+    // ==== ORDER ITEM ====
     public static class OrderItem {
         public final String label;
         public final int qty;
@@ -139,7 +143,8 @@ public class MaeveCoffeeUI {
     public static class OrderSummary {
         public String username;
         public int pointsBefore;
-        public int pointsEarned;
+        public int pointsEarned = 0;
+        public boolean pointsGranted = false;
         public java.time.LocalDate date;
         public java.time.LocalTime time;
         public java.util.List<OrderItem> items = new java.util.ArrayList<>();
@@ -229,10 +234,6 @@ public class MaeveCoffeeUI {
         lastOrder = o;
     }
 
-    public List<MenuDrink> getCoffeeMenu() {
-        return coffeeMenu;
-    }
-
     public void setSelectedDrink(MenuDrink d) {
         this.selectedDrink = d;
     }
@@ -255,22 +256,6 @@ public class MaeveCoffeeUI {
 
     public int getExtraShots() {
         return extraShots;
-    }
-
-    public void setSelectedToppings(List<String> t) {
-        this.selectedToppings = t;
-    }
-
-    public List<String> getSelectedToppings() {
-        return selectedToppings;
-    }
-
-    public void setSelectedSweetness(String s) {
-        this.selectedSweetness = s;
-    }
-
-    public String getSelectedSweetness() {
-        return selectedSweetness;
     }
 
     // User
@@ -306,13 +291,43 @@ public class MaeveCoffeeUI {
     public void addPoints(int delta) {
         if (!isSignedIn())
             return;
+
         user.addPoints(currentUser, delta);
+
+        int newPts = user.getPoints(currentUser);
+        this.currentPoints = newPts;
+
+        for (PointsListener l : new java.util.ArrayList<>(pointsListeners)) {
+            try {
+                l.onPointsChanged(newPts);
+            } catch (Exception ignored) {
+            }
+        }
+
+        if (coffeePanel != null)
+            coffeePanel.updateHeaderUser();
+        if (teaPanel != null)
+            teaPanel.updateHeaderUser();
+        if (sodaPanel != null)
+            sodaPanel.updateHeaderUser();
     }
 
     public void setCurrentPoints(int pts) {
-        if (!isSignedIn())
-            return;
-        user.setPoints(currentUser, pts);
+        this.currentPoints = Math.max(0, pts);
+        for (PointsListener l : new java.util.ArrayList<>(pointsListeners)) {
+            try {
+                l.onPointsChanged(this.currentPoints);
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    // ==== BILL ====
+    public void showBillDialog(Component parent) {
+        Frame owner = parent != null ? (Frame) SwingUtilities.getWindowAncestor(parent) : frame;
+        ReceiptDialog dlg = new ReceiptDialog(owner, this);
+        dlg.populate();
+        dlg.setVisible(true);
     }
 
     // Show Page

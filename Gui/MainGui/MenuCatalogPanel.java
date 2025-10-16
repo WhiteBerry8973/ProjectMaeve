@@ -33,12 +33,12 @@ public class MenuCatalogPanel extends JPanel {
 
     private SegmentedTab sCoffee, sTea, sSoda;
 
-    private JPanel grid;
-    private JPanel bottomOuter;
+    private JPanel grid, bottomOuter, headerRight;
 
-    private JPanel headerRight;
     private CardLayout headerRightCards;
     private JLabel userNameLbl, userPointLbl;
+
+    private MaeveCoffeeUI.PointsListener pointsListener;
 
     public MenuCatalogPanel(MaeveCoffeeUI ui, Catalog catalog) {
         this.ui = ui;
@@ -101,13 +101,16 @@ public class MenuCatalogPanel extends JPanel {
 
         updateHeaderUser();
 
+        pointsListener = newPts -> SwingUtilities.invokeLater(() -> {
+            userPointLbl.setText(newPts + " Point");
+        });
+        ui.addPointsListener(pointsListener);
+
         // ===== CATALOG =====
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
 
-        final int TAB_H = 60;
-        final int ARC = Ui.ARC;
-        final int PAD = 1;
+        final int TAB_H = 60, ARC = Ui.ARC, PAD = 1;
         final float STK = 2f;
 
         JPanel stripBox = new JPanel(new BorderLayout()) {

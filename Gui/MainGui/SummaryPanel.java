@@ -24,23 +24,22 @@ public class SummaryPanel extends JPanel {
         this.ui = ui;
         setLayout(new BorderLayout());
         setOpaque(true);
-        setBackground(new Color(0xE9E1CF));
+        setBackground(Ui.WHITE);
 
         // Paper
         JPanel paper = new JPanel(new BorderLayout());
         paper.setOpaque(true);
-        paper.setBackground(new Color(0xF5EEDB));
-        paper.setBorder(new EmptyBorder(16, 0, 16, 0));
+        paper.setBackground(Ui.WHITE);
+        paper.setBorder(new EmptyBorder(0, 0, 0, 0));
         add(paper, BorderLayout.CENTER);
 
-        // Header
+        // ==== HEADER ====
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(Ui.BROWN);
         header.setBorder(new EmptyBorder(10, 12, 0, 12));
 
-        // Title
         JLabel title = new JLabel("PRICE SUMMARY", SwingConstants.CENTER);
-        title.setForeground(Ui.WHITE); // ตัวอักษรสีขาวบนพื้นเข้ม
+        title.setForeground(Ui.WHITE);
         title.setFont(new Font("SansSerif", Font.BOLD, 30));
         title.setBorder(new EmptyBorder(20, 0, 25, 0));
         header.add(title, BorderLayout.CENTER);
@@ -48,16 +47,15 @@ public class SummaryPanel extends JPanel {
         // Back
         JButton back = makeHeaderButton("◀");
         back.setFont(new Font("SansSerif", Font.BOLD, 30));
-        back.setBorder(new EmptyBorder(20,25,0,0));
+        back.setBorder(new EmptyBorder(20, 25, 0, 0));
         back.addActionListener(e -> ui.show("COFFEE_MENU"));
 
-        // ปุ่ม Close (ขวา)
+        // Close
         JButton close = makeHeaderButton("✕");
         close.setFont(new Font("SansSerif", Font.BOLD, 30));
-        close.setBorder(new EmptyBorder(20,0,0,25));
+        close.setBorder(new EmptyBorder(20, 0, 0, 25));
         close.addActionListener(e -> ui.show("HOME_PAGE"));
-        
-        // ปุ่ม Back, Close (ซ้าย-ขวา) ซ้อนกันอีกชั้น เพื่อให้ปุ่มชิดขอบ
+
         JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         left.setOpaque(false);
         left.add(back);
@@ -70,127 +68,145 @@ public class SummaryPanel extends JPanel {
 
         paper.add(header, BorderLayout.NORTH);
 
-        // Body
-        JPanel body = new JPanel();
-        body.setOpaque(false);
-        body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
-        body.setBorder(new EmptyBorder(8, 0, 8, 0));
-        paper.add(body, BorderLayout.CENTER);
+        // ==== ITEM LIST ====
+        JPanel listWrap = new JPanel(new BorderLayout());
+        listWrap.setOpaque(false);
 
-        // รายการสินค้า
         itemsBox = new JPanel();
         itemsBox.setOpaque(false);
         itemsBox.setLayout(new BoxLayout(itemsBox, BoxLayout.Y_AXIS));
-        body.add(itemsBox);
-        body.add(space(12));
+        itemsBox.setBorder(new EmptyBorder(20, 50, 10, 50));
 
-        // แสดงแต้มที่มี (ก่อน redeem) โดยดึงแต้มจาก getCurrentPoints()
+        JPanel listHolder = new JPanel(new BorderLayout());
+        listHolder.setOpaque(false);
+        listHolder.add(itemsBox, BorderLayout.NORTH);
+
+        JScrollPane scroll = new JScrollPane(listHolder);
+        scroll.setBorder(BorderFactory.createEmptyBorder());
+        scroll.setOpaque(false);
+        scroll.getViewport().setOpaque(false);
+        scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        listWrap.add(scroll, BorderLayout.CENTER);
+
+        paper.add(listWrap, BorderLayout.CENTER);
+
+        JPanel frame = new JPanel();
+        frame.setOpaque(false);
+        frame.setLayout(new BoxLayout(frame, BoxLayout.Y_AXIS));
+
+        // Your Point
         JPanel midder = new JPanel(new BorderLayout());
         midder.setBackground(Ui.BROWN);
-        midder.setBorder(new EmptyBorder(10, 12, 0, 12));
-        body.add(midder);
-
+        midder.setBorder(new EmptyBorder(30, 50, 30, 50));
         pointsLbl = new JLabel();
         pointsLbl.setFont(new Font("SansSerif", Font.BOLD, 30));
         pointsLbl.setForeground(Ui.WHITE);
         midder.add(pointsLbl, BorderLayout.WEST);
+        frame.add(midder);
 
-        // Redeem
+        // Redeem Block
         JPanel redeemWrap = new JPanel(new GridBagLayout());
         redeemWrap.setOpaque(false);
-            
         GridBagConstraints gc = new GridBagConstraints();
-        gc.insets = new Insets(4, 4, 4, 4);
-            
-        // ===== Label 1 =====
+        gc.insets = new Insets(10, 50, 0, 50);
+
+        // Label 1
         gc.gridx = 0;
         gc.gridy = 0;
         gc.anchor = GridBagConstraints.WEST;
         gc.fill = GridBagConstraints.HORIZONTAL;
-        gc.weightx = 1.0; // ให้ label ด้านซ้ายกินพื้นที่ยืดได้
-        redeemWrap.add(makeLabel("Redeem Point", 30, Font.BOLD, 0x4A2D1B), gc);
-            
-        // ===== Label 2 =====
+        gc.weightx = 1.0;
+        redeemWrap.add(makeLabel("Redeem Point", 30, Font.BOLD, Ui.BROWN), gc);
+
+        // Label 2
         gc.gridy = 1;
-        redeemWrap.add(makeLabel("100 Point = 1 Baht", 20, Font.BOLD, 0x6B4A35), gc);
-            
-        // ===== Spinner =====
+        gc.insets = new Insets(5, 50, 15, 50);
+        redeemWrap.add(makeLabel("100 Point = 1 Baht", 20, Font.PLAIN, Ui.BROWN_LIGHT), gc);
+
         gc.gridx = 1;
         gc.gridy = 0;
-        gc.gridheight = 2; // ครอบสองแถว
+        gc.gridheight = 2;
         gc.anchor = GridBagConstraints.EAST;
-        gc.fill = GridBagConstraints.NONE; // ไม่ต้องขยาย
-        gc.weightx = 0; // ไม่ให้ขยาย
+        gc.fill = GridBagConstraints.NONE;
+        gc.weightx = 0;
         redeemSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 0, 100));
-        Dimension spinSize = new Dimension(96, 36);
+        Dimension spinSize = new Dimension(100, 50);
         redeemSpinner.setPreferredSize(spinSize);
         redeemSpinner.setFont(new Font("SansSerif", Font.BOLD, 18));
         redeemWrap.add(redeemSpinner, gc);
-            
-        body.add(redeemWrap);
 
+        frame.add(redeemWrap);
 
-        // ส่วนลด
+        Color LIGHT_BOX = Ui.WHITE_DARK;
+        JPanel bottomBox = new JPanel();
+        bottomBox.setOpaque(true);
+        bottomBox.setBackground(LIGHT_BOX);
+        bottomBox.setLayout(new BoxLayout(bottomBox, BoxLayout.Y_AXIS));
+        bottomBox.setBorder(new EmptyBorder(12, 40, 12, 40));
+
         JPanel disRow = new JPanel(new BorderLayout());
         disRow.setOpaque(false);
-        disRow.add(makeLabel("Discount", 16, Font.PLAIN, 0x4A2D1B), BorderLayout.WEST);
-        discountLbl = makeLabel("0 ฿", 18, Font.BOLD, 0x4A2D1B);
+        disRow.add(makeLabel("Discount", 25, Font.BOLD, Ui.BROWN_LIGHT), BorderLayout.WEST);
+        discountLbl = makeLabel("0 ฿", 25, Font.BOLD, Ui.BROWN_LIGHT);
         disRow.add(discountLbl, BorderLayout.EAST);
-        body.add(disRow);
+        disRow.setBorder(new EmptyBorder(4, 10, 4, 10));
+        bottomBox.add(disRow);
 
-        body.add(space(8));
-        body.add(dash());
-
-        // Total
+        // Total row
         JPanel totalRow = new JPanel(new BorderLayout());
         totalRow.setOpaque(false);
-        totalRow.add(makeLabel("Total", 18, Font.BOLD, 0x4A2D1B), BorderLayout.WEST);
-        totalLbl = makeLabel("0 ฿", 20, Font.BOLD, 0x4A2D1B);
+        totalRow.add(makeLabel("Total", 25, Font.BOLD, Ui.BROWN), BorderLayout.WEST);
+        totalLbl = makeLabel("0 ฿", 25, Font.BOLD, Ui.BROWN);
         totalRow.add(totalLbl, BorderLayout.EAST);
-        body.add(totalRow);
+        totalRow.setBorder(new EmptyBorder(10, 10, 15, 10));
+        bottomBox.add(totalRow);
 
-        // Footer
-        JPanel footer = new JPanel(new BorderLayout());
-        footer.setOpaque(false);
-        footer.setBorder(new EmptyBorder(8, 40, 8, 40));
+        JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        btnRow.setBorder(new EmptyBorder(0, 0, 10, 0));
+        btnRow.setOpaque(false);
 
-        JButton btnPay = Ui.makePrimaryButton("SIGN IN", 130, 45);
+        JButton btnPay = Ui.makePrimaryButton("CHECK BILL", 500, 45);
         btnPay.addActionListener(e -> finalizeAndGoBill());
-        
-        footer.add(btnPay);
 
-        paper.add(footer, BorderLayout.SOUTH);
+        btnRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, btnPay.getPreferredSize().height));
+        btnRow.add(btnPay);
+        bottomBox.add(btnRow);
 
-        // events
+        frame.add(bottomBox);
+        paper.add(frame, BorderLayout.SOUTH);
+
         redeemSpinner.addChangeListener(e -> recalcDiscount());
 
-        // populate on show
         addComponentListener(new java.awt.event.ComponentAdapter() {
-            @Override public void componentShown(java.awt.event.ComponentEvent e) { populate(); }
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                populate();
+            }
         });
     }
 
     private void populate() {
         MaeveCoffeeUI.OrderSummary o = ui.getLastOrder();
-        if (o == null) return;
+        if (o == null)
+            return;
 
-        // เติมรายการ
+        // Add
         itemsBox.removeAll();
         for (MaeveCoffeeUI.OrderItem it : o.items) {
             JPanel row = new JPanel(new BorderLayout());
             row.setOpaque(false);
-            row.setBorder(new EmptyBorder(4,0,4,0));
-            row.add(makeLabel(it.qty + " " + it.label, 18, Font.BOLD, 0x3A2A1F), BorderLayout.WEST);
-            row.add(makeLabel(it.lineTotal() + " ฿", 18, Font.BOLD, 0x3A2A1F), BorderLayout.EAST);
+            row.setBorder(new EmptyBorder(0, 0, 25, 0));
+            row.add(makeLabel(it.qty + " " + it.label, 22, Font.BOLD, Ui.BROWN), BorderLayout.WEST);
+            row.add(makeLabel(it.lineTotal() + " ฿", 22, Font.BOLD, Ui.BROWN), BorderLayout.EAST);
             itemsBox.add(row);
         }
         itemsBox.revalidate();
         itemsBox.repaint();
 
-        // แต้มที่มี ก่อน redeem
+        // Point
         pointsLbl.setText("YOUR POINT : " + ui.getCurrentPoints() + " POINT");
 
-        // จำกัดค่าสูงสุดของ redeem: min(points, subtotal*100)
         int subtotal = o.total();
         int maxRedeemByPrice = Math.max(0, subtotal) * 100;
         int max = Math.max(0, Math.min(ui.getCurrentPoints(), maxRedeemByPrice));
@@ -206,17 +222,20 @@ public class SummaryPanel extends JPanel {
 
     private void recalcDiscount() {
         MaeveCoffeeUI.OrderSummary o = ui.getLastOrder();
-        if (o == null) return;
+        if (o == null)
+            return;
         int subtotal = o.total();
 
-        int redeem = (Integer) redeemSpinner.getValue();      // แต้มที่จะแลก
+        int redeem = (Integer) redeemSpinner.getValue();
         PricingContext ctx = new PricingContext(ui.getCurrentUser(), redeem);
 
-        double netD = redeemStrategy.apply(subtotal, ctx);    // net หลังส่วนลดจาก Strategy
-        int net = (int)Math.round(netD);
+        double netD = redeemStrategy.apply(subtotal, ctx);
+        int net = (int) Math.round(netD);
         int discount = subtotal - net;
-        if (net < 0) net = 0;
-        if (discount < 0) discount = 0;
+        if (net < 0)
+            net = 0;
+        if (discount < 0)
+            discount = 0;
 
         discountLbl.setText(discount + " ฿");
         totalLbl.setText(net + " ฿");
@@ -224,67 +243,57 @@ public class SummaryPanel extends JPanel {
 
     private void finalizeAndGoBill() {
         MaeveCoffeeUI.OrderSummary o = ui.getLastOrder();
-        if (o == null) return;
+        if (o == null)
+            return;
 
         int subtotal = o.total();
         int redeem = (Integer) redeemSpinner.getValue();
+
         PricingContext ctx = new PricingContext(ui.getCurrentUser(), redeem);
-
-        int net = (int)Math.round(redeemStrategy.apply(subtotal, ctx));
+        int net = (int) Math.round(redeemStrategy.apply(subtotal, ctx));
         int discount = subtotal - net;
-        if (discount < 0) discount = 0;
+        if (discount < 0)
+            discount = 0;
 
-        // ลบบรรทัดส่วนลดเก่าถ้ามี
+        int usedPts = ctx.pointsToDeduct;
+
         o.items.removeIf(it -> it.label.startsWith("Discount (Redeem "));
-
         if (discount > 0) {
-            o.items.add(new MaeveCoffeeUI.OrderItem("Discount (Redeem " + redeem + " pts)", 1, -discount));
-            // ตัดแต้มออกจากยอดสะสม
-            ui.setCurrentPoints(Math.max(0, ui.getCurrentPoints() - redeem));
+            o.items.add(new MaeveCoffeeUI.OrderItem("Discount (Redeem " + usedPts + " pts)", 1, -discount));
+            ui.setCurrentPoints(Math.max(0, ui.getCurrentPoints() - usedPts));
         }
-        ui.show("BILL");
+
+        if (ui.isSignedIn()) {
+            int earned = Math.max(0, subtotal) * 2;
+            if (!o.pointsGranted) {
+                ui.addPoints(earned);
+                o.pointsEarned = earned;
+                o.pointsGranted = true;
+            }
+        } else {
+            o.pointsEarned = 0;
+            o.pointsGranted = true;
+        }
+
+        ui.showBillDialog(this);
     }
 
-    private JLabel makeLabel(String t, int sz, int style, int rgb) {
+    private JLabel makeLabel(String t, int sz, int style, Color color) {
         JLabel l = new JLabel(t);
         l.setFont(new Font("SansSerif", style, sz));
-        l.setForeground(new Color(rgb));
+        l.setForeground(color);
         return l;
     }
 
-    private Component space(int h) {
-        JPanel p = new JPanel();
-        p.setOpaque(false);
-        p.setPreferredSize(new Dimension(1,h));
-        return p;
-    }
-
-    private JComponent dash() {
-        JComponent c = new JComponent() {
-            @Override protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setColor(new Color(0xCCBDA7));
-                int y = getHeight()/2;
-                g2.drawLine(0,y,getWidth(),y);
-                g2.dispose();
-            }
-        };
-        c.setPreferredSize(new Dimension(1, 12));
-        return c;
-    }
-
-    // ปุ่มใน header (back, close) style เดียวกัน
     private JButton makeHeaderButton(String txt) {
         JButton b = new JButton(txt);
         b.setFocusPainted(false);
         b.setBorderPainted(false);
         b.setContentAreaFilled(false);
         b.setOpaque(false);
-        b.setForeground(Ui.WHITE); // ปุ่มบนพื้นเข้ม → ตัวอักษรสีขาว
+        b.setForeground(Ui.WHITE);
         b.setFont(new Font("SansSerif", Font.BOLD, 18));
         b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         return b;
     }
-
 }
