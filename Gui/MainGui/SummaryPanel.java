@@ -30,7 +30,7 @@ public class SummaryPanel extends JPanel {
         JPanel paper = new JPanel(new BorderLayout());
         paper.setOpaque(true);
         paper.setBackground(new Color(0xF5EEDB));
-        paper.setBorder(new EmptyBorder(16, 16, 16, 16));
+        paper.setBorder(new EmptyBorder(16, 0, 16, 0));
         add(paper, BorderLayout.CENTER);
 
         // Header
@@ -50,15 +50,12 @@ public class SummaryPanel extends JPanel {
         back.setFont(new Font("SansSerif", Font.BOLD, 30));
         back.setBorder(new EmptyBorder(20,25,0,0));
         back.addActionListener(e -> ui.show("COFFEE_MENU"));
-        header.add(back, BorderLayout.WEST);
 
         // ปุ่ม Close (ขวา)
         JButton close = makeHeaderButton("✕");
         close.setFont(new Font("SansSerif", Font.BOLD, 30));
         close.setBorder(new EmptyBorder(20,0,0,25));
         close.addActionListener(e -> ui.show("HOME_PAGE"));
-        header.add(close, BorderLayout.EAST);
-
         
         // ปุ่ม Back, Close (ซ้าย-ขวา) ซ้อนกันอีกชั้น เพื่อให้ปุ่มชิดขอบ
         JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -101,21 +98,37 @@ public class SummaryPanel extends JPanel {
         // Redeem
         JPanel redeemWrap = new JPanel(new GridBagLayout());
         redeemWrap.setOpaque(false);
+            
         GridBagConstraints gc = new GridBagConstraints();
-        gc.insets = new Insets(4,4,4,4);
-        gc.gridy = 0; gc.gridx = 0; gc.anchor = GridBagConstraints.WEST;
+        gc.insets = new Insets(4, 4, 4, 4);
+            
+        // ===== Label 1 =====
+        gc.gridx = 0;
+        gc.gridy = 0;
+        gc.anchor = GridBagConstraints.WEST;
+        gc.fill = GridBagConstraints.HORIZONTAL;
+        gc.weightx = 1.0; // ให้ label ด้านซ้ายกินพื้นที่ยืดได้
         redeemWrap.add(makeLabel("Redeem Point", 30, Font.BOLD, 0x4A2D1B), gc);
-        gc.gridy = 1; gc.gridx = 0;
+            
+        // ===== Label 2 =====
+        gc.gridy = 1;
         redeemWrap.add(makeLabel("100 Point = 1 Baht", 20, Font.BOLD, 0x6B4A35), gc);
-        gc.gridy = 0; gc.gridx = 1; gc.gridheight = 2; gc.anchor = GridBagConstraints.EAST;
-
-        // Redeem Spinner
-        redeemSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 0, 100)); // max จะตั้งตอน populate()
+            
+        // ===== Spinner =====
+        gc.gridx = 1;
+        gc.gridy = 0;
+        gc.gridheight = 2; // ครอบสองแถว
+        gc.anchor = GridBagConstraints.EAST;
+        gc.fill = GridBagConstraints.NONE; // ไม่ต้องขยาย
+        gc.weightx = 0; // ไม่ให้ขยาย
+        redeemSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 0, 100));
         Dimension spinSize = new Dimension(96, 36);
         redeemSpinner.setPreferredSize(spinSize);
         redeemSpinner.setFont(new Font("SansSerif", Font.BOLD, 18));
         redeemWrap.add(redeemSpinner, gc);
+            
         body.add(redeemWrap);
+
 
         // ส่วนลด
         JPanel disRow = new JPanel(new BorderLayout());
@@ -139,13 +152,13 @@ public class SummaryPanel extends JPanel {
         // Footer
         JPanel footer = new JPanel(new BorderLayout());
         footer.setOpaque(false);
-        JButton btnPay = new JButton("Total");
-        btnPay.setFont(new Font("SansSerif", Font.BOLD, 18));
-        btnPay.setBackground(new Color(0x4A2D1B));
-        btnPay.setForeground(Color.WHITE);
-        btnPay.setFocusPainted(false);
+        footer.setBorder(new EmptyBorder(8, 40, 8, 40));
+
+        JButton btnPay = Ui.makePrimaryButton("SIGN IN", 130, 45);
         btnPay.addActionListener(e -> finalizeAndGoBill());
-        footer.add(btnPay, BorderLayout.EAST);
+        
+        footer.add(btnPay);
+
         paper.add(footer, BorderLayout.SOUTH);
 
         // events

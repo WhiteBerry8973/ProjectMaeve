@@ -1,12 +1,15 @@
 package Gui.UserGui;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.text.*;
-import java.awt.*;
-
 import Gui.MainGui.*;
 import Lib.*;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
+import java.awt.*;
 
 public class SigninPanel extends JPanel {
 
@@ -14,6 +17,10 @@ public class SigninPanel extends JPanel {
     private JTextField usernameField;
     private JPasswordField passwordField;
     private boolean showPassword = false;
+
+    // error labels
+    private JLabel userErrLbl;
+    private JLabel passErrLbl;
 
     private final int fieldHeight = 45;
     private final int labelToFieldGap = 20;
@@ -66,33 +73,55 @@ public class SigninPanel extends JPanel {
 
         int row = 0;
 
-        // Username
+        // ==== USER ====
         gbc.gridy = row++;
         gbc.insets = new Insets(0, 20, labelToFieldGap, 20);
         mainPanel.add(makeLabel("USERNAME"), gbc);
 
+        // Field
         gbc.gridy = row++;
-        gbc.insets = new Insets(0, 20, fieldToNextLabelGap, 20);
+        gbc.insets = new Insets(0, 20, 6, 20);
         usernameField = makeTextField();
-        // ---- block typing/paste: ≤16 and only A–Z a–z 0–9 ----
         ((AbstractDocument) usernameField.getDocument())
-                .setDocumentFilter(new SimpleFilter(16, "[A-Za-z0-9]*")); // NEW
+                .setDocumentFilter(new NotifyingFilter(
+                        16, "[A-Za-z0-9]*",
+                        msg -> setError(userErrLbl, msg),
+                        "Username must have only 16 characters.",
+                        "Only letters and digits (A–Z, a–z, 0–9)."
+                ));
         mainPanel.add(usernameField, gbc);
 
-        // Password
+        // Error
+        gbc.gridy = row++;
+        gbc.insets = new Insets(0, 22, fieldToNextLabelGap - 10, 20);
+        userErrLbl = makeErrLabel();
+        mainPanel.add(userErrLbl, gbc);
+
+        // ==== PASSWORD ====
         gbc.gridy = row++;
         gbc.insets = new Insets(0, 20, labelToFieldGap, 20);
         mainPanel.add(makeLabel("PASSWORD"), gbc);
 
+        // Field
         gbc.gridy = row++;
-        gbc.insets = new Insets(0, 20, 0, 20);
+        gbc.insets = new Insets(0, 20, 6, 20);
         passwordField = makePasswordField();
-        // ---- block typing/paste: ≤8 and only A–Z a–z 0–9 _ - / . ----
         ((AbstractDocument) passwordField.getDocument())
-                .setDocumentFilter(new SimpleFilter(8, "[A-Za-z0-9_\\-/.]*")); // NEW
+                .setDocumentFilter(new NotifyingFilter(
+                        8, "[A-Za-z0-9_\\-/.]*",
+                        msg -> setError(passErrLbl, msg),
+                        "Password must have only 8 characters.",
+                        "Only letters, digits and _ - / ."
+                ));
         mainPanel.add(makePasswordPanel(passwordField), gbc);
 
-        // Sign In
+        // Error
+        gbc.gridy = row++;
+        gbc.insets = new Insets(0, 22, 0, 20);
+        passErrLbl = makeErrLabel();
+        mainPanel.add(passErrLbl, gbc);
+
+        // Signin
         JButton signInBtn = Ui.makePrimaryButton("SIGN IN", 130, 45);
         signInBtn.addActionListener(e -> attemptSignin());
         passwordField.addActionListener(e -> attemptSignin()); // Enter = login
@@ -110,17 +139,9 @@ public class SigninPanel extends JPanel {
         noAccountLbl.setForeground(Ui.BROWN);
         noAccountLbl.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         noAccountLbl.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                ui.show("SIGNUP");
-            }
-
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                noAccountLbl.setForeground(Ui.BROWN_DARK);
-            }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                noAccountLbl.setForeground(Ui.BROWN);
-            }
+            public void mouseClicked(java.awt.event.MouseEvent evt) { ui.show("SIGNUP"); }
+            public void mouseEntered(java.awt.event.MouseEvent evt) { noAccountLbl.setForeground(Ui.BROWN_DARK); }
+            public void mouseExited (java.awt.event.MouseEvent evt) { noAccountLbl.setForeground(Ui.BROWN); }
         });
         mainPanel.add(noAccountLbl, gbc);
     }
@@ -131,6 +152,25 @@ public class SigninPanel extends JPanel {
         lbl.setFont(new Font("SansSerif", Font.BOLD, 20));
         lbl.setForeground(Ui.BROWN);
         return lbl;
+    }
+
+    private JLabel makeErrLabel() {
+        JLabel lbl = new JLabel(" ");
+        lbl.setForeground(new Color(180, 40, 40));
+        lbl.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        lbl.setVisible(false);
+        return lbl;
+    }
+
+    private void setError(JLabel label, String msg) {
+        if (label == null) return;
+        if (msg == null) {
+            label.setText(" ");
+            label.setVisible(false);
+        } else {
+            label.setText(msg);
+            label.setVisible(true);
+        }
     }
 
     private JTextField makeTextField() {
@@ -184,6 +224,7 @@ public class SigninPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Invalid username.");
             return;
         }
+
         // Pass
         if (pass.length() > 8 || !pass.matches("[A-Za-z0-9_\\-/.]+")) {
             JOptionPane.showMessageDialog(this, "Invalid password format.");
@@ -203,36 +244,51 @@ public class SigninPanel extends JPanel {
         ui.show("COFFEE_MENU");
     }
 
-    static class SimpleFilter extends DocumentFilter {
+    // ===== ERROR =====
+    static class NotifyingFilter extends DocumentFilter {
+        interface RejectHandler { void onReject(String message); }
         private final int max;
         private final String regex;
+        private final RejectHandler handler;
+        private final String tooLongMsg;
+        private final String invalidCharMsg;
 
-        SimpleFilter(int max, String regex) {
+        NotifyingFilter(int max, String regex, RejectHandler handler,
+                        String tooLongMsg, String invalidCharMsg) {
             this.max = max;
             this.regex = regex;
+            this.handler = handler;
+            this.tooLongMsg = tooLongMsg;
+            this.invalidCharMsg = invalidCharMsg;
         }
 
-        @Override
-        public void insertString(FilterBypass fb, int off, String s, AttributeSet a)
+        @Override public void insertString(FilterBypass fb, int off, String s, AttributeSet a)
                 throws BadLocationException {
-            if (s == null)
+            if (s == null) return;
+            apply(fb, off, 0, s, a);
+        }
+
+        @Override public void replace(FilterBypass fb, int off, int len, String s, AttributeSet a)
+                throws BadLocationException {
+            apply(fb, off, len, s == null ? "" : s, a);
+        }
+
+        private void apply(FilterBypass fb, int off, int len, String s, AttributeSet a)
+                throws BadLocationException {
+            String cur = fb.getDocument().getText(0, fb.getDocument().getLength());
+            String cand = new StringBuilder(cur).replace(off, off + len, s).toString();
+
+            if (cand.length() > max) {
+                if (handler != null) handler.onReject(tooLongMsg);
                 return;
-            String cur = fb.getDocument().getText(0, fb.getDocument().getLength());
-            String cand = new StringBuilder(cur).insert(off, s).toString();
-            if (cand.length() <= max && cand.matches(regex)) {
-                super.insertString(fb, off, s, a);
             }
-        }
+            if (!cand.matches(regex)) {
+                if (handler != null) handler.onReject(invalidCharMsg);
+                return;
+            }
 
-        @Override
-        public void replace(FilterBypass fb, int off, int len, String s, AttributeSet a)
-                throws BadLocationException {
-            String cur = fb.getDocument().getText(0, fb.getDocument().getLength());
-            StringBuilder sb = new StringBuilder(cur).replace(off, off + len, s == null ? "" : s);
-            String cand = sb.toString();
-            if (cand.length() <= max && cand.matches(regex)) {
-                super.replace(fb, off, len, s, a);
-            }
+            if (handler != null) handler.onReject(null);
+            super.replace(fb, off, len, s, a);
         }
     }
 }

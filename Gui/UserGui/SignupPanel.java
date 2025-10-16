@@ -16,6 +16,10 @@ public class SignupPanel extends JPanel {
     private boolean showPassword = false;
     private boolean showConfirm = false;
 
+    private JLabel userErrLbl;
+    private JLabel passErrLbl;
+    private JLabel confirmErrLbl;
+
     private final int fieldHeight = 45;
     private final int labelToFieldGap = 20;
     private final int fieldToNextLabelGap = 40;
@@ -25,7 +29,7 @@ public class SignupPanel extends JPanel {
         setLayout(new BorderLayout());
         setBackground(Ui.WHITE);
 
-        // ===== Title =====
+        // ===== HEADER =====
         JPanel header = new JPanel(new BorderLayout());
         header.setOpaque(false);
         header.setBorder(new EmptyBorder(16, 20, 10, 20));
@@ -54,8 +58,7 @@ public class SignupPanel extends JPanel {
         add(header, BorderLayout.NORTH);
 
         // ===== MAIN ====
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new GridBagLayout());
+        JPanel mainPanel = new JPanel(new GridBagLayout());
         mainPanel.setBorder(new EmptyBorder(35, 35, 35, 35));
         mainPanel.setOpaque(false);
         mainPanel.setMaximumSize(new Dimension(420, 700));
@@ -68,50 +71,82 @@ public class SignupPanel extends JPanel {
 
         int row = 0;
 
-        // Username
+        // ==== USER ====
         gbc.gridy = row++;
         gbc.insets = new Insets(0, 20, labelToFieldGap, 20);
         mainPanel.add(makeLabel("USERNAME"), gbc);
 
+        // Field
         gbc.gridy = row++;
-        gbc.insets = new Insets(0, 20, fieldToNextLabelGap, 20);
+        gbc.insets = new Insets(0, 20, 6, 20);
         usernameField = makeTextField();
-        // พิมพ์ได้ ≤16 และเฉพาะ A–Z a–z 0–9
         ((AbstractDocument) usernameField.getDocument())
-                .setDocumentFilter(new SimpleFilter(16, "[A-Za-z0-9]*"));
+                .setDocumentFilter(new NotifyingFilter(
+                        16, "[A-Za-z0-9]*",
+                        msg -> setError(userErrLbl, msg),
+                        "Username must have only 16 characters.",
+                        "Only letters and digits (A–Z, a–z, 0–9)."
+                ));
         mainPanel.add(usernameField, gbc);
 
-        // Password
+        // Error
+        gbc.gridy = row++;
+        gbc.insets = new Insets(0, 22, fieldToNextLabelGap - 10, 20);
+        userErrLbl = makeErrLabel();
+        mainPanel.add(userErrLbl, gbc);
+
+        // ==== PASSWORD ====
         gbc.gridy = row++;
         gbc.insets = new Insets(0, 20, labelToFieldGap, 20);
         mainPanel.add(makeLabel("PASSWORD"), gbc);
 
+        // Field
         gbc.gridy = row++;
-        gbc.insets = new Insets(0, 20, fieldToNextLabelGap, 20);
+        gbc.insets = new Insets(0, 20, 6, 20);
         passwordField = makePasswordField();
-        // พิมพ์ได้ ≤8 และเฉพาะ A–Z a–z 0–9 _ - / .
         ((AbstractDocument) passwordField.getDocument())
-                .setDocumentFilter(new SimpleFilter(8, "[A-Za-z0-9_\\-/.]*"));
+                .setDocumentFilter(new NotifyingFilter(
+                        8, "[A-Za-z0-9_\\-/.]*",
+                        msg -> setError(passErrLbl, msg),
+                        "Password must have only 8 characters.",
+                        "Only letters, digits and _ - / ."
+                ));
         mainPanel.add(makePasswordPanel(passwordField, true), gbc);
 
-        // Confirm Password
+        // Error
+        gbc.gridy = row++;
+        gbc.insets = new Insets(0, 22, fieldToNextLabelGap - 10, 20);
+        passErrLbl = makeErrLabel();
+        mainPanel.add(passErrLbl, gbc);
+
+        // ==== CONFIRM ====
         gbc.gridy = row++;
         gbc.insets = new Insets(0, 20, labelToFieldGap, 20);
         mainPanel.add(makeLabel("CONFIRM PASSWORD"), gbc);
 
+        // Field
         gbc.gridy = row++;
-        gbc.insets = new Insets(0, 20, 0, 20);
+        gbc.insets = new Insets(0, 20, 6, 20);
         confirmPasswordField = makePasswordField();
-        // กติกาเหมือน password
         ((AbstractDocument) confirmPasswordField.getDocument())
-                .setDocumentFilter(new SimpleFilter(8, "[A-Za-z0-9_\\-/.]*"));
+                .setDocumentFilter(new NotifyingFilter(
+                        8, "[A-Za-z0-9_\\-/.]*",
+                        msg -> setError(confirmErrLbl, msg),
+                        "Password must have only 8 characters.",
+                        "Only letters, digits and _ - / ."
+                ));
         mainPanel.add(makePasswordPanel(confirmPasswordField, false), gbc);
 
-        // Button Panel
+        // Error
+        gbc.gridy = row++;
+        gbc.insets = new Insets(0, 22, 0, 20);
+        confirmErrLbl = makeErrLabel();
+        mainPanel.add(confirmErrLbl, gbc);
+
+        // Signin
         JButton SignInBtn = Ui.makePrimaryButton("SIGN UP", 130, 45);
         SignInBtn.addActionListener(e -> attemptSignup());
-        // กด Enter บน confirm = สมัคร
-        confirmPasswordField.addActionListener(e -> attemptSignup());
+        confirmPasswordField.addActionListener(e -> attemptSignup()); // Enter = sign up
         gbc.gridy = row++;
         gbc.insets = new Insets(40, 20, 0, 20);
         mainPanel.add(SignInBtn, gbc);
@@ -126,15 +161,9 @@ public class SignupPanel extends JPanel {
         haveAccountLbl.setForeground(Ui.BROWN);
         haveAccountLbl.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         haveAccountLbl.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                ui.show("SIGNIN");
-            }
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                haveAccountLbl.setForeground(Ui.BROWN_DARK);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                haveAccountLbl.setForeground(Ui.BROWN);
-            }
+            public void mouseClicked(java.awt.event.MouseEvent evt) { ui.show("SIGNIN"); }
+            public void mouseEntered(java.awt.event.MouseEvent evt) { haveAccountLbl.setForeground(Ui.BROWN_DARK); }
+            public void mouseExited (java.awt.event.MouseEvent evt) { haveAccountLbl.setForeground(Ui.BROWN); }
         });
         mainPanel.add(haveAccountLbl, gbc);
     }
@@ -145,6 +174,25 @@ public class SignupPanel extends JPanel {
         lbl.setFont(new Font("SansSerif", Font.BOLD, 20));
         lbl.setForeground(Ui.BROWN);
         return lbl;
+    }
+
+    private JLabel makeErrLabel() {
+        JLabel lbl = new JLabel(" ");
+        lbl.setForeground(new Color(180, 40, 40));
+        lbl.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        lbl.setVisible(false);
+        return lbl;
+    }
+
+    private void setError(JLabel label, String msg) {
+        if (label == null) return;
+        if (msg == null) {
+            label.setText(" ");
+            label.setVisible(false);
+        } else {
+            label.setText(msg);
+            label.setVisible(true);
+        }
     }
 
     private JTextField makeTextField() {
@@ -227,12 +275,9 @@ public class SignupPanel extends JPanel {
 
         User store = ui.getUser();
 
-        try {
-            if (store.hasUser(user)) {
-                JOptionPane.showMessageDialog(this, "This username is already taken.");
-                return;
-            }
-        } catch (Throwable ignored) {
+        if (store.hasUser(user)) {
+            JOptionPane.showMessageDialog(this, "This username is already taken.");
+            return;
         }
 
         store.upsertUser(user, pass, 0);
@@ -241,33 +286,51 @@ public class SignupPanel extends JPanel {
         ui.show("COFFEE_MENU");
     }
 
-    static class SimpleFilter extends DocumentFilter {
+    // ===== ERROR =====
+    static class NotifyingFilter extends DocumentFilter {
+        interface RejectHandler { void onReject(String message); }
         private final int max;
         private final String regex;
+        private final RejectHandler handler;
+        private final String tooLongMsg;
+        private final String invalidCharMsg;
 
-        SimpleFilter(int max, String regex) {
+        NotifyingFilter(int max, String regex, RejectHandler handler,
+                        String tooLongMsg, String invalidCharMsg) {
             this.max = max;
             this.regex = regex;
+            this.handler = handler;
+            this.tooLongMsg = tooLongMsg;
+            this.invalidCharMsg = invalidCharMsg;
         }
 
         @Override public void insertString(FilterBypass fb, int off, String s, AttributeSet a)
                 throws BadLocationException {
             if (s == null) return;
-            String cur = fb.getDocument().getText(0, fb.getDocument().getLength());
-            String cand = new StringBuilder(cur).insert(off, s).toString();
-            if (cand.length() <= max && cand.matches(regex)) {
-                super.insertString(fb, off, s, a);
-            }
+            apply(fb, off, 0, s, a);
         }
 
         @Override public void replace(FilterBypass fb, int off, int len, String s, AttributeSet a)
                 throws BadLocationException {
+            apply(fb, off, len, s == null ? "" : s, a);
+        }
+
+        private void apply(FilterBypass fb, int off, int len, String s, AttributeSet a)
+                throws BadLocationException {
             String cur = fb.getDocument().getText(0, fb.getDocument().getLength());
-            StringBuilder sb = new StringBuilder(cur).replace(off, off + len, s == null ? "" : s);
-            String cand = sb.toString();
-            if (cand.length() <= max && cand.matches(regex)) {
-                super.replace(fb, off, len, s, a);
+            String cand = new StringBuilder(cur).replace(off, off + len, s).toString();
+
+            if (cand.length() > max) {
+                if (handler != null) handler.onReject(tooLongMsg);
+                return;
             }
+            if (!cand.matches(regex)) {
+                if (handler != null) handler.onReject(invalidCharMsg);
+                return;
+            }
+
+            if (handler != null) handler.onReject(null);
+            super.replace(fb, off, len, s, a);
         }
     }
 }
