@@ -1,11 +1,11 @@
 name, iceprice, Smoothprice, iceavailable, shotprice, path
-Soda,25,0,0,10,Imgs/coffees/espresso.png
-Lemon Soda,50,60,1,5,Imgs/coffees/espresso.png
-Apple Soda,60,70,1,5,Imgs/coffees/latte.png
-MaLimeJuice with HoneySoda,60,70,1,5,Imgs/coffees/cappuccino.png
-Mango Soda,65,75,1,5,Imgs/coffees/caramel_macchiato.png
-Lychee Soda,70,80,1,5,Imgs/coffees/vanilla_latte.png
-BlueHawaii Soda,65,75,1,5,Imgs/coffees/vanilla_latte.png
-Pineapple Soda,65,75,1,5,Imgs/coffees/vanilla_latte.png
-Strawberry Soda,65,75,1,5,Imgs/coffees/vanilla_latte.png
-Plum Soda,65,75,1,5,Imgs/coffees/vanilla_latte.png
+Soda,25,0,0,10,Imgs/soda/Soda.png
+Lemon Soda,50,60,1,5,Imgs/soda/lemon_soda.png
+Apple Soda,60,70,1,5,Imgs/soda/apple_soda.png
+HoneyLemon Soda,60,70,1,5,Imgs/soda/HoneyLemon_Soda.png
+Mango Soda,65,75,1,5,Imgs/soda/Mango_Soda.png
+Lychee Soda,70,80,1,5,Imgs/soda/Lychee_Soda.png
+BlueHawaii Soda,65,75,1,5,Imgs/soda/BlueHawaii_Soda.png
+Pineapple Soda,65,75,1,5,Imgs/soda/pineapple_soda.png
+Strawberry Soda,65,75,1,5,Imgs/soda/Strawberry_Soda.png
+Plum Soda,65,75,1,5,Imgs/soda/Plum_Soda.png
