@@ -466,11 +466,6 @@ public class CoffeeAddonPanel extends JPanel {
             }
         }
 
-        o.pointsEarned = "GUEST".equalsIgnoreCase(o.username) ? 0 : 0;
-        if (o.pointsEarned > 0) {
-            ui.addPoints(o.pointsEarned);
-        }
-
         ui.setLastOrder(o);
         ui.show("SUMMARY");
     }

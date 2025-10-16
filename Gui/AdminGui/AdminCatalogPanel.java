@@ -42,7 +42,6 @@ public class AdminCatalogPanel extends JPanel {
         JButton btnBack = new JButton("Back");
         btnBack.addActionListener(e -> {
             ui.refreshAllCatalogs();
-            MenuCatalogPanel.Catalog cat = (MenuCatalogPanel.Catalog) cbCatalog.getSelectedItem();
             ui.show("COFFEE_MENU");
         });
 

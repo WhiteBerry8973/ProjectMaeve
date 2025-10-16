@@ -6,12 +6,6 @@ import java.awt.*;
 import java.awt.event.*;
 import StrategyPattern.*;
 
-/**
- * SummaryPanel
- * - ดึงรายการล่าสุดจาก MaeveCoffeeUI.getLastOrder()
- * - Redeem แต้ม ด้วยกติกา PointPricingStrategy: 100 แต้ม = 1 บาท
- * - ปุ่ม Total จะบันทึกส่วนลดเป็นบรรทัดติดลบแล้วย้ายไปหน้า BILL
- */
 public class SummaryPanel extends JPanel {
     private final MaeveCoffeeUI ui;
     private final DiscountStrategy redeemStrategy = new PointPricingStrategy();
@@ -20,8 +14,12 @@ public class SummaryPanel extends JPanel {
     private JLabel pointsLbl, discountLbl, totalLbl;
     private JSpinner redeemSpinner;
 
+    private final PointEarnStrategy pointEarnStrategy = new StrategyPattern.DefaultPointEarnStrategy();
+    private final Lib.LoyaltyService loyalty;
+
     public SummaryPanel(MaeveCoffeeUI ui) {
-        this.ui = ui;
+        this.ui = java.util.Objects.requireNonNull(ui, "ui must not be null");
+        this.loyalty = new Lib.LoyaltyService(ui::isSignedIn, ui::addPoints);
         setLayout(new BorderLayout());
         setOpaque(true);
         setBackground(Ui.WHITE);
@@ -153,7 +151,7 @@ public class SummaryPanel extends JPanel {
         disRow.setBorder(new EmptyBorder(4, 10, 4, 10));
         bottomBox.add(disRow);
 
-        // Total row
+        // Total
         JPanel totalRow = new JPanel(new BorderLayout());
         totalRow.setOpaque(false);
         totalRow.add(makeLabel("Total", 25, Font.BOLD, Ui.BROWN), BorderLayout.WEST);
@@ -260,20 +258,11 @@ public class SummaryPanel extends JPanel {
         o.items.removeIf(it -> it.label.startsWith("Discount (Redeem "));
         if (discount > 0) {
             o.items.add(new MaeveCoffeeUI.OrderItem("Discount (Redeem " + usedPts + " pts)", 1, -discount));
-            ui.addPoints(-usedPts);
+            loyalty.redeemPointsIfAny(usedPts);
         }
 
-        if (ui.isSignedIn()) {
-            int earned = Math.max(0, subtotal) * 2;
-            if (!o.pointsGranted) {
-                ui.addPoints(earned);
-                o.pointsEarned = earned;
-                o.pointsGranted = true;
-            }
-        } else {
-            o.pointsEarned = 0;
-            o.pointsGranted = true;
-        }
+        int earned = pointEarnStrategy.computeEarnedPoints(net);
+        loyalty.grantIfEligible(o, earned);
 
         ui.showBillDialog(this);
     }
