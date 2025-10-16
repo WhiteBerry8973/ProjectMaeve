@@ -8,21 +8,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import Gui.CustomGui.SegmentedTab;
+import Gui.CustomGui.*;
 
 public class MenuCatalogPanel extends JPanel {
 
     public enum Catalog {
-        COFFEE, TEA, MILK
+        COFFEE, TEA, SODA
     }
 
     public static final String COFFEE = "COFFEE_MENU";
     public static final String TEA = "TEA_MENU";
-    public static final String MILK = "MILK_MENU";
+    public static final String SODA = "SODA_MENU";
 
     public static final String COFFEE_ADDON = "COFFEE_ADDON";
     public static final String TEA_ADDON = "TEA_ADDON";
-    public static final String MILK_ADDON = "MILK_ADDON";
+    public static final String SODA_ADDON = "SODA_ADDON";
 
     private final MaeveCoffeeUI ui;
     private final Catalog catalog;
@@ -31,7 +31,7 @@ public class MenuCatalogPanel extends JPanel {
     private int pageIndex = 0;
     private int totalPages = 1;
 
-    private SegmentedTab sCoffee, sTea, sMilk;
+    private SegmentedTab sCoffee, sTea, sSoda;
 
     private JPanel grid;
     private JPanel bottomOuter;
@@ -47,7 +47,7 @@ public class MenuCatalogPanel extends JPanel {
         setLayout(new BorderLayout());
         setBackground(Ui.WHITE);
 
-        // ===== Header =====
+        // ===== HEADER =====
         JLabel header = new JLabel("MENU", SwingConstants.LEFT);
         header.setForeground(Ui.BROWN);
         header.setFont(new Font("SansSerif", Font.BOLD, 52));
@@ -57,36 +57,24 @@ public class MenuCatalogPanel extends JPanel {
         headerBar.setBorder(new EmptyBorder(14, 20, 0, 20));
         headerBar.add(header, BorderLayout.WEST);
 
-        final CardLayout headerRightCards = new CardLayout();
-        final JPanel headerRight = new JPanel(headerRightCards);
+        headerRightCards = new CardLayout();
+        headerRight = new JPanel(headerRightCards);
         headerRight.setOpaque(false);
 
+        // Signin
         JButton signInBtn = Ui.makeLightCapsuleButton("SIGN IN", 110, 40);
         signInBtn.addActionListener(e -> ui.show("SIGNIN"));
-
-        JButton adminBtn = Ui.makeLightCapsuleButton("ADMIN", 110, 40);
-        adminBtn.addActionListener(e -> ui.show("ADMIN_CATALOG"));
-        adminBtn.setVisible(ui.isAdminEnabled());
-
         JPanel signInWrap = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         signInWrap.setOpaque(false);
         signInWrap.setBorder(new EmptyBorder(14, 0, 0, 0));
         signInWrap.add(signInBtn);
         headerRight.add(signInWrap, "signin");
 
-        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-        right.setOpaque(false);
-        right.setBorder(new EmptyBorder(14, 0, 0, 0));
-        right.add(adminBtn);
-        right.add(signInBtn);
-        headerBar.add(right, BorderLayout.EAST);
-
-        add(headerBar, BorderLayout.NORTH);
-
-        final JLabel userNameLbl = new JLabel("USER");
+        // User
+        userNameLbl = new JLabel("USER");
         userNameLbl.setForeground(Ui.BROWN);
         userNameLbl.setFont(new Font("SansSerif", Font.BOLD, 32));
-        final JLabel userPointLbl = new JLabel("0 Point");
+        userPointLbl = new JLabel("0 Point");
         userPointLbl.setForeground(Ui.BROWN);
         userPointLbl.setFont(new Font("SansSerif", Font.PLAIN, 18));
 
@@ -106,25 +94,12 @@ public class MenuCatalogPanel extends JPanel {
         headerBar.add(headerRight, BorderLayout.EAST);
         add(headerBar, BorderLayout.NORTH);
 
-        Runnable updateHeaderUser = new Runnable() {
-            public void run() {
-                if (ui.isSignedIn()) {
-                    String name = ui.getCurrentUser();
-                    int pts = ui.getCurrentPoints();
-                    userNameLbl.setText(name == null ? "USER" : name.toUpperCase());
-                    userPointLbl.setText(pts + " Point");
-                    headerRightCards.show(headerRight, "user");
-                } else {
-                    headerRightCards.show(headerRight, "signin");
-                }
-            }
-        };
-        updateHeaderUser.run();
-
         JPanel contentMargin = new JPanel(new BorderLayout());
         contentMargin.setOpaque(false);
         contentMargin.setBorder(new EmptyBorder(15, 20, 8, 20));
         add(contentMargin, BorderLayout.CENTER);
+
+        updateHeaderUser();
 
         // ===== CATALOG =====
         JPanel topPanel = new JPanel(new BorderLayout());
@@ -143,9 +118,6 @@ public class MenuCatalogPanel extends JPanel {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
                 int w = getWidth() - 1, h = TAB_H - 1;
-
-                g2.setColor(Ui.WHITE);
-                g2.fillRect(0, 0, getWidth(), TAB_H);
 
                 Path2D p = new Path2D.Double();
                 p.moveTo(ARC, 0);
@@ -186,10 +158,10 @@ public class MenuCatalogPanel extends JPanel {
         sTea.setPreferredSize(new Dimension(180, TAB_H - PAD * 2));
         catGroup.add(sTea);
 
-        sMilk = new SegmentedTab("MILK", false, true, false, false, ARC);
-        sMilk.setFont(new Font("SansSerif", Font.BOLD, 20));
-        sMilk.setPreferredSize(new Dimension(180, TAB_H - PAD * 2));
-        catGroup.add(sMilk);
+        sSoda = new SegmentedTab("SODA", false, true, false, false, ARC);
+        sSoda.setFont(new Font("SansSerif", Font.BOLD, 20));
+        sSoda.setPreferredSize(new Dimension(180, TAB_H - PAD * 2));
+        catGroup.add(sSoda);
 
         sCoffee.addActionListener(e -> {
             selectTab(Catalog.COFFEE);
@@ -199,9 +171,9 @@ public class MenuCatalogPanel extends JPanel {
             selectTab(Catalog.TEA);
             ui.show(TEA);
         });
-        sMilk.addActionListener(e -> {
-            selectTab(Catalog.MILK);
-            ui.show(MILK);
+        sSoda.addActionListener(e -> {
+            selectTab(Catalog.SODA);
+            ui.show(SODA);
         });
 
         selectTab(catalog);
@@ -210,7 +182,7 @@ public class MenuCatalogPanel extends JPanel {
         tabsRow.add(makeDividerCrop());
         tabsRow.add(sTea);
         tabsRow.add(makeDividerCrop());
-        tabsRow.add(sMilk);
+        tabsRow.add(sSoda);
 
         topPanel.add(stripBox, BorderLayout.WEST);
         topPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
@@ -284,24 +256,20 @@ public class MenuCatalogPanel extends JPanel {
             sCoffee.setSelected(c == Catalog.COFFEE);
         if (sTea != null)
             sTea.setSelected(c == Catalog.TEA);
-        if (sMilk != null)
-            sMilk.setSelected(c == Catalog.MILK);
+        if (sSoda != null)
+            sSoda.setSelected(c == Catalog.SODA);
     }
 
     public void updateHeaderUser() {
-        String name = ui.getCurrentUser();
-        int pts = ui.getCurrentPoints();
-
-        boolean signedIn = (name != null) && !name.trim().isEmpty() && !"GUEST".equalsIgnoreCase(name);
-        if (signedIn) {
-            userNameLbl.setText(name.toUpperCase());
+        if (ui.isSignedIn()) {
+            String name = ui.getCurrentUser();
+            int pts = ui.getCurrentPoints();
+            userNameLbl.setText(name == null ? "USER" : name);
             userPointLbl.setText(pts + " Point");
             headerRightCards.show(headerRight, "user");
         } else {
             headerRightCards.show(headerRight, "signin");
         }
-        revalidate();
-        repaint();
     }
 
     private JPanel makeDividerCrop() {
@@ -460,8 +428,8 @@ public class MenuCatalogPanel extends JPanel {
                     case TEA:
                         ui.show(TEA_ADDON);
                         break;
-                    case MILK:
-                        ui.show(MILK_ADDON);
+                    case SODA:
+                        ui.show(SODA_ADDON);
                         break;
                     case COFFEE:
                     default:

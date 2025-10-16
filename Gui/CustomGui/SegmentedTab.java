@@ -2,7 +2,7 @@ package Gui.CustomGui;
 
 import javax.swing.*;
 
-import Gui.MainGui.Ui;
+import Gui.MainGui.*;
 
 import java.awt.*;
 import java.awt.geom.Path2D;

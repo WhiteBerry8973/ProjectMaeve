@@ -6,10 +6,7 @@ import Lib.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 public class AdminLoginPanel extends JPanel {
 
@@ -89,7 +86,7 @@ public class AdminLoginPanel extends JPanel {
         passwordField = makePasswordField();
         mainPanel.add(makePasswordPanel(passwordField), gbc);
 
-        // Sign In
+        // Signin
         JButton signInBtn = Ui.makePrimaryButton("SIGN IN", 130, 45);
         signInBtn.addActionListener(e -> attemptLogin());
         passwordField.addActionListener(e -> attemptLogin()); // Enter = login

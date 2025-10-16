@@ -3,8 +3,8 @@ package Gui.UserGui;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import Gui.MainGui.MaeveCoffeeUI;
-import Gui.MainGui.Ui;
+
+import Gui.MainGui.*;
 
 public class StartPanel extends JPanel {
 

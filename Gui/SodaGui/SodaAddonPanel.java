@@ -1,28 +1,27 @@
-package Gui.CoffeeGui;
+package Gui.SodaGui;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ItemListener;
-import java.awt.geom.Path2D;
 import java.util.*;
 
 import Gui.MainGui.*;
 import Lib.*;
 import Gui.CustomGui.*;
 
-public class CoffeeAddonPanel extends JPanel {
+public class SodaAddonPanel extends JPanel {
 
-    private static final String IMG_TOPPING1 = "Imgs/toppings/whipping_cream.png";
-    private static final String IMG_TOPPING2 = "Imgs/toppings/chocolate.png";
-    private static final String IMG_TOPPING3 = "Imgs/toppings/marshmallow.png";
+    private static final String IMG_TOPPING1 = "Imgs/toppings/black_pearl.png";
+    private static final String IMG_TOPPING2 = "Imgs/toppings/konjac_pearl.png";
+    private static final String IMG_TOPPING3 = "Imgs/toppings/golden_pearl.png";
+
+    private static final String[] SIZE_CODES = { "S001", "S002", "S003" };
 
     private final MaeveCoffeeUI ui;
 
     private JLabel lblDrinkTitle;
     private JButton lblTotal;
-    private JLabel lblShotNote;
-    private JLabel lblShotCount;
     private JPanel totalWrap;
     private boolean totalSolid = false;
 
@@ -33,9 +32,9 @@ public class CoffeeAddonPanel extends JPanel {
     private final ButtonGroup typeGroup = new ButtonGroup();
     private SegmentedTab hotToggle, icedToggle;
 
-    private int extraShots = 0;
+    private int selectedSize = 0;
 
-    public CoffeeAddonPanel(MaeveCoffeeUI ui) {
+    public SodaAddonPanel(MaeveCoffeeUI ui) {
         this.ui = ui;
         setLayout(new BorderLayout());
         setBackground(Ui.WHITE);
@@ -44,6 +43,7 @@ public class CoffeeAddonPanel extends JPanel {
         JPanel header = new JPanel(new BorderLayout());
         header.setOpaque(false);
         header.setBorder(new EmptyBorder(16, 20, 10, 20));
+
         lblDrinkTitle = new JLabel(" ");
         lblDrinkTitle.setForeground(Ui.BROWN);
         lblDrinkTitle.setFont(new Font("SansSerif", Font.BOLD, 40));
@@ -57,12 +57,11 @@ public class CoffeeAddonPanel extends JPanel {
         closeBtn.setForeground(Ui.BROWN);
         closeBtn.setFont(new Font("SansSerif", Font.BOLD, 24));
         closeBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
+        
         closeBtn.addActionListener(e -> {
             resetSelections();
-            ui.show("COFFEE_MENU");
+            ui.show("SODA_MENU");
         });
-
         JPanel closeWrap = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         closeWrap.setOpaque(false);
         closeWrap.add(closeBtn);
@@ -138,7 +137,6 @@ public class CoffeeAddonPanel extends JPanel {
                 g2.dispose();
             }
         };
-
         typePill.setOpaque(false);
         typePill.setPreferredSize(new Dimension(300, 44));
         typePill.add(hotToggle);
@@ -150,73 +148,58 @@ public class CoffeeAddonPanel extends JPanel {
         typeRow.add(Box.createHorizontalStrut(16), BorderLayout.CENTER);
         typeRow.add(typeWrap, BorderLayout.EAST);
         content.add(typeRow);
-        content.add(Box.createVerticalStrut(40));
+        content.add(Box.createVerticalStrut(20));
 
-        // Extra Shot
-        JPanel shotRow = new JPanel(new BorderLayout());
-        shotRow.setOpaque(false);
-        shotRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 56));
+        // Size
+        JPanel sizeRow = new JPanel();
+        sizeRow.setOpaque(false);
+        sizeRow.setLayout(new BoxLayout(sizeRow, BoxLayout.X_AXIS));
 
-        JLabel shotTitle = makeTitle("EXTRA SHOT", 30);
-        shotTitle.setForeground(Ui.BROWN);
-        shotRow.add(shotTitle, BorderLayout.WEST);
+        JLabel sizeLabel = new JLabel("SIZE");
+        sizeLabel.setForeground(Ui.BROWN);
+        sizeLabel.setFont(new Font("SansSerif", Font.BOLD, 28));
+        sizeLabel.setAlignmentY(0.5f);
+        sizeRow.add(sizeLabel);
+        sizeRow.add(Box.createHorizontalStrut(16));
 
-        JPanel shotBtns = new JPanel(new GridBagLayout());
-        shotBtns.setOpaque(false);
-        shotBtns.setMaximumSize(new Dimension(320, 44));
+        JPanel sizeBtns = new JPanel(new FlowLayout(FlowLayout.LEFT, 40, 0));
+        sizeBtns.setOpaque(false);
+        sizeBtns.setAlignmentY(0.5f);
+        sizeBtns.setBorder(new EmptyBorder(0, 70, 0, 0));
 
-        JButton minus = createStepButton("-", true, false, 56, 44);
-        JButton plus = createStepButton("+", false, true, 56, 44);
+        ButtonGroup sizeGroup = new ButtonGroup();
+        JToggleButton btnS = makeSizeIcon("Imgs/size_s.png", 48, 60, 50, 62);
+        JToggleButton btnM = makeSizeIcon("Imgs/size_m.png", 56, 70, 58, 72);
+        JToggleButton btnL = makeSizeIcon("Imgs/size_l.png", 64, 80, 66, 82);
 
-        lblShotCount = new JLabel("0", SwingConstants.CENTER);
-        lblShotCount.setForeground(Ui.BROWN);
-        lblShotCount.setFont(new Font("SansSerif", Font.BOLD, 18));
+        sizeGroup.add(btnS);
+        sizeGroup.add(btnM);
+        sizeGroup.add(btnL);
+        btnM.setSelected(true);
+        selectedSize = 0;
 
-        JPanel countMid = new JPanel(new BorderLayout()) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(Ui.WHITE);
-                g2.fillRect(0, 0, getWidth(), getHeight());
-                g2.setColor(Ui.BROWN);
-                g2.setStroke(new BasicStroke(1f));
-                g2.drawRect(1, 0, getWidth() - 2, getHeight() - 2);
-                g2.dispose();
+        ItemListener sizeChanged = e -> {
+            if (((AbstractButton) e.getItem()).isSelected()) {
+                Object src = e.getItemSelectable();
+                if (src == btnS)
+                    selectedSize = 0;
+                else if (src == btnM)
+                    selectedSize = 1;
+                else if (src == btnL)
+                    selectedSize = 2;
+                recalcTotal();
             }
         };
+        btnS.addItemListener(sizeChanged);
+        btnM.addItemListener(sizeChanged);
+        btnL.addItemListener(sizeChanged);
 
-        countMid.setOpaque(false);
-        countMid.setPreferredSize(new Dimension(88, 44));
-        countMid.add(lblShotCount, BorderLayout.CENTER);
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.weighty = 1.0;
-        gbc.insets = new Insets(0, -2, 0, 0);
-        gbc.gridx = 0;
-        gbc.weightx = 0;
-        shotBtns.add(minus, gbc);
-        gbc.gridx = 1;
-        gbc.weightx = 1;
-        shotBtns.add(countMid, gbc);
-        gbc.gridx = 2;
-        gbc.weightx = 0;
-        shotBtns.add(plus, gbc);
-
-        shotRow.add(Box.createHorizontalStrut(24), BorderLayout.CENTER);
-        shotRow.add(shotBtns, BorderLayout.EAST);
-        content.add(shotRow);
-
-        lblShotNote = new JLabel("+ 5฿ / 1 Shot");
-        lblShotNote.setForeground(Ui.BROWN);
-        lblShotNote.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        lblShotNote.setBorder(new EmptyBorder(2, 0, 10, 0));
-        shotRow.add(lblShotNote, BorderLayout.SOUTH);
-
-        content.add(Box.createVerticalStrut(16));
+        sizeBtns.add(wrapBottom(btnS, 72, 96));
+        sizeBtns.add(wrapBottom(btnM, 80, 96));
+        sizeBtns.add(wrapBottom(btnL, 88, 96));
+        sizeRow.add(sizeBtns);
+        content.add(sizeRow);
+        content.add(Box.createVerticalStrut(12));
 
         // Topping
         JLabel tTitle = makeTitle("TOPPING", 30);
@@ -227,13 +210,12 @@ public class CoffeeAddonPanel extends JPanel {
 
         JPanel topRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 25, 0));
         topRow.setOpaque(false);
-
-        JToggleButton t1 = Ui.makeToppingToggle(IMG_TOPPING1, 140, 15, Ui.Orientation.TOP_BOTTOM);
+        JToggleButton t1 = Ui.makeToppingToggle(IMG_TOPPING1, 140, 5, Ui.Orientation.TOP_BOTTOM);
         JToggleButton t2 = Ui.makeToppingToggle(IMG_TOPPING2, 140, 10, Ui.Orientation.TOP_BOTTOM);
         JToggleButton t3 = Ui.makeToppingToggle(IMG_TOPPING3, 140, 10, Ui.Orientation.TOP_BOTTOM);
-        t1.setActionCommand("TP001");
-        t2.setActionCommand("TP002");
-        t3.setActionCommand("TP003");
+        t1.setActionCommand("TP004");
+        t2.setActionCommand("TP005");
+        t3.setActionCommand("TP006");
 
         toppingButtons.clear();
         toppingButtons.add(t1);
@@ -243,6 +225,7 @@ public class CoffeeAddonPanel extends JPanel {
         topRow.add(t2);
         topRow.add(t3);
         content.add(topRow);
+        content.add(Box.createVerticalStrut(20));
 
         // Sweetness
         JLabel sTitle = makeTitle("SWEETNESS", 30);
@@ -253,10 +236,12 @@ public class CoffeeAddonPanel extends JPanel {
 
         JPanel sweetBtns = new JPanel(new FlowLayout(FlowLayout.CENTER, 19, 10));
         sweetBtns.setOpaque(false);
+
         JToggleButton bsw0 = Ui.makeTextToggle("0%", 100, 50, Ui.Orientation.LEFT_RIGHT);
         JToggleButton bsw50 = Ui.makeTextToggle("50%", 100, 50, Ui.Orientation.TOP_BOTTOM);
         JToggleButton bsw100 = Ui.makeTextToggle("100%", 100, 50, Ui.Orientation.TOP_BOTTOM);
         JToggleButton bsw120 = Ui.makeTextToggle("120%", 100, 50, Ui.Orientation.RIGHT_LEFT);
+
         sweetnessGroup.add(bsw0);
         sweetnessGroup.add(bsw50);
         sweetnessGroup.add(bsw100);
@@ -266,6 +251,7 @@ public class CoffeeAddonPanel extends JPanel {
         sweetnessButtons.add(bsw50);
         sweetnessButtons.add(bsw100);
         sweetnessButtons.add(bsw120);
+
         sweetBtns.add(bsw0);
         sweetBtns.add(bsw50);
         sweetBtns.add(bsw100);
@@ -293,28 +279,6 @@ public class CoffeeAddonPanel extends JPanel {
         hotToggle.addItemListener(addonListener);
         icedToggle.addItemListener(addonListener);
 
-        // Stepper
-        minus.addActionListener(e -> {
-            if (extraShots > 0) {
-                extraShots--;
-                ui.setExtraShots(extraShots);
-                lblShotCount.setText(String.valueOf(extraShots));
-                recalcTotal();
-            } else {
-                JOptionPane.showMessageDialog(this, "at least 0 shot", "Limit", JOptionPane.INFORMATION_MESSAGE);
-            }
-        });
-        plus.addActionListener(e -> {
-            if (extraShots < 3) {
-                extraShots++;
-                ui.setExtraShots(extraShots);
-                lblShotCount.setText(String.valueOf(extraShots));
-                recalcTotal();
-            } else {
-                JOptionPane.showMessageDialog(this, "at most 3 shots", "Limit", JOptionPane.INFORMATION_MESSAGE);
-            }
-        });
-
         addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentShown(java.awt.event.ComponentEvent e) {
@@ -337,41 +301,23 @@ public class CoffeeAddonPanel extends JPanel {
             return;
 
         lblDrinkTitle.setText(d.name);
-
         hotToggle.setText("HOT " + (int) d.hotPrice + "฿");
         hotToggle.setEnabled(true);
-
         if (d.icedAvailable) {
             icedToggle.setEnabled(true);
             icedToggle.setText("ICED " + (int) d.icedPrice + "฿");
         } else {
             icedToggle.setEnabled(false);
-            icedToggle.setSelected(false);
             icedToggle.setText("ICED");
-
-            typeGroup.setSelected(hotToggle.getModel(), true);
-            hotToggle.setSelected(true);
-            ui.setSelectedType(MaeveCoffeeUI.DrinkType.HOT);
         }
 
         if (ui.getSelectedType() == MaeveCoffeeUI.DrinkType.ICED && d.icedAvailable) {
             typeGroup.setSelected(icedToggle.getModel(), true);
-            icedToggle.setSelected(true);
-            hotToggle.setSelected(false);
         } else {
             typeGroup.setSelected(hotToggle.getModel(), true);
-            hotToggle.setSelected(true);
-            icedToggle.setSelected(false);
             ui.setSelectedType(MaeveCoffeeUI.DrinkType.HOT);
         }
 
-        // Shot Price
-        lblShotNote.setText("+ " + (int) d.shotPrice + "฿ / 1 Shot");
-        extraShots = Math.max(0, Math.min(3, ui.getExtraShots() == 0 ? 0 : ui.getExtraShots()));
-        ui.setExtraShots(extraShots);
-        lblShotCount.setText(String.valueOf(extraShots));
-
-        // Reset elections
         toppingButtons.forEach(b -> b.setSelected(false));
         sweetnessGroup.clearSelection();
         sweetnessButtons.forEach(b -> b.setSelected(false));
@@ -389,21 +335,20 @@ public class CoffeeAddonPanel extends JPanel {
         double base = iced ? d.icedPrice : d.hotPrice;
 
         PricingService ps = ui.getPricingService();
+        String sizeCode = SIZE_CODES[selectedSize];
 
-        // Toppings list
+        // Toppings List
         java.util.List<String> tops = new java.util.ArrayList<>();
         for (AbstractButton b : toppingButtons) {
             if (b.isSelected() && b.getActionCommand() != null)
                 tops.add(b.getActionCommand());
         }
 
-        int shots = Math.max(0, ui.getExtraShots());
-
         // Total Cal
         StrategyPattern.PricingContext ctx = new StrategyPattern.PricingContext(ui.getCurrentUser(),
                 ui.getCurrentPoints());
         StrategyPattern.DiscountStrategy st = new StrategyPattern.DefaultPricingStrategy();
-        int total = ps.calcCoffeeTotal(base, shots, d.shotPrice, tops, st, ctx);
+        int total = ps.calcTeaTotal(base, sizeCode, tops, st, ctx);
 
         if (lblTotal != null) {
             lblTotal.setText("Total : " + total + "฿");
@@ -411,7 +356,6 @@ public class CoffeeAddonPanel extends JPanel {
             if (ready != totalSolid)
                 rebuildTotalButton(ready);
         }
-
     }
 
     private boolean isSweetSelected() {
@@ -428,7 +372,7 @@ public class CoffeeAddonPanel extends JPanel {
                 JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
         if (ans != JOptionPane.YES_OPTION) {
             resetSelections();
-            ui.show("COFFEE_MENU");
+            ui.show("TEA_MENU");
             return;
         }
 
@@ -437,23 +381,23 @@ public class CoffeeAddonPanel extends JPanel {
             return;
 
         MaeveCoffeeUI.OrderSummary o = new MaeveCoffeeUI.OrderSummary();
-        o.username = (ui.getCurrentUser() == null ? "GUEST" : ui.getCurrentUser());
+        o.username = ui.getCurrentUser();
         o.pointsBefore = ui.getCurrentPoints();
         o.date = java.time.LocalDate.now();
         o.time = java.time.LocalTime.now();
 
-        MaeveCoffeeUI.DrinkType t = ui.getSelectedType();
-        boolean icedOk = (t != null && t == MaeveCoffeeUI.DrinkType.ICED && d.icedAvailable);
+        boolean icedOk = (ui.getSelectedType() == MaeveCoffeeUI.DrinkType.ICED && d.icedAvailable);
         int base = (int) Math.round(icedOk ? d.icedPrice : d.hotPrice);
         o.items.add(new MaeveCoffeeUI.OrderItem(d.name + (icedOk ? " (Iced)" : " (Hot)"), 1, base));
 
-        int shots = ui.getExtraShots();
-        if (shots > 0) {
-            o.items.add(new MaeveCoffeeUI.OrderItem(shots + " Extra shot(+" + (int) d.shotPrice + "฿)", 1,
-                    (int) Math.round(shots * d.shotPrice)));
+        PricingService ps = ui.getPricingService();
+        String sizeCode = SIZE_CODES[selectedSize];
+        int sizePrice = ps.toInt(ps.getSizePrice(sizeCode));
+        if (sizePrice > 0) {
+            String sizeLabel = (selectedSize == 0 ? "Size S" : selectedSize == 1 ? "Size M" : "Size L");
+            o.items.add(new MaeveCoffeeUI.OrderItem(sizeLabel, 1, sizePrice));
         }
 
-        PricingService ps = ui.getPricingService();
         for (AbstractButton b : toppingButtons) {
             if (b.isSelected()) {
                 String code = b.getActionCommand();
@@ -466,7 +410,7 @@ public class CoffeeAddonPanel extends JPanel {
         }
 
         o.pointsEarned = "GUEST".equalsIgnoreCase(o.username) ? 0 : 0;
-        if (o.pointsEarned > 0) {
+         if (o.pointsEarned > 0) {
             ui.addPoints(o.pointsEarned);
         }
 
@@ -479,9 +423,7 @@ public class CoffeeAddonPanel extends JPanel {
         sweetnessGroup.clearSelection();
         sweetnessButtons.forEach(b -> b.setSelected(false));
         typeGroup.clearSelection();
-        ui.setExtraShots(0);
-        extraShots = 0;
-        lblShotCount.setText("0");
+        selectedSize = 1;
         rebuildTotalButton(false);
         recalcTotal();
     }
@@ -490,11 +432,14 @@ public class CoffeeAddonPanel extends JPanel {
         if (totalWrap == null)
             return;
         String text = (lblTotal != null) ? lblTotal.getText() : "Total : 0฿";
+
         totalWrap.removeAll();
         totalSolid = solid;
+
         JButton newBtn = solid ? Ui.makePrimaryButton(text, 10, 56) : Ui.makeLightCapsuleButton(text, 10, 56);
         newBtn.setFont(newBtn.getFont().deriveFont(Font.BOLD, 18f));
         newBtn.addActionListener(e -> handleTotalClick());
+
         lblTotal = newBtn;
         totalWrap.add(lblTotal);
         totalWrap.revalidate();
@@ -502,66 +447,57 @@ public class CoffeeAddonPanel extends JPanel {
     }
 
     // ===== UI HELPER =====
-    private JButton createStepButton(String text, boolean roundLeft, boolean roundRight, int w, int h) {
-        JButton b = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                int ww = getWidth(), hh = getHeight(), r = Ui.ARC;
-                Shape shape = makeSideRoundedRect(0, 0, ww - 1, hh - 1, r, roundLeft, roundRight);
-                g2.setColor(Ui.BROWN);
-                g2.fill(shape);
-                g2.setColor(Ui.WHITE);
-                FontMetrics fm = g2.getFontMetrics(getFont());
-                g2.drawString(getText(), (ww - fm.stringWidth(getText())) / 2,
-                        (hh - fm.getHeight()) / 2 + fm.getAscent());
-                g2.dispose();
-            }
-        };
+    private static Icon scaleIcon(String path, int w, int h) {
+        ImageIcon raw = new ImageIcon(path);
+        Image img = raw.getImage().getScaledInstance(w, h, Image.SCALE_SMOOTH);
+        return new ImageIcon(img);
+    }
 
-        b.setPreferredSize(new Dimension(w, h));
-        b.setFocusPainted(false);
-        b.setBorderPainted(false);
+    private JToggleButton makeSizeIcon(String imgPath, int w, int h, int wSel, int hSel) {
+        JToggleButton b = new JToggleButton();
+        ImageIcon normal = (ImageIcon) scaleIcon(imgPath, w, h);
+        ImageIcon larger = (ImageIcon) scaleIcon(imgPath, wSel, hSel);
+        b.setIcon(normal);
+        b.setSelectedIcon(larger);
+        b.setRolloverIcon(larger);
+        b.setRolloverSelectedIcon(larger);
+        b.setPressedIcon(larger);
+        b.setText("");
         b.setContentAreaFilled(false);
+        b.setBorderPainted(false);
+        b.setFocusPainted(false);
         b.setOpaque(false);
-        b.setBorder(BorderFactory.createEmptyBorder());
-        b.setFont(new Font("SansSerif", Font.BOLD, 16));
+        b.setHorizontalAlignment(SwingConstants.CENTER);
+        b.setVerticalAlignment(SwingConstants.BOTTOM);
+        b.setPreferredSize(new Dimension(wSel + 16, hSel + 16));
+        b.setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 6));
         b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         return b;
     }
 
-    private Shape makeSideRoundedRect(int x, int y, int w, int h, int r, boolean left, boolean right) {
-        Path2D.Double p = new Path2D.Double();
-        if (left)
-            p.moveTo(x + r, y);
-        else
-            p.moveTo(x, y);
-        if (right) {
-            p.lineTo(x + w - r, y);
-            p.quadTo(x + w, y, x + w, y + r);
-        } else {
-            p.lineTo(x + w, y);
-        }
-        if (right) {
-            p.lineTo(x + w, y + h - r);
-            p.quadTo(x + w, y + h, x + w - r, y + h);
-        } else {
-            p.lineTo(x + w, y + h);
-        }
-        if (left) {
-            p.lineTo(x + r, y + h);
-            p.quadTo(x, y + h, x, y + h - r);
-        } else {
-            p.lineTo(x, y + h);
-        }
-        if (left) {
-            p.lineTo(x, y + r);
-            p.quadTo(x, y, x + r, y);
-        } else {
-            p.lineTo(x, y);
-        }
-        p.closePath();
-        return p;
+    private JComponent wrapBottom(AbstractButton inner, int w, int h) {
+        JPanel box = new JPanel(new BorderLayout());
+        box.setOpaque(false);
+        box.setPreferredSize(new Dimension(w, h));
+        box.add(inner, BorderLayout.SOUTH);
+        box.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        box.setFocusable(false);
+        box.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                inner.dispatchEvent(SwingUtilities.convertMouseEvent(box, e, inner));
+            }
+
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                inner.dispatchEvent(SwingUtilities.convertMouseEvent(box, e, inner));
+            }
+
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                inner.dispatchEvent(SwingUtilities.convertMouseEvent(box, e, inner));
+            }
+        });
+        return box;
     }
 }

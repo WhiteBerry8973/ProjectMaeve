@@ -409,7 +409,7 @@ public class TeaAddonPanel extends JPanel {
             }
         }
 
-        o.pointsEarned = "GUEST".equalsIgnoreCase(o.username) ? 0 : 1;
+        o.pointsEarned = "GUEST".equalsIgnoreCase(o.username) ? 0 : 0;
          if (o.pointsEarned > 0) {
             ui.addPoints(o.pointsEarned);
         }

@@ -1,10 +1,12 @@
 package Gui.UserGui;
 
-import Gui.MainGui.*;
-import Lib.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.*;
 import java.awt.*;
+
+import Gui.MainGui.*;
+import Lib.*;
 
 public class SignupPanel extends JPanel {
     private final MaeveCoffeeUI ui;
@@ -27,7 +29,7 @@ public class SignupPanel extends JPanel {
         JPanel header = new JPanel(new BorderLayout());
         header.setOpaque(false);
         header.setBorder(new EmptyBorder(16, 20, 10, 20));
-        
+
         JLabel title = new JLabel("SIGN UP", SwingConstants.CENTER);
         title.setFont(new Font("SansSerif", Font.BOLD, 40));
         title.setForeground(Ui.BROWN);
@@ -74,6 +76,9 @@ public class SignupPanel extends JPanel {
         gbc.gridy = row++;
         gbc.insets = new Insets(0, 20, fieldToNextLabelGap, 20);
         usernameField = makeTextField();
+        // พิมพ์ได้ ≤16 และเฉพาะ A–Z a–z 0–9
+        ((AbstractDocument) usernameField.getDocument())
+                .setDocumentFilter(new SimpleFilter(16, "[A-Za-z0-9]*"));
         mainPanel.add(usernameField, gbc);
 
         // Password
@@ -84,6 +89,9 @@ public class SignupPanel extends JPanel {
         gbc.gridy = row++;
         gbc.insets = new Insets(0, 20, fieldToNextLabelGap, 20);
         passwordField = makePasswordField();
+        // พิมพ์ได้ ≤8 และเฉพาะ A–Z a–z 0–9 _ - / .
+        ((AbstractDocument) passwordField.getDocument())
+                .setDocumentFilter(new SimpleFilter(8, "[A-Za-z0-9_\\-/.]*"));
         mainPanel.add(makePasswordPanel(passwordField, true), gbc);
 
         // Confirm Password
@@ -94,15 +102,20 @@ public class SignupPanel extends JPanel {
         gbc.gridy = row++;
         gbc.insets = new Insets(0, 20, 0, 20);
         confirmPasswordField = makePasswordField();
+        // กติกาเหมือน password
+        ((AbstractDocument) confirmPasswordField.getDocument())
+                .setDocumentFilter(new SimpleFilter(8, "[A-Za-z0-9_\\-/.]*"));
         mainPanel.add(makePasswordPanel(confirmPasswordField, false), gbc);
 
         // Button Panel
         JButton SignInBtn = Ui.makePrimaryButton("SIGN UP", 130, 45);
         SignInBtn.addActionListener(e -> attemptSignup());
+        // กด Enter บน confirm = สมัคร
+        confirmPasswordField.addActionListener(e -> attemptSignup());
         gbc.gridy = row++;
         gbc.insets = new Insets(40, 20, 0, 20);
         mainPanel.add(SignInBtn, gbc);
-        
+
         add(mainPanel, BorderLayout.CENTER);
 
         // Footer
@@ -124,7 +137,6 @@ public class SignupPanel extends JPanel {
             }
         });
         mainPanel.add(haveAccountLbl, gbc);
-
     }
 
     // ===== HELPER =====
@@ -187,15 +199,75 @@ public class SignupPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Please fill all fields");
             return;
         }
+
+        // User
+        if (user.length() > 16) {
+            JOptionPane.showMessageDialog(this, "Username must be at most 16 characters.");
+            return;
+        }
+        if (!user.matches("[A-Za-z0-9]+")) {
+            JOptionPane.showMessageDialog(this, "Username allows only letters and digits (A-Z, a-z, 0-9).");
+            return;
+        }
+
+        // Pass
+        if (pass.length() > 8) {
+            JOptionPane.showMessageDialog(this, "Password must be at most 8 characters.");
+            return;
+        }
+        if (!pass.matches("[A-Za-z0-9_\\-/.]+")) {
+            JOptionPane.showMessageDialog(this, "Password allows letters/digits and only _ - / .");
+            return;
+        }
+
         if (!pass.equals(confirm)) {
             JOptionPane.showMessageDialog(this, "Passwords do not match");
             return;
         }
 
         User store = ui.getUser();
+
+        try {
+            if (store.hasUser(user)) {
+                JOptionPane.showMessageDialog(this, "This username is already taken.");
+                return;
+            }
+        } catch (Throwable ignored) {
+        }
+
         store.upsertUser(user, pass, 0);
         ui.setCurrentUser(user, 0);
         JOptionPane.showMessageDialog(this, "Signup successful for " + user);
         ui.show("COFFEE_MENU");
+    }
+
+    static class SimpleFilter extends DocumentFilter {
+        private final int max;
+        private final String regex;
+
+        SimpleFilter(int max, String regex) {
+            this.max = max;
+            this.regex = regex;
+        }
+
+        @Override public void insertString(FilterBypass fb, int off, String s, AttributeSet a)
+                throws BadLocationException {
+            if (s == null) return;
+            String cur = fb.getDocument().getText(0, fb.getDocument().getLength());
+            String cand = new StringBuilder(cur).insert(off, s).toString();
+            if (cand.length() <= max && cand.matches(regex)) {
+                super.insertString(fb, off, s, a);
+            }
+        }
+
+        @Override public void replace(FilterBypass fb, int off, int len, String s, AttributeSet a)
+                throws BadLocationException {
+            String cur = fb.getDocument().getText(0, fb.getDocument().getLength());
+            StringBuilder sb = new StringBuilder(cur).replace(off, off + len, s == null ? "" : s);
+            String cand = sb.toString();
+            if (cand.length() <= max && cand.matches(regex)) {
+                super.replace(fb, off, len, s, a);
+            }
+        }
     }
 }

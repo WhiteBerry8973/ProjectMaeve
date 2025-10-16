@@ -15,9 +15,7 @@ import Gui.CoffeeGui.*;
 import Gui.MainGui.MenuCatalogPanel.Catalog;
 import Gui.TeaGui.*;
 import Gui.UserGui.*;
-import StrategyPattern.*;
 import Lib.*;
-import StrategyPattern.DefaultPricingStrategy;
 import Gui.AdminGui.*;
 
 public class MaeveCoffeeUI {
@@ -26,15 +24,9 @@ public class MaeveCoffeeUI {
         SwingUtilities.invokeLater(this::createAndShowGUI);
     }
 
-    private boolean adminEnabled = true;
-
-    public boolean isAdminEnabled() {
-        return adminEnabled;
-    }
-
-    public void setAdminEnabled(boolean enabled) {
-        this.adminEnabled = enabled;
-    }
+    public MenuCatalogPanel coffeePanel;
+    public MenuCatalogPanel teaPanel;
+    public MenuCatalogPanel sodaPanel;
 
     private JFrame frame;
     private CardLayout cardLayout;
@@ -42,13 +34,13 @@ public class MaeveCoffeeUI {
 
     private static final String CSV_COFFEE = "files/coffee_menus.csv";
     private static final String CSV_TEA = "files/tea_menus.csv";
-    private static final String CSV_MILK = "files/milk_menus.csv";
+    private static final String CSV_SODA = "files/soda_menus.csv";
 
     private PricingService pricingService = new PricingService("files/size.csv", "files/topping.csv");
 
     private List<MenuDrink> coffeeMenu = new ArrayList<>();
     private List<MenuDrink> teaMenu = new ArrayList<>();
-    private List<MenuDrink> milkMenu = new ArrayList<>();
+    private List<MenuDrink> sodaMenu = new ArrayList<>();
 
     // ===== SHARED STATE =====
     public static class MenuDrink {
@@ -84,11 +76,12 @@ public class MaeveCoffeeUI {
     // ===== USER =====
     private final User user = new User("files/users.csv");
     private String currentUser;
+    private int currentPoints = 0;
 
     public MaeveCoffeeUI() {
         coffeeMenu = loadMenuFromCSV(CSV_COFFEE);
         teaMenu = loadMenuFromCSV(CSV_TEA);
-        milkMenu = loadMenuFromCSV(CSV_MILK);
+        sodaMenu = loadMenuFromCSV(CSV_SODA);
     }
 
     // ===== PAGES =====
@@ -106,13 +99,16 @@ public class MaeveCoffeeUI {
         cards.add(new SigninPanel(this), "SIGNIN");
         cards.add(new AdminLoginPanel(this), "ADMIN_LOGIN");
         cards.add(new AdminCatalogPanel(this), "ADMIN_CATALOG");
-        cards.add(new MenuCatalogPanel(this, MenuCatalogPanel.Catalog.COFFEE), "COFFEE_MENU");
-        cards.add(new MenuCatalogPanel(this, MenuCatalogPanel.Catalog.TEA), "TEA_MENU");
-        cards.add(new MenuCatalogPanel(this, MenuCatalogPanel.Catalog.MILK), "MILK_MENU");
+
+        coffeePanel = new MenuCatalogPanel(this, MenuCatalogPanel.Catalog.COFFEE);
+        teaPanel = new MenuCatalogPanel(this, MenuCatalogPanel.Catalog.TEA);
+        sodaPanel = new MenuCatalogPanel(this, MenuCatalogPanel.Catalog.SODA);
+        cards.add(coffeePanel, MenuCatalogPanel.COFFEE);
+        cards.add(teaPanel, MenuCatalogPanel.TEA);
+        cards.add(sodaPanel, MenuCatalogPanel.SODA);
 
         cards.add(new CoffeeAddonPanel(this), MenuCatalogPanel.COFFEE_ADDON);
         cards.add(new TeaAddonPanel(this), MenuCatalogPanel.TEA_ADDON);
-
         cards.add(new ReceiptDialog(this), "BILL");
         cards.add(new SummaryPanel(this), "SUMMARY");
 
@@ -120,7 +116,7 @@ public class MaeveCoffeeUI {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
-        show("PROFILE");
+        show("HOME_PAGE");
     }
 
     // ===== ORDER ITEM =====
@@ -163,8 +159,8 @@ public class MaeveCoffeeUI {
                 return CSV_COFFEE;
             case TEA:
                 return CSV_TEA;
-            case MILK:
-                return CSV_MILK;
+            case SODA:
+                return CSV_SODA;
             default:
                 return null;
         }
@@ -295,8 +291,16 @@ public class MaeveCoffeeUI {
         return isSignedIn() ? user.getPoints(currentUser) : 0;
     }
 
-    public void setCurrentUser(String username, int initialPointsIfNew) {
-        this.currentUser = username;
+    public void setCurrentUser(String name, int points) {
+        this.currentUser = name;
+        this.currentPoints = points;
+
+        if (coffeePanel != null)
+            coffeePanel.updateHeaderUser();
+        if (teaPanel != null)
+            teaPanel.updateHeaderUser();
+        if (sodaPanel != null)
+            sodaPanel.updateHeaderUser();
     }
 
     public void addPoints(int delta) {
@@ -320,8 +324,8 @@ public class MaeveCoffeeUI {
         switch (cat) {
             case TEA:
                 return teaMenu;
-            case MILK:
-                return milkMenu;
+            case SODA:
+                return sodaMenu;
             case COFFEE:
             default:
                 return coffeeMenu;
