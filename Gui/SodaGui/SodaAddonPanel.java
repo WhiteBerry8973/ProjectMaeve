@@ -13,8 +13,8 @@ import Gui.CustomGui.*;
 public class SodaAddonPanel extends JPanel {
 
     private static final String IMG_TOPPING1 = "Imgs/toppings/black_pearl.png";
-    private static final String IMG_TOPPING2 = "Imgs/toppings/konjac_pearl.png";
-    private static final String IMG_TOPPING3 = "Imgs/toppings/golden_pearl.png";
+    private static final String IMG_TOPPING2 = "Imgs/toppings/Grassroots.png";
+    private static final String IMG_TOPPING3 = "Imgs/toppings/Green_Coconut_Jelly.png";
 
     private static final String[] SIZE_CODES = { "S001", "S002", "S003" };
 
@@ -214,8 +214,8 @@ public class SodaAddonPanel extends JPanel {
         JToggleButton t2 = Ui.makeToppingToggle(IMG_TOPPING2, 140, 10, Ui.Orientation.TOP_BOTTOM);
         JToggleButton t3 = Ui.makeToppingToggle(IMG_TOPPING3, 140, 10, Ui.Orientation.TOP_BOTTOM);
         t1.setActionCommand("Black Pearl");
-        t2.setActionCommand("Konjac Pearl");
-        t3.setActionCommand("Golden Pearl");
+        t2.setActionCommand("Grassroots");
+        t3.setActionCommand("GreenCoconut Jelly");
 
         toppingButtons.clear();
         toppingButtons.add(t1);
