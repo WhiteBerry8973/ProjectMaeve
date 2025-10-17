@@ -261,7 +261,7 @@ public class SummaryPanel extends JPanel {
             loyalty.redeemPointsIfAny(usedPts);
         }
 
-        int earned = pointEarnStrategy.computeEarnedPoints(net);
+        int earned = pointEarnStrategy.computeEarnedPoints(subtotal);
         loyalty.grantIfEligible(o, earned);
 
         ui.showBillDialog(this);
